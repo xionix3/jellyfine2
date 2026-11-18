@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+dist/
+skin-previews/
+tests/keymap.xml
+.ipkwork/

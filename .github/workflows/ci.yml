@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint & syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyflakes
+      - name: pyflakes
+        run: python -m pyflakes src/JellyfinE2 scripts tests/*.py
+      - name: Python 3.6+ syntax / compile check
+        run: python scripts/check_syntax.py
+      - name: Tabs only (Enigma2 code style)
+        run: |
+          if grep -nP '^\t* +\S' src/JellyfinE2/*.py; then
+            echo "::error::space indentation found"; exit 1
+          fi
+
+  test:
+    name: "Tests (py ${{ matrix.python }}, OpenPLi ${{ matrix.openpli }}, Jellyfin ${{ matrix.jellyfin }}, ${{ matrix.height }}p)"
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { python: "3.9",  openpli: "release-9.0", jellyfin: "10.8.13",  height: 1080 }
+          - { python: "3.11", openpli: "release-9.0", jellyfin: "10.10.7",  height: 1080 }
+          - { python: "3.12", openpli: "release-9.2", jellyfin: "10.10.7",  height: 1080 }
+          - { python: "3.12", openpli: "release-9.2", jellyfin: "10.10.7",  height: 720 }
+          - { python: "3.13", openpli: "release-9.2", jellyfin: "10.11.2",  height: 1080 }
+    env:
+      E2_KEYMAP: ${{ github.workspace }}/tests/keymap.xml
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install pillow
+      - name: Fetch OpenPLi keymap (${{ matrix.openpli }})
+        run: curl -fsSL "https://raw.githubusercontent.com/OpenPLi/enigma2/${{ matrix.openpli }}/data/keymap.xml" -o tests/keymap.xml
+      - name: Rule engine
+        run: python tests/test_rules.py
+      - name: End-to-end UI flow against fake Jellyfin server
+        run: python tests/test_flow.py ${{ matrix.jellyfin }} ${{ matrix.height }}
+
+  build:
+    name: Build IPK
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check tag matches plugin version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          v=$(sed -n 's/^CLIENT_VERSION = "\(.*\)"/\1/p' src/JellyfinE2/jfapi.py)
+          if [ "v$v" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::tag ${GITHUB_REF_NAME} does not match CLIENT_VERSION $v"; exit 1
+          fi
+      - name: Build
+        run: |
+          export SOURCE_DATE_EPOCH=$(git log -1 --format=%ct)
+          python scripts/build_ipk.py dist
+      - name: Verify package
+        run: |
+          ipk=$(ls dist/*.ipk)
+          ar t "$ipk" | tr '\n' ' ' | grep -q '^debian-binary control.tar.gz data.tar.gz' || { echo "::error::wrong ar member order"; exit 1; }
+          dpkg-deb -I "$ipk"
+          dpkg-deb -c "$ipk"
+          dpkg-deb -c "$ipk" | grep -q './usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2/plugin.py'
+          mkdir -p /tmp/root && dpkg-deb -x "$ipk" /tmp/root
+          python -m py_compile /tmp/root/usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2/*.py
+          sha256sum "$ipk" | tee dist/SHA256SUMS
+      - name: Skin previews
+        run: |
+          pip install pillow
+          python tests/render_skins.py skin-previews
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipk
+          path: dist/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: skin-previews
+          path: skin-previews/
+
+  release:
+    name: GitHub Release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: ipk
+          path: dist
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes=$(awk -v v="${GITHUB_REF_NAME#v}" '$0 ~ "^## \\[?"v {f=1; next} /^## / && f {exit} f' CHANGELOG.md)
+          gh release create "${GITHUB_REF_NAME}" dist/*.ipk dist/SHA256SUMS \
+            --title "Jellyfin für Enigma2 ${GITHUB_REF_NAME}" \
+            --notes "${notes:-Siehe CHANGELOG.md}"
