@@ -31,6 +31,12 @@ check(len(run_rule(cl, r)) == 10, "random 10")
 check(load_rules("") == DEFAULT_RULES and load_rules("kaputt") == DEFAULT_RULES, "defaults on empty/broken config")
 check(load_rules(dump_rules(DEFAULT_RULES)) == DEFAULT_RULES, "roundtrip")
 print(rule_summary(DEFAULT_RULES[1]))
+# secrets never reach the log
+from JellyfinE2.jflog import redact
+check(redact("m.m3u8?DeviceId=d&ApiKey=abc123") == "m.m3u8?DeviceId=d&ApiKey=***" and redact('Token="abc"') == 'Token="***"'
+    and redact("x?api_key=abc&static=true") == "x?api_key=***&static=true" and redact('"Pw": "geheim"') == '"Pw": "***"', "redaction")
+from JellyfinE2.jfapi import JellyfinError
+check("abc123" not in str(JellyfinError("Nicht gefunden (404): /x?api_key=abc123")), "error messages redacted")
 # search ranking: exact/prefix title matches first, fuzzy server results last (the "bluey" report)
 from JellyfinE2.jfutil import rank_search, norm_text
 fuzzy = [{"Id": "1", "Name": "Blue Planet", "Type": "Movie"}, {"Id": "2", "Name": "Die wilden Kerle", "Type": "Movie"},

@@ -18,6 +18,7 @@ from .jfasync import runner
 from .jfimages import image_ref, loader
 from .jfskin import S
 from .jfutil import display_title, is_new, is_played, played_percentage, unplayed_count
+from .jflog import log
 
 
 def load_pixmap(path):
@@ -26,7 +27,7 @@ def load_pixmap(path):
 	try:
 		return LoadPixmap(path)
 	except Exception as e:
-		print("[Jellyfin] LoadPixmap failed for %s: %s" % (path, e))
+		log("LoadPixmap failed for %s: %s" % (path, e))
 		return None
 
 

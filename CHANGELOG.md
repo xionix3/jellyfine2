@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.1] - 2026-11-18
+
+- Security: access tokens and passwords no longer appear in the plugin's log lines or error messages (the play line printed the `ApiKey` of transcoded streams - users post these lines in bug reports)
+- Bug report template warns to remove tokens from logs (Enigma2/GStreamer log the stream address themselves)
+- `SECURITY.md` with private vulnerability reporting; Dependabot keeps the CI actions up to date
+
 ## [1.3.0] - 2026-11-18
 
 - **Movies, shows and every library look like the start screen**: rows for continue watching, recently added, new releases, best rated unwatched, favourites, every genre (or every folder) and A-Z; up/down jumps through them instead of a sub menu. Red shows all titles of a row as a grid

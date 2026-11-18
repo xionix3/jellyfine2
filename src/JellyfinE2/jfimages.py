@@ -16,6 +16,7 @@ except ImportError:  # pragma: no cover
 	_md5 = None
 
 from .jfasync import runner
+from .jflog import log
 
 
 def cache_location():
@@ -224,7 +225,7 @@ class Decoder(object):
 			try:
 				failed = pl.startDecode(path, w, h, True)
 			except Exception as e:
-				print("[Jellyfin] decode failed for %s: %s" % (path, e))
+				log("decode failed for %s: %s" % (path, e))
 				failed = True
 			if failed:
 				self.busy.pop(id(pl), None)
@@ -237,7 +238,7 @@ class Decoder(object):
 		try:
 			ptr = pl.getData()
 		except Exception as e:
-			print("[Jellyfin] getData failed: %s" % e)
+			log("getData failed: %s" % e)
 		self.idle.append(pl)
 		if key is not None:
 			self._deliver(key, ptr)
@@ -248,7 +249,7 @@ class Decoder(object):
 			try:
 				cb(ptr)
 			except Exception as e:
-				print("[Jellyfin] picture callback failed: %s" % e)
+				log("picture callback failed: %s" % e)
 
 
 _pixcache = PixCache()
@@ -340,7 +341,7 @@ class ImageLoader(object):
 			try:
 				cb(path)
 			except Exception as e:
-				print("[Jellyfin] image callback failed: %s" % e)
+				log("image callback failed: %s" % e)
 
 	# ------------------------------------------------------------- decoded pictures
 	def pixmap(self, ref, w, h, callback=None, urgent=True):

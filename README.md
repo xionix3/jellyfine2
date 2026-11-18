@@ -179,7 +179,7 @@ Gesucht wird im Titel. Jede Kategorie wird einzeln abgefragt, zusätzlich nach T
 <details>
 <summary><b>Fehler melden</b></summary>
 
-Bitte ein [Issue](https://github.com/xionix3/jellyfine2/issues/new/choose) anlegen und die Zeilen mit `[Jellyfin]` aus dem Enigma2-Debug-Log anhängen (*Menü → Einstellungen → System → Logs*), dazu Box, Image-Version und Jellyfin-Version.
+Bitte ein [Issue](https://github.com/xionix3/jellyfine2/issues/new/choose) anlegen und die Zeilen mit `[Jellyfin]` aus dem Enigma2-Debug-Log anhängen (*Menü → Einstellungen → System → Logs*), dazu Box, Image-Version und Jellyfin-Version. Vorher alles nach `api_key=`, `ApiKey=` oder `Token=` unkenntlich machen – Enigma2 selbst schreibt die Stream-Adresse ins Log. **Sicherheitslücken** bitte nicht öffentlich, sondern wie in [SECURITY.md](SECURITY.md) beschrieben melden.
 </details>
 
 ## 🧩 Kompatibilität

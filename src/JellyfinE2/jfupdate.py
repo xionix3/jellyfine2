@@ -10,6 +10,7 @@ import re
 import time
 
 from .jfapi import CLIENT_VERSION
+from .jflog import log
 
 REPO = "xionix3/jellyfine2"
 API_URL = "https://api.github.com/repos/%s/releases/latest" % REPO
@@ -159,7 +160,7 @@ class Updater(object):
 			if manual:
 				self.screen.show_error(err, "Update-Prüfung fehlgeschlagen")
 			else:
-				print("[Jellyfin] update check failed: %s" % err)
+				log("update check failed: %s" % err)
 		self.screen.run(check, callback=ok, errback=fail, pool="bg", status="Suche nach Updates ..." if manual else None)
 
 	def offer(self, info):

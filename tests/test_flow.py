@@ -23,6 +23,23 @@ from JellyfinE2.jfimages import image_ref  # noqa: E402
 from Components import Console as console_stub  # noqa: E402
 from Screens import Standby as standby_stub  # noqa: E402
 
+class _Tee(object):
+	"""Keeps the plugin's log lines to check that no access token ends up in a log users may post."""
+	def __init__(self, out):
+		self.out = out
+		self.text = []
+
+	def write(self, data):
+		self.text.append(data)
+		return self.out.write(data)
+
+	def flush(self):
+		self.out.flush()
+
+
+LOG = _Tee(sys.stdout)
+sys.stdout = LOG
+
 # the classic layout is tested first, the modern (hero) start screen further below
 jfconfig.set_value("home_layout", "classic")
 jfconfig.set_value("update_check", "0")
@@ -724,6 +741,9 @@ if parse_version(VERSION) >= (10, 9, 0):
 else:
 	check(old_routes and not new_routes, "old routes only")
 missing = [r for r in state.requests if r[1] not in ("/System/Info/Public",) and r[0] != "GET" or False]
+plugin_log = [ln for ln in "".join(LOG.text).splitlines() if ln.startswith("[Jellyfin]")]
+check(any("ApiKey=***" in ln for ln in plugin_log) and not any("tok123" in ln for ln in plugin_log),
+	"no access token in the log (%d plugin lines)" % len(plugin_log))
 noauth = [r for r in state.requests if 'Client="Jellyfin Enigma2"' not in r[4].get("Authorization", "") and not r[1].startswith("/gh/")]
 check(not noauth, "every request carries the MediaBrowser auth header")
 check(len(state.connections) < 40 and len(state.requests) > 150, "keep-alive: %d requests over %d connections" % (len(state.requests), len(state.connections)))

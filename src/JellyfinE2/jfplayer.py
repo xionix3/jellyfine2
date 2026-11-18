@@ -16,6 +16,7 @@ from .jfapi import make_play_report
 from .jfasync import runner
 from .jfutil import (clean_text, display_title, episode_code, fmt_clock, is_played, media_streams, resume_ticks,
 	stream_label, ticks_to_seconds, video_label)
+from .jflog import log
 
 PTS_PER_SECOND = 90000
 REPORT_INTERVAL_MS = 10000
@@ -136,7 +137,7 @@ def start_playback(screen, queue, idx, start_ticks=0, on_finished=None, audio_in
 		return stream
 
 	def ok(stream):
-		print("[Jellyfin] play %s via %s: %s" % (item.get("Name"), stream.get("play_method"), stream["url"].split("api_key")[0]))
+		log("play %s via %s: %s" % (item.get("Name"), stream.get("play_method"), stream["url"]))
 		screen.session.openWithCallback(on_finished or (lambda *a: None), JellyfinPlayer, cl, queue, idx, stream,
 			start_ticks, audio_index, sub_index)
 
@@ -279,11 +280,11 @@ class JellyfinPlayer(MoviePlayer):
 		if ready or (seek is not None and self.resume_tries >= 40):
 			self.resume_timer.stop()
 			target = ticks_to_pts(self.start_ticks)
-			print("[Jellyfin] resume at %ss" % ticks_to_seconds(self.start_ticks))
+			log("resume at %ss" % ticks_to_seconds(self.start_ticks))
 			try:
 				seek.seekTo(target)
 			except Exception as e:
-				print("[Jellyfin] resume failed: %s" % e)
+				log("resume failed: %s" % e)
 			self.last_ticks = self.start_ticks
 			self.start_ticks = 0
 		elif self.resume_tries >= 60:
@@ -314,7 +315,7 @@ class JellyfinPlayer(MoviePlayer):
 				elif n == 0:
 					done = False
 			except Exception as e:
-				print("[Jellyfin] audio track select failed: %s" % e)
+				log("audio track select failed: %s" % e)
 		if service and self.sub_index is not None and self.sub_index >= 0:
 			pos = self.stream_position("Subtitle", self.sub_index)
 			try:
@@ -325,7 +326,7 @@ class JellyfinPlayer(MoviePlayer):
 				elif not lst:
 					done = False
 			except Exception as e:
-				print("[Jellyfin] subtitle select failed: %s" % e)
+				log("subtitle select failed: %s" % e)
 		if done or self.track_tries >= 6:
 			self.track_timer.stop()
 

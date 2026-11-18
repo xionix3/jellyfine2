@@ -181,7 +181,7 @@ Er wordt in de titel gezocht. Elke categorie wordt apart opgevraagd, plus titels
 <details>
 <summary><b>Fouten melden</b></summary>
 
-Maak een [issue](https://github.com/xionix3/jellyfine2/issues/new/choose) aan en voeg de regels met `[Jellyfin]` uit het Enigma2-debuglog toe (*Menu → Instellingen → Systeem → Logs*), samen met je box, imageversie en Jellyfin-versie.
+Maak een [issue](https://github.com/xionix3/jellyfine2/issues/new/choose) aan en voeg de regels met `[Jellyfin]` uit het Enigma2-debuglog toe (*Menu → Instellingen → Systeem → Logs*), samen met je box, imageversie en Jellyfin-versie. Maak eerst alles na `api_key=`, `ApiKey=` of `Token=` onleesbaar – Enigma2 schrijft het streamadres zelf in het log. **Beveiligingsproblemen** graag niet openbaar, maar zoals in [SECURITY.md](SECURITY.md) beschreven melden.
 </details>
 
 ## 🧩 Compatibiliteit

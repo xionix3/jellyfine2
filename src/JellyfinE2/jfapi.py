@@ -26,7 +26,7 @@ except ImportError:  # pragma: no cover - python 2 fallback
 	from urlparse import urljoin, urlsplit
 
 CLIENT_NAME = "Jellyfin Enigma2"
-CLIENT_VERSION = "1.3.0"
+CLIENT_VERSION = "1.3.1"
 
 SEARCH_TYPES = "Movie,Series,Episode,BoxSet,MusicAlbum,MusicVideo,Video,MusicArtist,Audio"
 LIST_FIELDS = "Overview,Genres,PrimaryImageAspectRatio,ChildCount,DateCreated,DateLastMediaAdded,MediaSourceCount,SeriesPrimaryImage"
@@ -40,6 +40,8 @@ HIDDEN_COLLECTION_TYPES = ("books", "photos", "livetv", "folders_hidden")
 
 class JellyfinError(Exception):
 	def __init__(self, message, status=None):
+		from .jflog import redact
+		message = redact(message)  # messages end up in dialogs and logs that users share
 		Exception.__init__(self, message)
 		self.message = message
 		self.status = status

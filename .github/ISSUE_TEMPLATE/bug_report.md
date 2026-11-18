@@ -18,7 +18,11 @@ labels: bug
 - Playback mode / player (Settings):
 
 **Log**
-Enable the debug log (Menu → Setup → System → Logs) and paste the lines containing `[Jellyfin]` and any traceback:
+Enable the debug log (Menu → Setup → System → Logs) and paste the lines containing `[Jellyfin]` and any traceback.
+Debug-Log einschalten (Menü → Einstellungen → System → Logs) und die Zeilen mit `[Jellyfin]` samt Traceback einfügen.
+
+> ⚠️ **Before posting / Vor dem Posten:** The plugin hides access tokens in its own lines, but Enigma2/GStreamer log the stream address themselves. Replace anything after `api_key=`, `ApiKey=` or `Token=` and your server address if it is reachable from the internet.
+> Das Plugin blendet Zugangsschlüssel in seinen eigenen Zeilen aus, Enigma2/GStreamer schreiben die Stream-Adresse aber selbst ins Log. Alles nach `api_key=`, `ApiKey=` oder `Token=` und ggf. die aus dem Internet erreichbare Server-Adresse unkenntlich machen.
 
 ```
 ```

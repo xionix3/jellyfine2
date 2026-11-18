@@ -181,7 +181,7 @@ Search matches titles. Every category is queried on its own, plus titles startin
 <details>
 <summary><b>Reporting bugs</b></summary>
 
-Please open an [issue](https://github.com/xionix3/jellyfine2/issues/new/choose) and attach the lines containing `[Jellyfin]` from the Enigma2 debug log (*Menu → Setup → System → Logs*), plus your box, image version and Jellyfin version.
+Please open an [issue](https://github.com/xionix3/jellyfine2/issues/new/choose) and attach the lines containing `[Jellyfin]` from the Enigma2 debug log (*Menu → Setup → System → Logs*), plus your box, image version and Jellyfin version. Remove anything after `api_key=`, `ApiKey=` or `Token=` first – Enigma2 itself logs the stream address. Please report **security issues** privately as described in [SECURITY.md](SECURITY.md).
 </details>
 
 ## 🧩 Compatibility

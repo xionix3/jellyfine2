@@ -4,7 +4,6 @@
 from __future__ import absolute_import
 
 import threading
-import traceback
 
 try:
 	import queue
@@ -12,6 +11,7 @@ except ImportError:  # pragma: no cover
 	import Queue as queue
 
 from enigma import eTimer
+from .jflog import log, log_exception
 
 
 class _Task(object):
@@ -87,7 +87,7 @@ class AsyncRunner(object):
 				self.results.put((task, True, res, False))
 			except Exception as e:  # noqa
 				if not getattr(e, "status", None) and e.__class__.__name__ != "JellyfinError":
-					traceback.print_exc()
+					log_exception("background task")
 				self.results.put((task, False, e, False))
 
 	def _drain(self):
@@ -109,10 +109,9 @@ class AsyncRunner(object):
 				elif task.errback:
 					task.errback(res)
 				else:
-					print("[Jellyfin] background task failed: %s" % res)
+					log("background task failed: %s" % res)
 			except Exception:
-				print("[Jellyfin] error in callback:")
-				traceback.print_exc()
+				log_exception("error in callback")
 		with self.lock:
 			idle = self.pending <= 0
 		if idle and self.results.empty():

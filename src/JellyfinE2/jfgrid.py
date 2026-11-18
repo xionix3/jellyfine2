@@ -18,6 +18,7 @@ from .jfcommon import CoverCells, JFScreen, move_widget, prefetch_posters
 from .jfskin import COVER_H, COVER_W, FRAME_PAD, GRID_COLS, GRID_ROWS, cell_pos, grid_skin
 from .jfutil import (clean_text, display_title, episode_code, fmt_rating, fmt_runtime, is_favorite, is_new, is_played, parse_date,
 	resume_ticks, ticks_to_seconds, fmt_clock)
+from .jflog import log
 
 SORTS = [
 	("SortName", "Ascending", "Name (A-Z)"),
@@ -228,7 +229,7 @@ class GridScreen(JFScreen):
 				try:
 					people = cl.search_people(term)
 				except Exception as e:
-					print("[Jellyfin] person search failed: %s" % e)
+					log("person search failed: %s" % e)
 					people = []
 				items = rank_search(term, cl.search(term) + people)
 				return items, len(items), count_categories(items)
