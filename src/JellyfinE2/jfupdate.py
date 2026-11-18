@@ -88,7 +88,7 @@ def release_notes(body, max_lines=8):
 	for line in body.replace("\r", "").split("\n"):
 		s = line.strip()
 		if s.startswith("- ") or s.startswith("* "):
-			s = re.sub(r"[*_`]", "", s[2:]).strip()
+			s = re.sub(r"\*\*|__|`", "", s[2:]).strip()
 			s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)
 			lines.append("- " + (s if len(s) <= 90 else s[:87] + "..."))
 		if len(lines) >= max_lines:
