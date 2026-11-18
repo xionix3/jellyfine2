@@ -2,7 +2,7 @@
 OPENPLI_BRANCH ?= release-9.2
 JELLYFIN ?= 10.10.7
 
-.PHONY: all lint test ipk previews clean
+.PHONY: all lint test ipk previews screenshots banner clean
 
 all: lint test ipk
 
@@ -23,6 +23,12 @@ ipk:
 
 previews:
 	python3 tests/render_skins.py skin-previews
+
+screenshots: tests/keymap.xml
+	python3 tests/screenshots.py docs/screenshots
+
+banner:
+	python3 scripts/make_banner.py
 
 clean:
 	rm -rf dist skin-previews tests/keymap.xml

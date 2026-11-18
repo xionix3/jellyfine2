@@ -257,7 +257,7 @@ class CoverCells(object):
 		pct = played_percentage(item)
 		played = is_played(item)
 		prog = s[self.n("prog", i)]
-		if 0 < pct < 100 and not played and item.get("Type") not in ("Series", "Season", "BoxSet", "Folder", "CollectionFolder"):
+		if 0 < pct < 100 and not played and not item.get("_jf_new_count") and item.get("Type") not in ("Series", "Season", "BoxSet", "Folder", "CollectionFolder"):
 			prog.setValue(pct)
 			prog.show()
 		else:
@@ -307,10 +307,12 @@ def text_row(data, text, width, height, value=None, value_width=0, x=18, color=N
 	from Components.MultiContent import MultiContentEntryText
 	row = [data]
 	tw = width - x * 2 - (value_width + 10 if value is not None else 0)
-	row.append(MultiContentEntryText(pos=(S(x), 0), size=(S(tw), S(height)), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER, text=text, color=color))
+	sel = 0xffffff  # selected rows have the accent background -> always white text
+	row.append(MultiContentEntryText(pos=(S(x), 0), size=(S(tw), S(height)), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER, text=text,
+		color=color, color_sel=sel if color is not None else None))
 	if value is not None:
-		row.append(MultiContentEntryText(pos=(S(width - x - value_width), 0), size=(S(value_width), S(height)), font=1 if value_color is None else 1,
-			flags=RT_HALIGN_RIGHT | RT_VALIGN_CENTER, text=value, color=value_color))
+		row.append(MultiContentEntryText(pos=(S(width - x - value_width), 0), size=(S(value_width), S(height)), font=1,
+			flags=RT_HALIGN_RIGHT | RT_VALIGN_CENTER, text=value, color=value_color, color_sel=sel if value_color is not None else None))
 	return row
 
 

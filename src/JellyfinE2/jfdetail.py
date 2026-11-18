@@ -400,7 +400,7 @@ class DetailScreen(JFScreen):
 		if len(lst) == 1:
 			self.do(lst[0][1])
 			return
-		self.session.openWithCallback(lambda c: c and self.do(c[1]), ChoiceBox, title="Audio / Untertitel", list=lst)
+		self.session.openWithCallback(lambda c=None: c and self.do(c[1]), ChoiceBox, title="Audio / Untertitel", list=lst)
 
 	def key_red(self):
 		self.toggle_played(self.item, callback=lambda it: self.render())

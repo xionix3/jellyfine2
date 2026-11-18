@@ -132,9 +132,14 @@ class Library(object):
 
 
 class State(object):
-	def __init__(self, version="10.10.3"):
+	def __init__(self, version="10.10.3", demo=False):
 		self.version = version
-		self.lib = Library()
+		self.demo = demo
+		if demo:
+			from demo_data import DemoLibrary
+			self.lib = DemoLibrary(media_source)
+		else:
+			self.lib = Library()
 		self.reports = []
 		self.requests = []
 		self.qc_polls = 0
@@ -201,7 +206,7 @@ class Handler(BaseHTTPRequestHandler):
 		lib = st.lib
 
 		if path == "/System/Info/Public":
-			return self.send_json({"ServerName": "TestServer", "Version": st.version, "Id": "srv1", "LocalAddress": "http://127.0.0.1"})
+			return self.send_json({"ServerName": "Mein Jellyfin" if st.demo else "TestServer", "Version": st.version, "Id": "srv1", "LocalAddress": "http://127.0.0.1"})
 		if path == "/Users/AuthenticateByName" and method == "POST":
 			if body and body.get("Username") == "patrick" and body.get("Pw") == "geheim":
 				return self.send_json({"AccessToken": TOKEN, "User": {"Id": USER_ID, "Name": "patrick"}})
@@ -223,7 +228,7 @@ class Handler(BaseHTTPRequestHandler):
 				return self.send_json({"AccessToken": TOKEN, "User": {"Id": USER_ID, "Name": "patrick"}})
 			return self.send_json({}, 401)
 		if path.startswith("/Items/") and "/Images/" in path:
-			return self.send_image()
+			return self.send_image(path, q)
 
 		if not self.authed():
 			return self.send_json({"error": "unauthorized"}, 401)
@@ -324,12 +329,25 @@ class Handler(BaseHTTPRequestHandler):
 			return self.send_json(it["UserData"])
 		return self.send_json({"error": "no route %s %s" % (method, self.path)}, 404)
 
-	def send_image(self):
+	def send_image(self, path="", q=None):
+		data = JPEG
+		if self.state.demo:
+			from demo_data import artwork
+			parts = path.split("/")
+			item = self.state.lib.items.get(parts[2], {"Id": parts[2]})
+			itype = parts[4] if len(parts) > 4 else "Primary"
+			mw, mh = int((q or {}).get("maxwidth", 400)), int((q or {}).get("maxheight", 600))
+			if itype == "Primary" and item.get("Type") in ("Movie", "Series", "Season", "BoxSet"):
+				w = min(mw, mh * 2 // 3)
+				data = artwork(item, "poster", w, w * 3 // 2)
+			else:
+				w = min(mw, mh * 16 // 9)
+				data = artwork(item, "episode" if item.get("Type") == "Episode" else "backdrop", w, w * 9 // 16)
 		self.send_response(200)
 		self.send_header("Content-Type", "image/jpeg")
-		self.send_header("Content-Length", str(len(JPEG)))
+		self.send_header("Content-Length", str(len(data)))
 		self.end_headers()
-		self.wfile.write(JPEG)
+		self.wfile.write(data)
 
 	def items_query(self, q):
 		lib = self.state.lib
@@ -430,8 +448,8 @@ class Handler(BaseHTTPRequestHandler):
 		return self.send_json({"MediaSources": sources, "PlaySessionId": "ps-%s" % item_id})
 
 
-def start_server(version="10.10.3"):
-	state = State(version)
+def start_server(version="10.10.3", demo=False):
+	state = State(version, demo)
 	handler = type("H", (Handler,), {"state": state})
 	srv = ThreadingHTTPServer(("127.0.0.1", 0), handler)
 	t = threading.Thread(target=srv.serve_forever, daemon=True)

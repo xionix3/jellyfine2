@@ -100,4 +100,4 @@ class SettingsScreen(JFScreen):
 		self["status"].setText("Bild-Cache geleert.")
 
 	def logout(self):
-		self.session.openWithCallback(lambda yes: yes and self.close("logout"), MessageBox, "Abmelden und Anmeldedaten löschen?", MessageBox.TYPE_YESNO, default=False)
+		self.session.openWithCallback(lambda yes=False: yes and self.close("logout"), MessageBox, "Abmelden und Anmeldedaten löschen?", MessageBox.TYPE_YESNO, default=False)

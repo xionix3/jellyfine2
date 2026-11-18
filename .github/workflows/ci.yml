@@ -94,18 +94,23 @@ jobs:
           dpkg-deb -c "$ipk" | grep -q './usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2/plugin.py'
           mkdir -p /tmp/root && dpkg-deb -x "$ipk" /tmp/root
           python -m py_compile /tmp/root/usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2/*.py
-          sha256sum "$ipk" | tee dist/SHA256SUMS
-      - name: Skin previews
+          # stable name for ".../releases/latest/download/..." one-line installs
+          cp "$ipk" dist/enigma2-plugin-extensions-jellyfine2_all.ipk
+          (cd dist && sha256sum *.ipk | tee SHA256SUMS)
+      - name: Screenshots of the real screens (demo data)
+        env:
+          E2_KEYMAP: ${{ github.workspace }}/tests/keymap.xml
         run: |
           pip install pillow
-          python tests/render_skins.py skin-previews
+          curl -fsSL https://raw.githubusercontent.com/OpenPLi/enigma2/release-9.2/data/keymap.xml -o tests/keymap.xml
+          python tests/screenshots.py skin-previews
       - uses: actions/upload-artifact@v4
         with:
           name: ipk
           path: dist/
       - uses: actions/upload-artifact@v4
         with:
-          name: skin-previews
+          name: screenshots
           path: skin-previews/
 
   release:

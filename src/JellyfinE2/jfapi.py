@@ -26,7 +26,7 @@ except ImportError:  # pragma: no cover - python 2 fallback
 	from urlparse import urljoin, urlsplit
 
 CLIENT_NAME = "Jellyfin Enigma2"
-CLIENT_VERSION = "1.1.0"
+CLIENT_VERSION = "1.1.1"
 
 LIST_FIELDS = "Overview,Genres,PrimaryImageAspectRatio,ChildCount,DateCreated,DateLastMediaAdded,MediaSourceCount,SeriesPrimaryImage"
 # only real ItemFields values (ProductionYear, ratings ... are always returned)

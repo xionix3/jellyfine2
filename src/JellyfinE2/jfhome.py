@@ -16,7 +16,7 @@ from Screens.VirtualKeyBoard import VirtualKeyBoard
 
 from . import jfconfig, jfnav
 from .jfcommon import CoverCells, JFScreen, make_list, text_row
-from .jfskin import C_ACCENT, C_DIM, COVER_H, COVER_W, HOME_COLS, HOME_ROWS, home_skin
+from .jfskin import C_DIM, COVER_H, COVER_W, HOME_COLS, HOME_ROWS, home_skin
 
 PREVIEW = HOME_COLS * HOME_ROWS
 COLLECTION_LABELS = {"movies": "Filme", "tvshows": "Serien", "music": "Musik", "boxsets": "Sammlungen", "playlists": "Wiedergabelisten",
@@ -147,8 +147,6 @@ class HomeScreen(JFScreen):
 			if key == "view":
 				kind = COLLECTION_LABELS.get((data.get("CollectionType") or ""), "")
 				rows.append(text_row((key, title, data), title, 520, 66, value=kind, value_width=170, value_color=C_DIM))
-			elif key == "rule":
-				rows.append(text_row((key, title, data), title, 520, 66, value="Liste", value_width=110, value_color=C_ACCENT))
 			else:
 				rows.append(text_row((key, title, data), title, 520, 66))
 		self["menu"].setList(rows)

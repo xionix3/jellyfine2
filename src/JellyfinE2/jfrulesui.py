@@ -101,7 +101,7 @@ class RulesScreen(JFScreen):
 	def key_edit(self):
 		i = self.current_index()
 		if i is not None:
-			self.session.openWithCallback(lambda r, i=i: self.edited(i, r), RuleEditScreen, copy.deepcopy(self.rules[i]), self.views)
+			self.session.openWithCallback(lambda r=None, i=i: self.edited(i, r), RuleEditScreen, copy.deepcopy(self.rules[i]), self.views)
 
 	def edited(self, i, rule):
 		if rule:
@@ -114,7 +114,7 @@ class RulesScreen(JFScreen):
 		if i is None:
 			return
 		name = self.rules[i].get("name", "")
-		self.session.openWithCallback(lambda yes, i=i: yes and self.delete(i), MessageBox, "Liste '%s' löschen?" % name, MessageBox.TYPE_YESNO, default=False)
+		self.session.openWithCallback(lambda yes=False, i=i: yes and self.delete(i), MessageBox, "Liste '%s' löschen?" % name, MessageBox.TYPE_YESNO, default=False)
 
 	def delete(self, i):
 		del self.rules[i]
@@ -179,7 +179,7 @@ class RuleEditScreen(JFScreen):
 		self["list"] = make_list(fonts=((28,), (28,)), item_height=62)
 		self["description"] = Label("")
 		self["status"] = Label("")
-		self.add_keys(red="Abbrechen", green="Speichern", yellow="Vorschau", blue="")
+		self.add_keys(red="Abbrechen", green="Speichern", yellow="Vorschau", blue="Name ändern")
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions", "ChannelSelectBaseActions"], {
 			"ok": self.key_ok,
 			"cancel": self.close,
@@ -192,9 +192,13 @@ class RuleEditScreen(JFScreen):
 			"red": self.close,
 			"green": self.key_save,
 			"yellow": self.key_preview,
+			"blue": self.key_rename,
 		}, -1)
 		self["list"].onSelectionChanged.append(self.update_description)
 		self.onLayoutFinish.append(self.build)
+
+	def key_rename(self):
+		self.session.openWithCallback(self.name_entered, VirtualKeyBoard, title="Name der Liste", text=self.rule.get("name", ""))
 
 	def value_text(self, fid):
 		v = self.rule.get(fid)

@@ -3,7 +3,7 @@
 # Jellyfin for Enigma2 - season/episode browser and album track list
 from __future__ import absolute_import
 
-from enigma import RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER, RT_VALIGN_TOP, RT_WRAP
+from enigma import RT_HALIGN_CENTER, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER, RT_VALIGN_TOP, RT_WRAP
 
 from Components.ActionMap import ActionMap
 from Components.Label import Label
@@ -246,8 +246,8 @@ class EpisodesScreen(JFScreen):
 			row.append(MultiContentEntryProgress(pos=(S(16), S(10 + TH_H - 6)), size=(S(TH_W), S(6)), percent=pct, borderWidth=0,
 				foreColor=C_ACCENT, foreColorSelected=C_ACCENT, backColor=0x000000, backColorSelected=0x000000))
 		if is_played(it):
-			row.append(MultiContentEntryText(pos=(S(22), S(16)), size=(S(92), S(28)), font=1, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
-				text=" gesehen", color=C_TEXT, color_sel=C_TEXT, backcolor=C_GREEN, backcolor_sel=C_GREEN))
+			row.append(MultiContentEntryText(pos=(S(22), S(16)), size=(S(118), S(32)), font=1, flags=RT_HALIGN_CENTER | RT_VALIGN_CENTER,
+				text="gesehen", color=C_TEXT, color_sel=C_TEXT, backcolor=C_GREEN, backcolor_sel=C_GREEN))
 		row.append(MultiContentEntryText(pos=(S(x_text), S(8)), size=(S(w_text), S(42)), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER, text=title))
 		row.append(MultiContentEntryText(pos=(S(x_text), S(50)), size=(S(w_text), S(34)), font=1, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
 			text="   |   ".join(meta), color=C_ACCENT, color_sel=C_TEXT))

@@ -408,6 +408,9 @@ check(name(s.top) == "RulesScreen" and len(rs.rules) == 5 and rs.rules[-1]["name
 import json as _json
 check("Komödien" in [r["name"] for r in _json.loads(jfconfig.config.plugins.jellyfine2.rules.value)], "rules persisted in config")
 rs["list"].moveToIndex(4)
+press(rs, "yellow")
+press(s.top, "cancel")  # editor closed without result must not crash
+check(name(s.top) == "RulesScreen" and len(rs.rules) == 5, "cancel in rule editor")
 press(rs, "ok")
 kg = s.top
 pump(lambda: len(kg.entries) > 0, timeout=10)

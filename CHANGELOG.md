@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1] - 2026-11-18
+
+- Fix: closing the list editor without saving could crash the plugin
+- Fix: values in the selected row of settings/list screens were invisible (accent text on accent background)
+- Fix: grouped "new episodes" tiles no longer show a misleading progress bar; the "gesehen" badge in episode lists is fully visible
+- List editor: blue key renames the list
+- README in German (default), English and Dutch with screenshots of the real screens; stable asset name for the one-line install
+
 ## [1.1.0] - 2026-11-18
 
 - **My lists** ("Meine Listen"): user defined filter rules shown on the start screen (type, library, added vs. released, time window, unplayed, shows I watch, group per show, minimum rating, genre, sort, limit). Defaults: *Neue Filme*, *Neue Episoden meiner Serien*, *Serien mit neuen Folgen*, *Neu erschienen*
