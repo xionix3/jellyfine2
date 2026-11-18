@@ -21,8 +21,8 @@ jobs:
     name: Lint & syntax
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install pyflakes
@@ -53,8 +53,8 @@ jobs:
     env:
       E2_KEYMAP: ${{ github.workspace }}/tests/keymap.xml
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python }}
       - run: pip install pillow
@@ -70,8 +70,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: Check tag matches plugin version
@@ -104,11 +104,11 @@ jobs:
           pip install pillow
           curl -fsSL https://raw.githubusercontent.com/OpenPLi/enigma2/release-9.2/data/keymap.xml -o tests/keymap.xml
           python tests/screenshots.py skin-previews
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ipk
           path: dist/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: screenshots
           path: skin-previews/
@@ -122,11 +122,16 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: ipk
           path: dist
+      - name: Check downloaded package
+        run: |
+          ls -l dist
+          test -f dist/enigma2-plugin-extensions-jellyfine2_all.ipk
+          (cd dist && sha256sum -c SHA256SUMS)
       - name: Decide what to publish
         id: plan
         env:
