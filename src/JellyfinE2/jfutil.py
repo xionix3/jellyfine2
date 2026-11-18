@@ -308,10 +308,12 @@ TYPE_ORDER = {"Movie": 0, "Series": 0, "BoxSet": 1, "Person": 1, "MusicArtist": 
 
 
 def match_rank(term, item):
-	"""0 exact title, 1 title starts with term, 2 a word starts with term, 3 contains term, 9 no title match."""
+	"""0 exact title, 1 title starts with term, 2 a word starts with term, 3 contains term,
+	4 contains all words of the term, 9 no title match."""
 	t = norm_text(term)
 	if not t:
 		return 9
+	words = t.split()
 	best = 9
 	for field in ("Name", "OriginalTitle", "SortName"):
 		n = norm_text(item.get(field))
@@ -325,6 +327,8 @@ def match_rank(term, item):
 			r = 2
 		elif t in n or t.replace(" ", "") in n.replace(" ", ""):
 			r = 3
+		elif len(words) > 1 and all(w in n for w in words):
+			r = 4
 		else:
 			continue
 		best = min(best, r)
@@ -338,3 +342,9 @@ def rank_search(term, items):
 	keyed = [(match_rank(term, it), TYPE_ORDER.get(it.get("Type"), 6), i, it) for i, it in enumerate(items)]
 	keyed.sort(key=lambda k: (min(k[0], 4), k[1] if k[0] < 9 else 0, k[2]))
 	return [k[3] for k in keyed]
+
+
+def strict_matches(term, items):
+	"""Only items whose title (or original title) contains the term; best matches first."""
+	keyed = [(match_rank(term, it), i, it) for i, it in enumerate(items)]
+	return [k[2] for k in sorted((k for k in keyed if k[0] < 9), key=lambda k: (k[0], k[1]))]

@@ -19,6 +19,7 @@ shutil.rmtree("/tmp/jellyfine2", ignore_errors=True)
 
 from JellyfinE2 import plugin  # noqa: E402
 from JellyfinE2 import jfconfig, jfupdate  # noqa: E402
+from JellyfinE2.jfimages import image_ref  # noqa: E402
 from Components import Console as console_stub  # noqa: E402
 from Screens import Standby as standby_stub  # noqa: E402
 
@@ -91,8 +92,8 @@ check(home["pcover1"].instance.pixmap is not None, "preview poster loaded")
 pump(lambda: home["backdrop"].instance.pixmap is not None, timeout=10)
 check(home["backdrop"].instance.pixmap is not None, "home backdrop loaded")
 # all previews prefetched in background -> switching sections is instant
-pump(lambda: len(home.cache["previews"]) >= 6, timeout=10)
-check(len(home.cache["previews"]) >= 6, "previews prefetched (%d)" % len(home.cache["previews"]))
+pump(lambda: len(home.home_cache["previews"]) >= 6, timeout=10)
+check(len(home.home_cache["previews"]) >= 6, "previews prefetched (%d)" % len(home.home_cache["previews"]))
 
 # own list: new movies (30 days, unplayed, newest first)
 home["menu"].moveToIndex(0)
@@ -123,14 +124,43 @@ check("NEU" in ep["list"].list[ep["list"].getSelectedIndex()][-2][7], "episode r
 press(ep, "cancel")
 press(eg, "cancel")
 
-# go to Filme
+def goto_row(scr, title, timeout=10):
+	"""Jump with up/down to the row with this title (rows load and drop out while moving)."""
+	pump(lambda: any(r.title == title for r in scr.rows), timeout=timeout)
+	for _ in range(80):
+		titles_ = [r.title for r in scr.rows]
+		if scr.current() is not None and scr.current().title == title:
+			break
+		press(scr, "down" if titles_.index(title) > scr.row else "up")
+		pump(timeout=0.05)
+	pump(lambda: scr.row_items, timeout=timeout)
+	return scr.current()
+
+
+# go to Filme -> the library looks like the start screen: rows per category / genre
 idx = titles.index("Filme")
 home["menu"].moveToIndex(idx)
 pump(lambda: home.cells.items[0] is not None and home.cells.items[0].get("Type") == "Movie", timeout=10)
 check(home.cells.items[0].get("Type") == "Movie", "movie preview")
 press(home, "ok")
+lib = s.top
+check(name(lib) == "LibraryRowsScreen" and lib.kind == "movies", "movie library as rows")
+pump(lambda: lib.row_items and any(r.title == "Alle Filme A-Z" for r in lib.rows) and not lib.loading, timeout=10)
+ltitles = [r.title for r in lib.rows]
+check(ltitles[0] == "Weiterschauen" and "Neu hinzugefügt" in ltitles and "Neu erschienen" in ltitles and "Komödie" in ltitles
+	and "Action" in ltitles and ltitles[-1] == "Alle Filme A-Z", "library rows %s" % ltitles)
+check(lib.row_items[0]["Id"] == "m6" and lib["brand"].getText().endswith("FILME"), "first row: continue watching")
+press(lib, "down")
+check(lib.current().title == "Neu hinzugefügt" and lib.card == 0, "down = next category")
+pump(lambda: lib.row_items and lib.cells.items[0] is not None, timeout=10)
+press(lib, "right")
+check(lib.card == 1 and lib["hero_title"].getText() == lib.row_items[1]["Name"], "right = next title, hero follows")
+goto_row(lib, "Komödie")
+check(all("Komödie" in (i.get("Genres") or []) for i in lib.row_items if not i.get("_jf_more")), "genre row")
+goto_row(lib, "Alle Filme A-Z")
+press(lib, "red")
 grid = s.top
-check(name(grid) == "GridScreen", "grid opened")
+check(name(grid) == "GridScreen", "grid opened (all titles)")
 pump(lambda: len(grid.entries) > 0, timeout=10)
 check(grid.total == 40 and len(grid.entries) == 40, "40 movies loaded (got %d/%d)" % (len(grid.entries), grid.total))
 check(grid["frame"].instance.pos is not None, "selection frame positioned")
@@ -194,26 +224,31 @@ check("1080p H264" in det["tech"].getText() and "Audio: " in det["tech"].getText
 check(det["crumb"].getText().startswith("Film") and "fortsetzen bei 30:00" in det["meta"].getText(), "crumb/meta: %s | %s" % (det["crumb"].getText(), det["meta"].getText()))
 names = [p["Name"] for p in det.cast]
 check(names[0] == "Anna Actor" and names[-1] == "Rex Regie" and len(names) == 11, "cast row actors first, director last %s" % names[:3])
+check(det["progress"].visible and det["progress"].value == 30, "resume progress bar")
+check(not det["pphoto0"].visible and not det["pname0"].visible and det["pill0"].visible and det["tech"].visible, "cast hidden until selected")
+check("Mit HTML & Umbruch." in det["overview"].text, "full description")
+pump(lambda: det["backdrop"].instance.pixmap is not None, timeout=10)
+check(det["backdrop"].instance.pixmap is not None and det["backdrop"].instance.pixmap.size == (int(round(1920 * HEIGHT / 1080.0)), HEIGHT),
+	"detail backdrop decoded to screen size %s" % (det["backdrop"].instance.pixmap.size,))
+check(det["overlay"].instance.pixmap is not None and det["overlay"].instance.pixmap.path.endswith("detail_overlay.png"), "detail gradient")
+# cast row: down shows it (pills hidden, description stays), scroll to the 10th person, open filmography
+press(det, "down")
+check(det.focus == "cast" and det["cast_frame"].visible and not det["pill0"].visible and not det["tech"].visible and det["cast_title"].visible,
+	"cast row shown on demand")
 check(det["pname0"].getText() == "Anna Actor" and det["prole0"].getText() == "Heldin", "cast name + role")
-pump(lambda: det["pphoto0"].instance.pixmap is not None, timeout=10)
+pump(lambda: det["pphoto0"].visible and det["pphoto0"].instance.pixmap is not None, timeout=10)
 check(det["pphoto0"].visible and not det["pph0"].visible, "actor photo loaded")
 check(not det["pphoto3"].visible and det["pph3"].visible and det["pph3"].getText() == "DD", "initials for actor without photo")
-check(det["progress"].visible and det["progress"].value == 30, "resume progress bar")
-pump(lambda: det["backdrop"].instance.pixmap is not None, timeout=10)
-check(det["backdrop"].instance.pixmap is not None, "detail backdrop loaded")
-# cast row: down, scroll to the 10th person, open filmography
-press(det, "down")
-check(det.focus == "cast" and det["cast_frame"].visible, "focus on cast row")
-for _ in range(9):
+for _ in range(10):
 	press(det, "right")
-check(det.cast_idx == 9 and det.cast_first == 2 and det["pname7"].getText() == "Jan Jury", "cast row scrolls (%d/%d)" % (det.cast_idx, det.cast_first))
+check(det.cast_idx == 10 and det.cast_first == 1 and det["pname9"].getText() == "Rex Regie", "cast row scrolls (%d/%d)" % (det.cast_idx, det.cast_first))
 press(det, "ok")
 pg = s.top
 pump(lambda: len(pg.entries) > 0, timeout=10)
-check(name(pg) == "GridScreen" and pg.spec["params"]["personIds"] == "p11", "person filmography grid")
+check(name(pg) == "GridScreen" and pg.spec["params"]["personIds"] == "p2", "person filmography grid")
 press(pg, "cancel")
 press(det, "up")
-check(det.focus == "pills" and not det["cast_frame"].visible, "back to pills")
+check(det.focus == "pills" and not det["cast_frame"].visible and not det["pphoto0"].visible and det["pill0"].visible, "back to pills")
 # full cast as poster grid via menu
 press(det, "menu")
 choose(s, "Gesamte Besetzung")
@@ -304,11 +339,21 @@ pump(lambda: len(sim.entries) > 0, timeout=10)
 check(name(sim) == "GridScreen" and len(sim.entries) == 5, "similar grid")
 press(sim, "cancel")
 press(grid, "cancel")
+check(name(s.top) == "LibraryRowsScreen", "back to the library")
+press(lib, "cancel")
+check(lib.row == 0 and name(s.top) == "LibraryRowsScreen", "EXIT jumps to the first row first")
+press(lib, "cancel")
 check(name(s.top) == "HomeScreen", "back home")
 
 # --- series flow
 home["menu"].moveToIndex(titles.index("Serien"))
 press(home, "ok")
+tvlib = s.top
+check(name(tvlib) == "LibraryRowsScreen" and tvlib.kind == "tvshows", "series library as rows")
+pump(lambda: tvlib.row_items and any(r.title == "Alle Serien A-Z" for r in tvlib.rows), timeout=10)
+check(tvlib.rows[0].title == "Als Nächstes" and tvlib.row_items[0]["Type"] == "Episode", "series rows start with next up")
+goto_row(tvlib, "Alle Serien A-Z")
+press(tvlib, "red")
 sgrid = s.top
 pump(lambda: len(sgrid.entries) == 2, timeout=10)
 check(sgrid.entries[0]["Name"] == "Serie Eins", "series grid")
@@ -371,10 +416,15 @@ check(state.lib.items["s1-1"]["UserData"].get("Played"), "season marked played")
 press(eps, "cancel")
 press(sdet, "cancel")
 press(sgrid, "cancel")
+tvlib.close()
 
 # --- music
 home["menu"].moveToIndex(titles.index("Musik"))
 press(home, "ok")
+mlib = s.top
+check(name(mlib) == "LibraryRowsScreen", "music library as rows")
+goto_row(mlib, "Alle Titel A-Z")
+press(mlib, "red")
 mgrid = s.top
 pump(lambda: len(mgrid.entries) == 1, timeout=10)
 press(mgrid, "ok")
@@ -393,54 +443,61 @@ player.doEofInternal(True)
 check(name(s.top) == "EpisodesScreen", "album end closes player")
 press(alb, "cancel")
 press(mgrid, "cancel")
+mlib.close()
 
-# --- home videos (folders)
+# --- home videos: one row per folder
 home["menu"].moveToIndex(titles.index("Heimvideos"))
 press(home, "ok")
 hv = s.top
-pump(lambda: len(hv.entries) == 1, timeout=10)
-check(hv.entries[0]["Type"] == "Folder", "folder listed")
-press(hv, "ok")
-sub = s.top
-pump(lambda: len(sub.entries) == 1, timeout=10)
-check(sub.entries[0]["Name"] == "Strand", "folder content")
-press(sub, "cancel")
-press(hv, "cancel")
+pump(lambda: any(r.title == "Urlaub" for r in hv.rows), timeout=10)
+goto_row(hv, "Urlaub")
+check([i["Name"] for i in hv.row_items if not i.get("_jf_more")] == ["Strand"], "folder row content")
+hv.close()
 
-# --- search (relevance order, categories)
+# --- search: exact title matches only, results as rows per category
 press(home, "green")
 type_text(s, "film 1")
 sr = s.top
-pump(lambda: len(sr.entries) > 0, timeout=10)
-check(name(sr) == "GridScreen" and len(sr.entries) == 10, "search results %d" % len(sr.entries))
-sq = [q for q in state.item_queries if q.get("searchterm")][-1]
-check("sortby" not in sq, "search keeps the server's relevance order (no sortBy)")
+check(name(sr) == "SearchRowsScreen", "search results as rows")
+pump(lambda: not sr.loading and sr.rows and sr.row_items, timeout=10)
+check([r.title for r in sr.rows] == ["Filme"], "only categories with hits %s" % [r.title for r in sr.rows])
+hits = [i["Name"] for i in sr.cache[("search", "Movie")][1]]
+check(len(hits) == 10 and all("film 1" in h.lower() for h in hits), "exact hits %s" % hits)
+check(sr["row_title"].getText() == "Filme  (10)", "count in row title")
+sq = [q for q in state.item_queries if q.get("searchterm") or q.get("namestartswith")]
+check(any(q.get("includeitemtypes") == "Series" and q.get("searchterm") for q in sq), "series are searched on their own")
+check(any(q.get("namestartswith") == "film 1" for q in sq), "titles starting with the term are queried too")
+check(all("sortby" not in q for q in sq if q.get("searchterm")), "server relevance order for the search term")
 press(sr, "cancel")
+check(name(s.top) == "HomeScreen" and home.last_search == "film 1", "search closed, term remembered")
+# a server that returns fuzzy hits: only titles that really contain the term remain
+state.fuzzy_search = True
+press(home, "green")
+type_text(s, "zwei")
+sr = s.top
+pump(lambda: not sr.loading and sr.rows and sr.row_items, timeout=10)
+check([r.title for r in sr.rows] == ["Serien"] and [i["Name"] for i in sr.row_items if not i.get("_jf_more")] == ["Serie Zwei"],
+	"fuzzy server: no pseudo hits (%s)" % [(r.title, len(sr.cache[r.key][1])) for r in sr.rows])
+state.fuzzy_search = False
+sr.close()
 press(home, "green")
 type_text(s, "i")
 sr = s.top
-pump(lambda: len(sr.entries) > 0 and sr.cat_counts is not None, timeout=10)
-counts = sr.cat_counts
-check(counts["Movie"] == 40 and counts["Series"] == 2 and counts["Episode"] > 0 and counts["Person"] > 0, "search counts per category %s" % counts)
-check(sr["key_green"].getText() == "Kategorie", "green = category on search")
-press(sr, "green")
-labels = [c[0] for c in s.top.list]
-check(labels[0].startswith("Alle") and any(lbl.startswith("Personen") for lbl in labels) and not any(lbl.startswith("Videos  (0") for lbl in labels),
-	"category choices %s" % labels)
-choose(s, "Serien")
-pump(lambda: not sr.loading and sr.entries and all(e["Type"] == "Series" for e in sr.entries), timeout=10)
-check(len(sr.entries) == 2 and "Kategorie: Serien" in sr["subtitle"].getText(), "search restricted to series (%d)" % len(sr.entries))
-sq = [q for q in state.item_queries if q.get("searchterm")][-1]
-check(sq.get("includeitemtypes") == "Series", "category filter on the server")
-press(sr, "green")
-choose(s, "Personen")
-pump(lambda: not sr.loading and sr.entries and sr.entries[0]["Type"] == "Person", timeout=10)
-check(all(e["Type"] == "Person" for e in sr.entries), "person search")
+pump(lambda: not sr.loading and len(sr.rows) >= 3, timeout=10)
+rt = [r.title for r in sr.rows]
+check(rt[:2] == ["Filme", "Serien"] and "Personen" in rt, "categories as rows %s" % rt)
+press(sr, "down")
+check(sr.current().title == "Serien" and all(i["Type"] == "Series" for i in sr.row_items if not i.get("_jf_more")), "down = next category")
+goto_row(sr, "Personen")
+check(all(i["Type"] == "Person" for i in sr.row_items if not i.get("_jf_more")), "person row")
 press(sr, "ok")
-pump(lambda: name(s.top) == "GridScreen" and s.top is not sr and s.top.entries, timeout=10)
+pump(lambda: name(s.top) == "GridScreen" and s.top.entries, timeout=10)
 check(s.top.spec["params"].get("personIds"), "person -> filmography")
 press(s.top, "cancel")
-press(sr, "cancel")
+press(sr, "red")
+check(name(s.top) == "GridScreen" and all(e["Type"] == "Person" for e in s.top.entries), "red = all hits of the category")
+press(s.top, "cancel")
+sr.close()
 # favourites (mixed list): restrict to a category
 home["menu"].moveToIndex([sec[0] for sec in home.sections].index("favorites"))
 press(home, "ok")
@@ -533,7 +590,7 @@ pump(lambda: name(s.top) == "HeroHomeScreen", timeout=5)
 hero = s.top
 check(name(hero) == "HeroHomeScreen" and jfconfig.get("home_layout") == "hero", "switched to hero layout")
 pump(lambda: hero.row_items and hero.cells.items[0] is not None, timeout=10)
-rows = [sec[1] for sec in hero.sections]
+rows = [r.title for r in hero.rows]
 check(rows[:2] == ["Neue Filme", "Neue Episoden meiner Serien"] and "Suche" not in rows and "Einstellungen" not in rows, "hero rows %s" % rows[:4])
 check(hero["row_title"].getText() == "Neue Filme" and hero["next_row"].getText() == "Neue Episoden meiner Serien", "row labels")
 check(hero["hero_title"].getText() == "Film 01" and "NEU" not in hero["hero_meta"].getText() and hero["hero_new"].visible,
@@ -548,6 +605,22 @@ for _ in range(6):
 	press(hero, "right")
 check(hero.card == 6 and hero.first == 2 and hero["frame"].instance.pos == (int(round((160 + 4 * 340 - 8) * HEIGHT / 1080.0)), int(round((672 - 8) * HEIGHT / 1080.0))), "cards scroll, frame on 5th card %s" % (hero["frame"].instance.pos,))
 check(hero["hero_title"].getText() == hero.row_items[6]["Name"], "hero follows focus")
+# smooth: moving inside the visible cards only moves the frame; cards seen before are not decoded again
+card_px = (int(round(300 * HEIGHT / 1080.0)), int(round(169 * HEIGHT / 1080.0)))
+cards_decoded = len([d for d in enigma.ePicLoad.decoded if (d[1], d[2]) == card_px])
+covers = [hero["ccover%d" % i].instance.pixmap for i in range(5)]
+press(hero, "left")
+check([hero["ccover%d" % i].instance.pixmap for i in range(5)] == covers and hero.first == 2, "frame moves, cards stay")
+for _ in range(5):
+	press(hero, "left")
+pump(timeout=0.3)
+check(hero.first == 0 and all(hero["ccover%d" % i].visible for i in range(5) if hero.cells.items[i] and image_ref(hero.cells.items[i], "card")),
+	"scrolled back, all cards visible at once")
+check(len([d for d in enigma.ePicLoad.decoded if (d[1], d[2]) == card_px]) == cards_decoded, "no new decoding when scrolling back (cache)")
+check(not enigma.JPG_LOADS, "no JPEG decoded on the GUI thread (%d)" % len(enigma.JPG_LOADS))
+check(all(not inst.busy for inst in enigma.ePicLoad.instances), "decoders idle")
+for _ in range(6):
+	press(hero, "right")
 press(hero, "down")
 check(hero.row == 1 and hero.card == 0, "down = next row")
 pump(lambda: hero.row_items and hero.row_items[0].get("_jf_new_count"), timeout=10)
@@ -564,16 +637,25 @@ press(hero, "up")
 check(hero.rail == 0 and hero["rail_name0"].instance.fg == 0xf2f2f2, "rail up")
 press(hero, "ok")
 type_text(s, "serie")
-pump(lambda: name(s.top) == "GridScreen" and s.top.entries, timeout=10)
-check(s.top.spec["source"] == "search", "rail search")
-press(s.top, "cancel")
+pump(lambda: name(s.top) == "SearchRowsScreen" and s.top.row_items, timeout=10)
+check(name(s.top) == "SearchRowsScreen", "rail search")
+srh = s.top
+press(srh, "left")
+check(srh.mode == "rail" and srh.rail == 0, "sidebar in the search too")
+press(srh, "down")
+press(srh, "down")
+press(srh, "down")
+press(srh, "ok")
+pump(lambda: name(s.top) == "LibraryRowsScreen", timeout=10)
+check(name(s.top) == "LibraryRowsScreen" and s.top.kind == "tvshows" and len(s.stack) == 2, "sidebar of a sub screen -> series (stack stays flat)")
 check(hero.last_search == "serie", "last search remembered")
+s.top.close()
 press(hero, "down")
 press(hero, "down")
 press(hero, "ok")
-pump(lambda: name(s.top) == "GridScreen" and s.top.entries, timeout=10)
-check(s.top.spec.get("collection_type") == "movies", "rail -> movie library")
-press(s.top, "cancel")
+pump(lambda: name(s.top) == "LibraryRowsScreen" and s.top.row_items, timeout=10)
+check(s.top.kind == "movies", "rail -> movie library")
+s.top.close()
 press(hero, "right")
 check(hero.mode == "rows" and hero["frame"].visible and not hero["rail_sel"].visible and not hero["rail_name0"].visible and hero["hero_title"].visible,
 	"back to rows")

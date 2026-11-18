@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Jellyfin for Enigma2 - poster/backdrop cache in RAM (/tmp)
+# Copyright (C) 2026 xionix
+# Jellyfin for Enigma2 - image pipeline: download (worker threads) -> file cache -> decode with ePicLoad
+# (own thread, exact widget size, no scaling while painting) -> LRU cache of decoded pixmaps.
 from __future__ import absolute_import
 
 import os
 import re
 import threading
+from collections import OrderedDict
 
 try:
 	from hashlib import md5 as _md5
@@ -110,6 +113,8 @@ def image_ref(item, kind="poster"):
 		if tags.get("Primary"):
 			return (item["Id"], "Primary", tags["Primary"])
 		return None
+	if kind == "card":
+		return image_ref(item, "landscape") or image_ref(item, "poster")
 	if kind == "landscape":
 		ref = image_ref(item, "thumb")
 		if ref and ref[1] == "Primary" and t not in ("Episode", "Video", "MusicVideo"):
@@ -131,6 +136,135 @@ def image_ref(item, kind="poster"):
 			return (item["Id"], "Thumb", tags["Thumb"])
 		return None
 	return None
+
+
+BG_ARGB = "#FF0b0b10"  # letterbox colour when the picture has another aspect ratio
+
+
+class PixCache(object):
+	"""Decoded pictures by (file, w, h); bounded by pixel memory. Big pictures (backdrops) are limited separately."""
+
+	def __init__(self, budget=40 * 1024 * 1024, big_limit=3):
+		self.items = OrderedDict()
+		self.used = 0
+		self.budget = budget
+		self.big_limit = big_limit
+
+	def get(self, key):
+		ptr = self.items.get(key)
+		if ptr is not None:
+			self.items.pop(key)
+			self.items[key] = ptr
+		return ptr
+
+	def put(self, key, ptr):
+		if ptr is None or key in self.items:
+			return
+		self.items[key] = ptr
+		self.used += key[1] * key[2] * 4
+		big = [k for k in self.items if k[1] * k[2] > 1000000]
+		while len(big) > self.big_limit:
+			self._drop(big.pop(0))
+		while self.used > self.budget and len(self.items) > 1:
+			self._drop(next(iter(self.items)))
+
+	def _drop(self, key):
+		if key in self.items:
+			del self.items[key]
+			self.used -= key[1] * key[2] * 4
+
+	def clear(self):
+		self.items.clear()
+		self.used = 0
+
+
+class Decoder(object):
+	"""A few ePicLoad instances: JPEG/PNG decoding runs in their threads, results arrive on the GUI thread.
+
+	ePicLoad cancels the callback of a running decode when it is started again, so every instance only
+	gets a new file once it reported back."""
+
+	def __init__(self, workers=2):
+		self.idle = []
+		self.busy = {}
+		self.urgent = []  # LIFO: the picture asked for last is on screen now
+		self.background = []  # FIFO: prefetch
+		self.waiting = {}
+		self.loaders = []
+		try:
+			from enigma import ePicLoad
+		except ImportError:  # pragma: no cover
+			ePicLoad = None
+		for _i in range(workers if ePicLoad is not None else 0):
+			pl = ePicLoad()
+			pl.setPara((1, 1, 1, 1, 0, 1, BG_ARGB))  # keep aspect ratio, no ePicLoad cache, better resize
+			pl.PictureData.get().append(lambda info, pl=pl: self._finished(pl))
+			self.loaders.append(pl)
+			self.idle.append(pl)
+
+	def decode(self, path, w, h, callback, urgent=True):
+		key = (path, w, h)
+		waiters = self.waiting.get(key)
+		if waiters is not None:
+			waiters.append(callback)
+			if urgent and key in self.background:
+				self.background.remove(key)
+				self.urgent.append(key)
+			return
+		self.waiting[key] = [callback]
+		(self.urgent if urgent else self.background).append(key)
+		self._pump()
+
+	def _pump(self):
+		while self.idle and (self.urgent or self.background):
+			key = self.urgent.pop() if self.urgent else self.background.pop(0)
+			pl = self.idle.pop()
+			path, w, h = key
+			self.busy[id(pl)] = key
+			try:
+				failed = pl.startDecode(path, w, h, True)
+			except Exception as e:
+				print("[Jellyfin] decode failed for %s: %s" % (path, e))
+				failed = True
+			if failed:
+				self.busy.pop(id(pl), None)
+				self.idle.append(pl)
+				self._deliver(key, None)
+
+	def _finished(self, pl):
+		key = self.busy.pop(id(pl), None)
+		ptr = None
+		try:
+			ptr = pl.getData()
+		except Exception as e:
+			print("[Jellyfin] getData failed: %s" % e)
+		self.idle.append(pl)
+		if key is not None:
+			self._deliver(key, ptr)
+		self._pump()
+
+	def _deliver(self, key, ptr):
+		for cb in self.waiting.pop(key, []):
+			try:
+				cb(ptr)
+			except Exception as e:
+				print("[Jellyfin] picture callback failed: %s" % e)
+
+
+_pixcache = PixCache()
+_decoder = None
+
+
+def decoder():
+	global _decoder
+	if _decoder is None:
+		_decoder = Decoder()
+	return _decoder
+
+
+def drop_pixmaps():
+	"""Free decoded pictures (plugin closed)."""
+	_pixcache.clear()
 
 
 class ImageLoader(object):
@@ -207,6 +341,47 @@ class ImageLoader(object):
 				cb(path)
 			except Exception as e:
 				print("[Jellyfin] image callback failed: %s" % e)
+
+	# ------------------------------------------------------------- decoded pictures
+	def pixmap(self, ref, w, h, callback=None, urgent=True):
+		"""Decoded picture of exactly w x h pixels (screen pixels).
+
+		Returns it at once when it is in the memory cache, otherwise None and callback(ptr or None) later."""
+		if not ref:
+			return None
+		key = ("%s/%s/%s" % ref, int(w), int(h))
+		ptr = _pixcache.get(key)
+		if ptr is not None:
+			return ptr
+
+		def decoded(ptr):
+			if ptr is not None:
+				_pixcache.put(key, ptr)
+			if callback:
+				callback(ptr)
+
+		def have_file(path):
+			if not path:
+				if callback:
+					callback(None)
+				return
+			decoder().decode(path, int(w), int(h), decoded, urgent)
+		path = self.get(ref, w, h, have_file)
+		if path:
+			have_file(path)
+		return None
+
+	def has_pixmap(self, ref, w, h):
+		return ref is not None and ("%s/%s/%s" % ref, int(w), int(h)) in _pixcache.items
+
+	def prefetch(self, ref, w, h, decode=True):
+		"""Warm the caches without a widget (next cards, next page ...)."""
+		if not ref:
+			return
+		if decode:
+			self.pixmap(ref, w, h, None, urgent=False)
+		else:
+			self.get(ref, w, h, lambda path: None)
 
 
 _loader = None

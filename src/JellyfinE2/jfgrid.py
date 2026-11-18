@@ -118,7 +118,10 @@ class GridScreen(JFScreen):
 		self.page = -1
 		self.loading = False
 		self.generation = 0
-		self.sort_idx = spec.get("sort", 0)
+		sort = spec.get("sort", 0)
+		if not isinstance(sort, int):  # sort by name of the field, e.g. "DateCreated"
+			sort = next((i for i, srt in enumerate(SORTS) if srt[0].split(",")[0] == sort), 0)
+		self.sort_idx = sort
 		self.filter_idx = 0
 		self.genre = None
 		self.category = None
@@ -132,6 +135,8 @@ class GridScreen(JFScreen):
 		self["frame"] = Pixmap()
 		self["status"] = Label("")
 		self["backdrop"] = Pixmap()
+		self["overlay"] = Pixmap()
+		self.static_layers["overlay"] = "dim_overlay.png"
 		self.backdrops = jfconfig.get_bool("backdrops")
 		self.bd_timer = eTimer()
 		self.bd_timer.callback.append(self.load_backdrop)
@@ -332,7 +337,7 @@ class GridScreen(JFScreen):
 	def load_backdrop(self):
 		item = self.current()
 		if item:
-			self.load_image("backdrop", item.get("_jf_focus") or item, "backdrop", 1280, 720, keep=True)
+			self.load_image("backdrop", item.get("_jf_focus") or item, "backdrop", 1920, 1080, keep=True)
 
 	def redraw_page(self):
 		self.page = -1

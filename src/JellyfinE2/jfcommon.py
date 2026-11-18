@@ -41,8 +41,17 @@ class JFScreen(Screen):
 		self.jf_closed = False
 		self.busy = 0
 		self._jf_timers = []
+		# full screen gradients etc.: widget name -> PNG, decoded once per session (skin pixmaps are not cached)
+		self.static_layers = {}
 		self.onClose.append(self.__jf_on_close)
 		self.onLayoutFinish.append(self.__jf_apply_item_heights)
+		self.onLayoutFinish.append(self.__jf_static_layers)
+
+	def __jf_static_layers(self):
+		from .jfskin import img
+		for name, png in self.static_layers.items():
+			if name in self:
+				set_widget_pixmap(self, name, img(png))
 
 	def __jf_apply_item_heights(self):
 		# the skin's itemHeight may differ from what a list needs (e.g. album vs. episode rows)
@@ -147,31 +156,46 @@ class JFScreen(Screen):
 		return True
 
 	def load_image(self, name, item, kind, w, h, placeholder=None, keep=False):
-		"""Load an image into a Pixmap widget (w/h in FHD units).
+		"""Show the picture of an item in a Pixmap widget (w/h in FHD units).
 
-		keep=True leaves the previous picture visible until the new one arrived (backdrops)."""
+		Pictures are decoded off the GUI thread to exactly the widget size and kept in memory, so revisiting
+		a card sets the pixmap at once. Nothing is hidden while a cached picture can be shown (no flicker);
+		keep=True leaves the previous picture until the new one is ready (backdrops)."""
 		ref = image_ref(item, kind) if item else None
 		widget = self[name]
-		if not keep or not ref:
-			widget.hide()
-		if placeholder is not None and placeholder in self:
-			self[placeholder].show()
+		ph = self[placeholder] if placeholder is not None and placeholder in self else None
 		if not ref:
 			widget.jf_token = None
+			widget.hide()
+			if ph is not None:
+				ph.show()
 			return
-		if keep and getattr(widget, "jf_token", None) == (ref, w, h):
-			return
-		token = (ref, w, h)
+		token = (ref, S(w), S(h))
+		if getattr(widget, "jf_token", None) == token and getattr(widget, "jf_shown", False):
+			return  # already on screen
 		widget.jf_token = token
+		widget.jf_shown = False
 
-		def done(path):
+		def show(ptr):
 			if self.jf_closed or getattr(widget, "jf_token", None) != token:
 				return
-			if self.set_pixmap(name, path) and placeholder is not None and placeholder in self:
-				self[placeholder].hide()
-		path = self.images.get(ref, S(w), S(h), done)
-		if path:
-			done(path)
+			if ptr is None or widget.instance is None:
+				if not keep:
+					widget.hide()
+				return
+			widget.instance.setPixmap(ptr)
+			widget.jf_shown = True
+			widget.show()
+			if ph is not None:
+				ph.hide()
+		ptr = self.images.pixmap(ref, S(w), S(h), show)
+		if ptr is not None:
+			show(ptr)
+			return
+		if not keep:
+			widget.hide()
+			if ph is not None:
+				ph.show()
 
 	# --------------------------------------------------- user data toggles
 	def toggle_played(self, item, callback=None):
@@ -204,6 +228,15 @@ class JFScreen(Screen):
 		self.run(self.cl.set_favorite, item["Id"], new, callback=ok)
 
 
+def cell_sig(item):
+	"""What a card shows - an unchanged signature means nothing has to be repainted."""
+	if not item:
+		return None
+	ud = item.get("UserData") or {}
+	return (item.get("Id"), item.get("Name"), item.get("_jf_more"), ud.get("Played"), ud.get("PlaybackPositionTicks"), ud.get("IsFavorite"),
+		ud.get("UnplayedItemCount"), item.get("_jf_new_count"))
+
+
 class CoverCells(object):
 	"""A set of poster cells (placeholder, cover, progress, badges, label) on a screen."""
 
@@ -216,6 +249,7 @@ class CoverCells(object):
 		self.badges = badges
 		self.kind = kind
 		self.items = [None] * count
+		self.sigs = [None] * count
 		for i in range(count):
 			screen[self.n("ph", i)] = Label("")
 			screen[self.n("cover", i)] = Pixmap()
@@ -232,6 +266,7 @@ class CoverCells(object):
 	def clear(self, i):
 		s = self.screen
 		self.items[i] = None
+		self.sigs[i] = None
 		s[self.n("ph", i)].hide()
 		s[self.n("cover", i)].hide()
 		s[self.n("prog", i)].hide()
@@ -242,6 +277,7 @@ class CoverCells(object):
 		s[self.n("label", i)].setText("")
 		widget = s[self.n("cover", i)]
 		widget.jf_token = None
+		widget.jf_shown = False
 
 	def clear_all(self):
 		for i in range(self.count):
@@ -250,9 +286,15 @@ class CoverCells(object):
 	def set_item(self, i, item):
 		s = self.screen
 		if item is None:
-			self.clear(i)
+			if self.sigs[i] is not None or self.items[i] is not None:
+				self.clear(i)
+			return
+		key = cell_sig(item)
+		if key == self.sigs[i]:
+			self.items[i] = item  # same card -> no repaint
 			return
 		self.items[i] = item
+		self.sigs[i] = key
 		title = display_title(item)
 		s[self.n("label", i)].setText(title)
 		s[self.n("ph", i)].setText(title)
@@ -318,12 +360,12 @@ def text_row(data, text, width, height, value=None, value_width=0, x=18, color=N
 	return row
 
 
-def prefetch_posters(screen, items, w, h, kind="poster"):
-	"""Warm the image cache (e.g. next grid page) without touching widgets."""
+def prefetch_posters(screen, items, w, h, kind="poster", decode=True):
+	"""Download and decode pictures that are about to become visible (rest of a row, next grid page)."""
 	for it in items:
 		ref = image_ref(it, kind)
 		if ref:
-			screen.images.get(ref, S(w), S(h), _ignore)
+			screen.images.prefetch(ref, S(w), S(h), decode)
 
 
 def _ignore(*args):

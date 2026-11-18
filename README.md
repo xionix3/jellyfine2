@@ -26,25 +26,27 @@
 | | |
 |:---:|:---:|
 | <img src="docs/screenshots/02-startseite.jpg" alt="Startseite"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
-| **Startseite** – Titelbild des gewählten Titels, darunter Kartenreihen | **Details** – Aktionen als Buttons, Besetzung mit Fotos |
+| **Startseite** – Titelbild des gewählten Titels, darunter Kartenreihen | **Details** – Bild bleibt sichtbar, Beschreibung ganz lesbar |
+| <img src="docs/screenshots/04-filme.jpg" alt="Filme"> | <img src="docs/screenshots/04b-filme-genre.jpg" alt="Genres"> |
+| **Filme/Serien** wie die Startseite – ▲▼ springt durch die Kategorien | **Genres und Ordner** als eigene Reihen |
+| <img src="docs/screenshots/07-suche.jpg" alt="Suche"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Besetzung"> |
+| **Suche** – nur echte Treffer, eine Reihe pro Kategorie | **Besetzung** mit Fotos – erst nach ▼ |
 | <img src="docs/screenshots/03-neue-episoden.jpg" alt="Neue Episoden"> | <img src="docs/screenshots/03b-navigation.jpg" alt="Seitenleiste"> |
-| **Neue Episoden meiner Serien** – eine Karte pro Serie | **Seitenleiste** – Suche, Filme, Serien, Listen, Einstellungen |
-| <img src="docs/screenshots/04-raster.jpg" alt="Poster-Raster"> | <img src="docs/screenshots/07-suche-kategorien.jpg" alt="Suche mit Kategorien"> |
-| **Poster-Raster** mit NEU- und Gesehen-Schildern | **Suche** – nach Kategorie einschränken (Filme, Serien, Personen …) |
-| <img src="docs/screenshots/06-episoden.jpg" alt="Episoden"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Besetzung"> |
-| **Staffeln & Episoden** mit Vorschaubildern | **Besetzung** – OK zeigt alle Filme der Person |
-| <img src="docs/screenshots/08-meine-listen.jpg" alt="Meine Listen"> | <img src="docs/screenshots/10-einstellungen.jpg" alt="Einstellungen"> |
-| **Meine Listen** – eigene Filterregeln | **Einstellungen** – u. a. moderne oder klassische Startseite |
+| **Neue Episoden meiner Serien** – eine Karte pro Serie | **Seitenleiste** – Suche, Start, Filme, Serien, Listen, Einstellungen |
+| <img src="docs/screenshots/06-episoden.jpg" alt="Episoden"> | <img src="docs/screenshots/04c-raster.jpg" alt="Alle anzeigen"> |
+| **Staffeln & Episoden** | **Alle anzeigen** (Rot) – Raster mit Sortierung und Filtern |
 
 <details>
-<summary>Weitere: klassische Startseite, Listen-Editor, Anmeldung</summary>
+<summary>Weitere: Meine Listen, Listen-Editor, Einstellungen, klassische Startseite, Anmeldung</summary>
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Klassische Startseite"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="Listen-Editor"> |
-| **Klassische Startseite** (Menü links) | **Listen-Editor** |
-| <img src="docs/screenshots/01-anmeldung.jpg" alt="Anmeldung"> | <img src="docs/screenshots/07-suche.jpg" alt="Suchergebnisse"> |
-| **Anmeldung** | **Suchergebnisse** – beste Treffer zuerst |
+| <img src="docs/screenshots/08-meine-listen.jpg" alt="Meine Listen"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="Listen-Editor"> |
+| **Meine Listen** – eigene Filterregeln | **Listen-Editor** |
+| <img src="docs/screenshots/10-einstellungen.jpg" alt="Einstellungen"> | <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Klassische Startseite"> |
+| **Einstellungen** | **Klassische Startseite** (Menü links) |
+| <img src="docs/screenshots/01-anmeldung.jpg" alt="Anmeldung"> | |
+| **Anmeldung** | |
 
 </details>
 
@@ -56,11 +58,13 @@
 
 - **Anmeldung** mit Benutzer/Passwort oder **Quick Connect** (ohne Tippen), automatische **Serversuche** im Heimnetz
 - **Moderne Startseite**: großes Hintergrundbild und Infos zum gewählten Titel, darunter Reihen mit Karten (Weiterschauen, Als Nächstes, Neu hinzugefügt, Bibliotheken, Favoriten, eigene Listen) und eine Seitenleiste – die klassische Ansicht (Menü links, Poster rechts) gibt es weiterhin
+- **Filme, Serien und jede Bibliothek** sehen aus wie die Startseite: Reihen für Weiterschauen, Neu hinzugefügt, Neu erschienen, Favoriten, jedes Genre bzw. jeden Ordner – mit ▲▼ springst du durch, keine Unterauswahl
+- **Flüssig**: Bilder werden außerhalb der Oberfläche dekodiert (ePicLoad), in exakter Bildschirmgröße geladen und im Speicher gehalten – beim Blättern baut sich nichts neu auf
 - **Glas-Optik**: abgerundete, halbtransparente Flächen, Rahmen und Buttons (als PNG, damit Enigma2 sie wirklich überblendet)
 - **Meine Listen**: eigene Filterregeln, z. B. *Neue Filme der letzten 30 Tage* oder *Neue Episoden meiner Serien*
 - **Poster-Raster** mit Sortierung, Filtern (ungesehen, gesehen, Favoriten, begonnen, Genre, **Kategorie**), NEU-Schild, Fortschrittsbalken und Hintergrundbild
-- **Details** mit Hintergrundbild, Aktions-Buttons, Audiospur- und Untertitelauswahl, mehreren Versionen, ähnlichen Titeln und **Besetzung mit Fotos** (OK zeigt die Filme der Person)
-- **Suche** nach Relevanz (genaue Treffer zuerst) mit **Kategorien**: Filme, Serien, Episoden, Sammlungen, Musik, Personen
+- **Details**: das Bild bleibt sichtbar, die Beschreibung ist ganz lesbar; Aktions-Buttons, Audiospur- und Untertitelauswahl, Versionen, ähnliche Titel; die **Besetzung mit Fotos** erscheint mit ▼ (OK zeigt die Filme der Person)
+- **Suche**: nur Titel, die den Suchbegriff wirklich enthalten – jede Kategorie wird einzeln gesucht und als eigene Reihe gezeigt (Filme, Serien, Episoden, Sammlungen, Musik, Personen)
 - **Staffeln & Episoden**, **Musikalben**
 - **Auto-Update**: prüft beim Start (höchstens zweimal täglich) die GitHub-Releases, installiert auf Wunsch die neue Version (mit Prüfsumme) und startet Enigma2 neu
 - **Wiedergabe** über den Enigma2-Movieplayer (GStreamer oder ServiceApp):
@@ -102,8 +106,9 @@ Die Anmeldung bleibt gespeichert. Abmelden mit **Rot** auf der Startseite.
 | **Startseite** | ▲▼ Reihe · ◀▶ Titel · ◀ am Anfang: Seitenleiste · OK Details/öffnen · PLAY abspielen · CH± 5 Titel weiter · 🔴 alle Titel der Reihe · 🟢 Suche · 🟡 aktualisieren · 🔵 Meine Listen · MENU Ansicht, Updates, Abmelden … · EXIT zurück zum Anfang, dann beenden |
 | **Klassische Startseite** | ▲▼ Bereich · OK öffnen · 🟢 Suche · 🟡 aktualisieren · 🔵 Meine Listen · 🔴 abmelden · MENU mehr |
 | **Poster-Raster** | Pfeiltasten · CH+/- Seite · OK öffnen · PLAY abspielen · 🔴 Sortierung · 🟢 Filter/Genre/Kategorie · 🟡 gesehen ± · 🔵 Favorit ± · INFO Details |
-| **Suchergebnisse** | wie Raster · 🟢 Kategorie (Alle, Filme, Serien, Episoden, Sammlungen, Musik, Personen) |
-| **Details** | ◀▶ Button wählen · ▼ Besetzung, ▲ zurück zu den Buttons · OK ausführen / Filme der Person · CH± Text blättern · 🟢 abspielen · 🟡 Audio/Untertitel · 🔴 gesehen ± · 🔵 Favorit ± · MENU alle Aktionen |
+| **Filme / Serien / Bibliothek** | wie die Startseite: ▲▼ Kategorie, Genre oder Ordner · ◀▶ Titel · 🔴 alle Titel der Reihe als Raster |
+| **Suchergebnisse** | ▲▼ Kategorie (Filme, Serien, Episoden, Sammlungen, Musik, Personen) · ◀▶ Treffer · 🔴 alle Treffer der Kategorie |
+| **Details** | ◀▶ Button wählen · ▼ Besetzung einblenden, ▲ zurück · OK ausführen / Filme der Person · CH± Text blättern · 🟢 abspielen · 🟡 Audio/Untertitel · 🔴 gesehen ± · 🔵 Favorit ± · MENU alle Aktionen |
 | **Episoden** | ▲▼ Episode · ◀▶ Staffel · OK abspielen · 🟡 Details · MENU ganze Staffel als gesehen markieren |
 | **Meine Listen** | OK Liste anzeigen · 🟢 neu · 🟡 bearbeiten · 🔴 löschen · 🔵 nach oben · MENU Startseite an/aus, duplizieren |
 | **Player** | ◀ −10 s · ▶ +30 s · ▲▼ Infoleiste · ⏮ ⏭ vorige/nächste Episode · INFO Infos · STOP/EXIT beenden · AUDIO/SUBTITLE wie gewohnt |
@@ -168,7 +173,7 @@ Bei selbstsignierten Zertifikaten *SSL-Zertifikat prüfen* auf **Nein** stellen.
 <details>
 <summary><b>Die Suche findet einen Titel nicht</b></summary>
 
-Gesucht wird im Titel (wie in der Jellyfin-Weboberfläche); genaue Treffer stehen ganz vorne. Mit **Grün** lässt sich das Ergebnis auf eine Kategorie einschränken – dann fragt das Plugin den Server gezielt nach z. B. nur Serien, auch wenn die Gesamtliste sehr lang ist.
+Gesucht wird im Titel. Jede Kategorie wird einzeln abgefragt, zusätzlich nach Titeln, die mit dem Begriff beginnen; angezeigt wird nur, was den Begriff wirklich enthält. Steht ein Titel trotzdem nicht in der Liste, prüfe in der Jellyfin-Weboberfläche, ob er dort unter genau diesem Namen geführt wird.
 </details>
 
 <details>

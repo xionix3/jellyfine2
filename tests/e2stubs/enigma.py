@@ -200,8 +200,63 @@ BT_VALIGN_CENTER = 64
 
 
 class FakePixmap(object):
-	def __init__(self, path):
+	def __init__(self, path, size=None):
 		self.path = path
+		self.size = size
+
+
+class _Signal(object):
+	def __init__(self):
+		self.cbs = []
+
+	def get(self):
+		return self.cbs
+
+
+class ePicLoad(object):
+	"""Like the real one: one decode at a time, result via PictureData on the main loop, getData() once."""
+	instances = []
+	decoded = []
+
+	def __init__(self):
+		self.PictureData = _Signal()
+		self.para = None
+		self.job = None
+		self.busy = False
+		self.timer = None
+		ePicLoad.instances.append(self)
+
+	def setPara(self, para):
+		assert len(para) >= 7
+		self.para = tuple(para)
+		return 1
+
+	def startDecode(self, path, x=0, y=0, *args):
+		import os
+		if self.busy:
+			raise AssertionError("ePicLoad.startDecode while busy - the running decode would lose its callback")
+		if not os.path.exists(path):
+			return 1
+		self.busy = True
+		self.job = (path, x, y)
+		self.timer = eTimer()
+		self.timer.callback.append(self._fire)
+		self.timer.start(5, True)
+		return 0
+
+	def _fire(self):
+		self.busy = False
+		for cb in list(self.PictureData.get()):
+			cb("%s|%d|%d" % self.job)
+
+	def getData(self):
+		path, x, y = self.job
+		with open(path, "rb") as f:
+			head = f.read(8)
+		ePicLoad.decoded.append((path, x, y))
+		if head[:3] != b"\xff\xd8\xff" and head[:8] != b"\x89PNG\r\n\x1a\n":
+			return None
+		return FakePixmap(path, (x, y))
 
 
 def loadPNG(path, *a):
@@ -209,8 +264,12 @@ def loadPNG(path, *a):
 	return FakePixmap(path) if os.path.exists(path) else None
 
 
+JPG_LOADS = []
+
+
 def loadJPG(path, *a):
 	import os
+	JPG_LOADS.append(path)  # a JPEG decoded on the GUI thread
 	with open(path, "rb") as f:
 		head = f.read(3)
 	if head != b"\xff\xd8\xff":

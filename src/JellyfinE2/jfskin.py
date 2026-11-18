@@ -41,16 +41,30 @@ C_DARK = 0x101016
 C_WHITE = 0xffffff
 
 
-def img(name):
-	return os.path.join(IMAGES, name)
-
-
 def factor():
 	try:
 		h = getDesktop(0).size().height()
 	except Exception:
 		h = 1080
 	return h / 1080.0
+
+
+def res_dir():
+	"""Assets exist pixel exact for 1080p (images/) and 720p (images/hd/); others are scaled by the skin."""
+	f = factor()
+	if abs(f - 1.0) < 0.01:
+		return IMAGES, False
+	if abs(f - 2 / 3.0) < 0.01:
+		return os.path.join(IMAGES, "hd"), False
+	return IMAGES, True
+
+
+def img(name):
+	return os.path.join(res_dir()[0], name)
+
+
+def scale_attr():
+	return ' scale="1"' if res_dir()[1] else ""
 
 
 def S(v):
@@ -84,13 +98,14 @@ def rect(x, y, w, h, color, z=0):
 
 
 def epixmap(name, x, y, w, h, z=0):
-	"""Static alpha PNG (glass panel, gradient, icon)."""
-	return '<ePixmap pixmap="%s" position="%d,%d" size="%d,%d" alphatest="blend" scale="1" zPosition="%d" />' % (img(name), x, y, w, h, z)
+	"""Static alpha PNG (glass panel, icon), pixel exact for 1080p/720p."""
+	return '<ePixmap pixmap="%s" position="%d,%d" size="%d,%d" alphatest="blend"%s zPosition="%d" />' % (img(name), x, y, w, h, scale_attr(), z)
 
 
 def pixmap_widget(name, x, y, w, h, image=None, z=0, blend=True):
-	extra = ' pixmap="%s"' % img(image) if image else ""
-	return '<widget name="%s" position="%d,%d" size="%d,%d" alphatest="%s" scale="1" zPosition="%d"%s />' % (
+	"""Pixmap widget. Pictures from the server are decoded to the exact widget size, so no scaling while painting."""
+	extra = ' pixmap="%s"%s' % (img(image), scale_attr()) if image else ""
+	return '<widget name="%s" position="%d,%d" size="%d,%d" alphatest="%s" zPosition="%d"%s />' % (
 		name, x, y, w, h, "blend" if blend else "off", z, extra)
 
 
@@ -122,17 +137,16 @@ def status_label(x=560, y=440, w=800, h=140):
 	return label("status", x, y, w, h, 34, TEXT, bg=PANEL, halign="center", extra='zPosition="9"')
 
 
-def backdrop_layer(overlay="dim_overlay.png"):
-	"""Item backdrop + blended gradient on top (z -3/-2, everything else above)."""
+def backdrop_layer():
+	"""Item backdrop + gradient on top. The full screen gradient is set from code (decoded once per session)."""
 	return "\n".join([
-		epixmap("background.png", 0, 0, 1920, 1080, -4),
 		pixmap_widget("backdrop", 0, 0, 1920, 1080, z=-3, blend=False),
-		epixmap(overlay, 0, 0, 1920, 1080, -2),
+		pixmap_widget("overlay", 0, 0, 1920, 1080, z=-2),
 	])
 
 
 def background_layer():
-	return epixmap("background.png", 0, 0, 1920, 1080, -4)
+	return ""
 
 
 def screen(name, body, title="Jellyfin", bg=BG):
@@ -177,7 +191,7 @@ def cover_cells(prefix, count, cols, x0, y0, sx, sy, w=COVER_W, h=COVER_H, badge
 def grid_skin():
 	cells = GRID_COLS * GRID_ROWS
 	body = [
-		backdrop_layer("dim_overlay.png"),
+		backdrop_layer(),
 		label("title", 60, 24, 1300, 64, 46, TEXT),
 		label("subtitle", 60, 88, 1350, 40, 26, DIM),
 		label("pageinfo", 1420, 88, 440, 40, 26, DIM, halign="right"),
@@ -205,7 +219,7 @@ HOME_STEP_Y = 372
 def home_skin():
 	"""Classic start screen: menu on the left, poster preview on the right."""
 	body = [
-		backdrop_layer("dim_overlay.png"),
+		backdrop_layer(),
 		label("title", 60, 24, 900, 64, 50, ACCENT),
 		label("subtitle", 60, 90, 1300, 40, 26, DIM),
 		clock(),
@@ -234,21 +248,21 @@ CARD_W = 300
 CARD_H = 169
 
 
-def hero_skin():
+def rows_skin():
+	"""Start screen, libraries and search: backdrop + info of the focused title, one row of cards, sidebar."""
 	body = [
-		backdrop_layer("hero_overlay.png"),
-		label("brand", 160, 36, 900, 40, 26, ACCENT),
-		label("server", 1100, 84, 760, 32, 22, DIM, halign="right"),
+		backdrop_layer(),
+		pixmap_widget("rail_shade", 0, 0, 1920, 1080, z=0),
+		label("brand", 160, 36, 1100, 40, 26, ACCENT, extra='noWrap="1"'),
+		label("server", 1100, 84, 760, 32, 22, DIM, halign="right", extra='noWrap="1"'),
 		clock(),
 	]
 	for i, (key, _name) in enumerate(HERO_RAIL):
 		y = RAIL_Y0 + i * RAIL_STEP
 		body.append(epixmap("icon_%s.png" % key, RAIL_X, y, 44, 44, 2))
-	for i in range(len(HERO_RAIL)):
-		body.append(label("rail_name%d" % i, 132, RAIL_Y0 + i * RAIL_STEP, 420, 44, 30, DIM, extra='noWrap="1" zPosition="2"'))
+		body.append(label("rail_name%d" % i, 132, y, 420, 44, 30, DIM, extra='noWrap="1" zPosition="2"'))
 	body += [
 		pixmap_widget("rail_sel", RAIL_X - 14, RAIL_Y0 - 14, 72, 72, "rail_sel.png", z=1),
-		pixmap_widget("rail_shade", 0, 0, 1920, 1080, "rail_overlay.png", z=0),
 		label("hero_title", 160, 104, 1400, 92, 64, TEXT, extra='noWrap="1"'),
 		pixmap_widget("hero_new", 160, 214, 64, 28, "badge_new.png", z=2),
 		label("hero_meta", 236, 206, 1400, 44, 28, "#00d0d0da", extra='noWrap="1"'),
@@ -279,52 +293,55 @@ def hero_skin():
 		keybar(y=1030),
 		status_label(),
 	]
-	return screen("JellyfinE2Hero", "\n".join(body))
+	return screen("JellyfinE2Rows", "\n".join(body))
 
 
-# detail page geometry
+hero_skin = rows_skin
+
+# detail page geometry: text on the left over the darkened part, the picture stays visible on the right
 PILL_COUNT = 6
 PILL_X0 = 120
-PILL_Y = 548
+PILL_Y = 790
 PILL_STEP = 292
 PILL_W = 280
 PILL_H = 64
-CAST_COUNT = 8
+CAST_COUNT = 10
 CAST_X0 = 120
-CAST_Y = 712
-CAST_STEP = 212
-CAST_W = 150
-CAST_H = 225
+CAST_Y = 760
+CAST_STEP = 170
+CAST_W = 130
+CAST_H = 195
 
 
 def detail_skin():
 	body = [
-		backdrop_layer("detail_overlay.png"),
+		backdrop_layer(),
 		label("crumb", 120, 40, 1300, 36, 24, DIM, extra='noWrap="1"'),
 		clock(),
-		label("title", 120, 88, 1560, 96, 66, TEXT, extra='noWrap="1"'),
-		pixmap_widget("badge", 120, 198, 64, 28, "badge_new.png", z=2),
-		label("meta", 196, 190, 1560, 44, 28, "#00d0d0da", extra='noWrap="1"'),
-		label("genres", 120, 234, 1560, 36, 26, DIM, extra='noWrap="1"'),
-		'<widget name="overview" position="120,282" size="1060,196" font="Regular;29" foregroundColor="#00e0e0e8" backgroundColor="%s" '
+		label("title", 120, 84, 1300, 92, 62, TEXT, extra='noWrap="1"'),
+		pixmap_widget("badge", 120, 192, 64, 28, "badge_new.png", z=2),
+		label("meta", 196, 184, 1300, 44, 28, "#00d0d0da", extra='noWrap="1"'),
+		label("genres", 120, 230, 1100, 36, 26, DIM, extra='noWrap="1"'),
+		'<widget name="overview" position="120,284" size="1000,420" font="Regular;30" foregroundColor="#00ececf2" backgroundColor="%s" '
 		'transparent="1" zPosition="2" />' % BG,
-		label("tech", 120, 488, 1700, 36, 23, DIM, extra='noWrap="1"'),
+		label("tech", 120, 724, 1700, 36, 23, DIM, extra='noWrap="1"'),
+		label("cast_title", 120, 712, 1000, 40, 28, TEXT, extra='noWrap="1"'),
+		label("cast_hint", 120, 900, 1200, 36, 25, DIM, extra='noWrap="1"'),
 	]
 	for i in range(PILL_COUNT):
 		x = PILL_X0 + i * PILL_STEP
 		body.append(pixmap_widget("pill%d" % i, x, PILL_Y, PILL_W, PILL_H, "pill_secondary.png", z=1))
 		body.append(label("pilltxt%d" % i, x + 14, PILL_Y, PILL_W - 28, PILL_H, 26, TEXT, halign="center", extra='zPosition="2" noWrap="1"'))
-	body.append(progress("progress", PILL_X0 + 20, PILL_Y + PILL_H + 6, PILL_W - 40, 6, z=2))
-	body.append(label("cast_title", 120, 650, 900, 46, 32, TEXT, extra='noWrap="1"'))
+	body.append(progress("progress", PILL_X0 + 20, PILL_Y + PILL_H + 8, PILL_W - 40, 6, z=2))
 	body.append(pixmap_widget("cast_frame", CAST_X0 - FRAME_PAD, CAST_Y - FRAME_PAD, CAST_W + 16, CAST_H + 16, "frame_person.png", z=4))
 	for i in range(CAST_COUNT):
 		x = CAST_X0 + i * CAST_STEP
-		body.append(label("pph%d" % i, x, CAST_Y, CAST_W, CAST_H, 40, DIM, bg=PLACEHOLDER, halign="center", extra='zPosition="0"'))
+		body.append(label("pph%d" % i, x, CAST_Y, CAST_W, CAST_H, 36, DIM, bg=PLACEHOLDER, halign="center", extra='zPosition="0"'))
 		body.append(pixmap_widget("pphoto%d" % i, x, CAST_Y, CAST_W, CAST_H, z=1, blend=False))
-		body.append(label("pname%d" % i, x - 25, CAST_Y + CAST_H + 8, CAST_W + 50, 32, 22, TEXT, halign="center", extra='noWrap="1"'))
-		body.append(label("prole%d" % i, x - 25, CAST_Y + CAST_H + 40, CAST_W + 50, 28, 19, DIM, halign="center", extra='noWrap="1"'))
+		body.append(label("pname%d" % i, x - 18, CAST_Y + CAST_H + 6, CAST_W + 36, 30, 21, TEXT, halign="center", extra='noWrap="1"'))
+		body.append(label("prole%d" % i, x - 18, CAST_Y + CAST_H + 34, CAST_W + 36, 26, 18, DIM, halign="center", extra='noWrap="1"'))
 	body += [
-		label("status", 1200, 650, 660, 40, 24, ACCENT, halign="right"),
+		label("status", 1200, 40, 420, 36, 24, ACCENT, halign="right"),
 		keybar(y=1030),
 	]
 	return screen("JellyfinE2Detail", "\n".join(body))
@@ -332,7 +349,7 @@ def detail_skin():
 
 def episodes_skin():
 	body = [
-		backdrop_layer("dim_overlay.png"),
+		backdrop_layer(),
 		label("title", 60, 24, 1500, 64, 46, TEXT, extra='noWrap="1"'),
 		label("subtitle", 60, 88, 1500, 44, 30, ACCENT),
 		clock(),
@@ -348,7 +365,6 @@ def episodes_skin():
 
 def list_skin(name="JellyfinE2Login", with_status=True, item_height=70):
 	body = [
-		background_layer(),
 		label("title", 60, 24, 1500, 64, 46, TEXT),
 		label("subtitle", 60, 88, 1500, 40, 26, DIM),
 		clock(),

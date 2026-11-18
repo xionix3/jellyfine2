@@ -59,6 +59,20 @@ def gh_release(base, version="9.9.9"):
 			{"name": "SHA256SUMS", "browser_download_url": base + "/gh/dl/SHA256SUMS"}]}
 
 
+GENRE_IDS = {"Action": "g1", "Komödie": "g2", "Drama": "g3"}
+
+
+def genre_id(name):
+	return GENRE_IDS.get(name) or "g-" + name
+
+
+def genre_name(gid):
+	for n, i in GENRE_IDS.items():
+		if i == gid:
+			return n
+	return gid[2:] if gid.startswith("g-") else gid
+
+
 class Library(object):
 	def __init__(self):
 		self.items = {}
@@ -342,7 +356,9 @@ class Handler(BaseHTTPRequestHandler):
 			items.sort(key=lambda e: (e["ParentIndexNumber"], e["IndexNumber"]))
 			return self.send_json({"Items": items, "TotalRecordCount": len(items)})
 		if path == "/Genres":
-			return self.send_json({"Items": [{"Id": "g1", "Name": "Action"}, {"Id": "g2", "Name": "Komödie"}]})
+			types = (q.get("includeitemtypes") or "").split(",") if q.get("includeitemtypes") else None
+			names = sorted(set(g for it in lib.items.values() if not types or it.get("Type") in types for g in (it.get("Genres") or [])))
+			return self.send_json({"Items": [{"Id": genre_id(n), "Name": n} for n in names]})
 		m = re.match(r"^/(?:UserPlayedItems|PlayedItems)/([^/]+)$", path)
 		if m:
 			it = lib.items.get(m.group(1))
@@ -412,7 +428,11 @@ class Handler(BaseHTTPRequestHandler):
 		recursive = q.get("recursive") == "true"
 		if q.get("searchterm"):
 			term = q["searchterm"].lower()
-			items = [it for it in lib.items.values() if term in it.get("Name", "").lower() and it.get("Type") not in ("CollectionFolder", "Season")]
+			fuzzy = getattr(self.state, "fuzzy_search", False)  # like servers that also return "similar" titles
+			items = [it for it in lib.items.values() if (fuzzy or term in it.get("Name", "").lower()) and it.get("Type") not in ("CollectionFolder", "Season")]
+		elif q.get("namestartswith"):
+			term = q["namestartswith"].lower()
+			items = [it for it in lib.items.values() if it.get("Name", "").lower().startswith(term) and it.get("Type") not in ("CollectionFolder", "Season")]
 		elif parent:
 			items = lib.descendants(parent) if recursive else lib.children(parent)
 		elif q.get("personids") or q.get("artistids"):
@@ -430,8 +450,9 @@ class Handler(BaseHTTPRequestHandler):
 			items = [it for it in items if (it.get("UserData") or {}).get("Played")]
 		elif f == "IsUnplayed":
 			items = [it for it in items if not (it.get("UserData") or {}).get("Played")]
-		if q.get("genreids") == "g2":
-			items = [it for it in items if "Komödie" in (it.get("Genres") or [])]
+		if q.get("genreids"):
+			gname = genre_name(q["genreids"])
+			items = [it for it in items if gname in (it.get("Genres") or [])]
 		if q.get("genres"):
 			wanted = q["genres"].split("|")
 			items = [it for it in items if set(wanted) & set(it.get("Genres") or [])]

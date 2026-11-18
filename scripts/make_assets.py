@@ -22,10 +22,6 @@ SS = 4
 os.makedirs(OUT, exist_ok=True)
 
 
-def save(img, name):
-	img.save(os.path.join(OUT, name), optimize=True)
-
-
 def gradient_overlay(w, h, fn):
 	img = Image.new("RGBA", (w, h))
 	px = img.load()
@@ -111,67 +107,76 @@ def icon(kind, size=44, color=(235, 235, 240, 255)):
 	return img.resize((size, size), Image.LANCZOS)
 
 
-def background(w=960, h=540):
-	"""Opaque dark background with a soft accent glow (screens without backdrop)."""
-	img = Image.new("RGBA", (w, h))
-	px = img.load()
-	for y in range(h):
-		for x in range(w):
-			fx, fy = x / float(w), y / float(h)
-			g1 = max(0.0, 1 - math.hypot(fx - 0.05, fy - 0.0) / 0.9) ** 2
-			g2 = max(0.0, 1 - math.hypot(fx - 1.0, fy - 1.0) / 0.9) ** 2
-			r = BG[0] + ACCENT[0] * 0.10 * g1 + PURPLE[0] * 0.14 * g2
-			g = BG[1] + ACCENT[1] * 0.10 * g1 + PURPLE[1] * 0.14 * g2
-			b = BG[2] + ACCENT[2] * 0.12 * g1 + PURPLE[2] * 0.14 * g2
-			px[x, y] = (int(r), int(g), int(b), 255)
-	return img
-
-
-# backdrop overlays (960x540, scaled to the screen)
+# ------------------------------------------------------------------ assets
 def _c(v):
 	return max(0.0, min(1.0, v))
 
 
 def hero_alpha(fx, fy):
-	side = _c((1 - fx / 0.78) * 1.25) ** 1.1 * 0.94
-	bottom = (0.0 if fy < 0.48 else _c((fy - 0.48) / 0.28)) ** 1.1 * 0.97
-	return max(0.30, side, bottom)
+	side = _c((1 - fx / 0.74) * 1.3) ** 1.2 * 0.93
+	bottom = (0.0 if fy < 0.50 else _c((fy - 0.50) / 0.26)) ** 1.1 * 0.97
+	return max(0.12, side, bottom)
 
 
 def detail_alpha(fx, fy):
-	side = _c((1 - fx / 0.85) * 1.15) * 0.92
-	bottom = (0.0 if fy < 0.55 else _c((fy - 0.55) / 0.30)) * 0.95
-	return max(0.62, side, bottom)
+	"""Text column on the left, the picture stays clearly visible on the right half."""
+	side = _c((0.74 - fx) / 0.26) ** 1.1 * 0.90
+	bottom = (0.0 if fy < 0.64 else _c((fy - 0.64) / 0.22)) ** 1.2 * 0.94
+	return max(0.08, side, bottom)
 
 
-save(gradient_overlay(960, 540, hero_alpha), "hero_overlay.png")
-save(gradient_overlay(960, 540, lambda fx, fy: 0.78 + 0.18 * _c((fy - 0.70) / 0.30)), "dim_overlay.png")
-# expanded icon rail on the start screen: darkens the left part so the names stay readable
-save(gradient_overlay(960, 540, lambda fx, fy: _c(1.15 - fx / 0.42) * 0.9 if fy < 0.6 else _c(1.15 - fx / 0.42) * 0.9 * _c((0.75 - fy) / 0.15)), "rail_overlay.png")
-save(gradient_overlay(960, 540, detail_alpha), "detail_overlay.png")
-save(background(), "background.png")
-# glass panels (exact FHD sizes, scaled together with the skin)
+def rail_alpha(fx, fy):
+	a = _c(1.15 - fx / 0.42) * 0.9
+	return a if fy < 0.6 else a * _c((0.75 - fy) / 0.15)
+
+
+def full_overlay(fn):
+	"""Gradients are computed at half size and enlarged (smooth anyway)."""
+	return gradient_overlay(960, 540, fn).resize((1920, 1080), Image.BICUBIC)
+
+
+ASSETS = {}
+
+
+def asset(name, img):
+	ASSETS[name] = img
+
+
+asset("hero_overlay.png", full_overlay(hero_alpha))
+asset("dim_overlay.png", full_overlay(lambda fx, fy: 0.80 + 0.16 * _c((fy - 0.70) / 0.30)))
+asset("rail_overlay.png", full_overlay(rail_alpha))
+asset("detail_overlay.png", full_overlay(detail_alpha))
 for name, (w, h, r) in {
 	"glass_list.png": (1240, 600, 24),
 	"glass_info.png": (1820, 168, 22),
 	"glass_episodes.png": (1820, 712, 24),
 	"glass_menu.png": (540, 872, 24),
-	"glass_dialog.png": (1000, 520, 26),
-	"glass_tech.png": (1000, 52, 16),
 }.items():
-	save(glass(w, h, r), name)
-# frames, pills, badges
-save(rounded(216, 316, 14, (0, 0, 0, 0), outline=(255, 255, 255, 255), width=4), "frame_poster.png")
-save(rounded(316, 185, 14, (0, 0, 0, 0), outline=(255, 255, 255, 255), width=4), "frame_card.png")
-save(rounded(166, 241, 14, (0, 0, 0, 0), outline=(255, 255, 255, 255), width=4), "frame_person.png")
-save(rounded(280, 64, 32, (245, 245, 248, 255)), "pill_primary.png")
-save(glass(280, 64, 32, alpha=40, border=70), "pill_secondary.png")
-save(rounded(72, 72, 36, ACCENT + (255,)), "rail_sel.png")
-save(badge("NEU", 64, 28, PURPLE), "badge_new.png")
-save(badge("gesehen", 104, 28, GREEN), "badge_seen.png")
+	asset(name, glass(w, h, r))
+asset("frame_poster.png", rounded(216, 316, 14, (0, 0, 0, 0), outline=(255, 255, 255, 255), width=4))
+asset("frame_card.png", rounded(316, 185, 14, (0, 0, 0, 0), outline=(255, 255, 255, 255), width=4))
+asset("frame_person.png", rounded(146, 211, 12, (0, 0, 0, 0), outline=(255, 255, 255, 255), width=4))
+asset("pill_primary.png", rounded(280, 64, 32, (245, 245, 248, 255)))
+asset("pill_secondary.png", glass(280, 64, 32, alpha=40, border=70))
+asset("rail_sel.png", rounded(72, 72, 36, ACCENT + (255,)))
+asset("badge_new.png", badge("NEU", 64, 28, PURPLE))
+asset("badge_seen.png", badge("gesehen", 104, 28, GREEN))
 for k in ("search", "home", "movies", "tv", "lists", "settings"):
-	save(icon(k), "icon_%s.png" % k)
-save(icon("play", 28, (16, 16, 22, 255)), "icon_play_dark.png")
-save(icon("info", 28), "icon_info.png")
-save(icon("person", 64, (90, 90, 105, 255)), "icon_person.png")
-print("assets written to %s" % OUT)
+	asset("icon_%s.png" % k, icon(k))
+asset("icon_play_dark.png", icon("play", 28, (16, 16, 22, 255)))
+asset("icon_info.png", icon("info", 28))
+
+# 1080p pixel exact in images/, 720p (2/3, rounded like the skin scaler) in images/hd/
+for f in os.listdir(OUT):
+	if f.endswith(".png"):
+		os.remove(os.path.join(OUT, f))
+HD = os.path.join(OUT, "hd")
+os.makedirs(HD, exist_ok=True)
+for f in os.listdir(HD):
+	os.remove(os.path.join(HD, f))
+for name, im in sorted(ASSETS.items()):
+	im.save(os.path.join(OUT, name), optimize=True)
+	w, h = im.size
+	small = im.resize((int(round(w * 2 / 3.0)), int(round(h * 2 / 3.0))), Image.LANCZOS)
+	small.save(os.path.join(HD, name), optimize=True)
+print("%d assets written to %s (+ hd/)" % (len(ASSETS), OUT))

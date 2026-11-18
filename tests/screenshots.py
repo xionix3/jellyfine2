@@ -257,56 +257,73 @@ def main():
 	hero = s.top
 	hero.cl.server_name = "Mein Jellyfin"
 	hero["server"].setText("patrick  @  Mein Jellyfin  (Jellyfin 10.10.7)")
-	rows = [sec[1] for sec in hero.sections]
+	settle(lambda: len(hero.rows) > 4 and not hero.loading, 15)
 
-	def cards_ready():
-		return (hero.row_items and hero["backdrop"].instance.pixmap is not None
-			and all(hero["ccover%d" % i].instance.pixmap is not None for i in range(min(5, len(hero.row_items) - 1))))
-	hero.row = rows.index("Weiterschauen")
-	hero.selection_changed()
-	settle(cards_ready, 15)
+	def ready(scr):
+		def cond():
+			n = len([i for i in scr.row_items if not i.get("_jf_more")])
+			return (scr.row_items and scr["backdrop"].instance.pixmap is not None
+				and all(scr["ccover%d" % i].instance.pixmap is not None for i in range(min(5, n))))
+		return cond
+
+	def goto(scr, title):
+		settle(lambda: any(r.title == title for r in scr.rows), 15)
+		for _ in range(60):
+			if scr.current() is not None and scr.current().title == title:
+				break
+			press(scr, "down" if [r.title for r in scr.rows].index(title) > scr.row else "up")
+		settle(ready(scr), 15)
+
+	goto(hero, "Weiterschauen")
 	press(hero, "right")
-	settle(cards_ready, 15)
+	settle(ready(hero), 15)
 	render(hero, "02-startseite")
-	hero.row = rows.index("Neue Episoden meiner Serien")
-	hero.card = 0
-	hero.selection_changed()
-	settle(lambda: cards_ready() and hero.row_items[0].get("_jf_new_count"), 15)
+	goto(hero, "Neue Episoden meiner Serien")
+	settle(lambda: hero.row_items[0].get("_jf_new_count"), 15)
 	render(hero, "03-neue-episoden")
 	press(hero, "left")
 	press(hero, "down")
-	press(hero, "down")
 	render(hero, "03b-navigation")
-	press(hero, "right")
-	hero.row = rows.index("Filme")
-	hero.card = 0
-	hero.selection_changed()
-	settle(cards_ready, 15)
-	press(hero, "red")
+	press(hero, "ok")  # sidebar -> movies: the library looks like the start screen
+	lib = s.top
+	settle(lambda: lib.__class__.__name__ == "LibraryRowsScreen" and any(r.title == "Alle Filme A-Z" for r in lib.rows), 15)
+	goto(lib, "Neu hinzugefügt")
+	press(lib, "right")
+	press(lib, "right")
+	settle(ready(lib), 15)
+	render(lib, "04-filme")
+	goto(lib, "Drama")
+	render(lib, "04b-filme-genre")
+	goto(lib, "Alle Filme A-Z")
+	press(lib, "red")
 	grid = s.top
 	settle(lambda: grid.entries and all(grid["cover%d" % i].instance.pixmap is not None for i in range(14)) and grid["backdrop"].instance.pixmap is not None, 15)
 	grid.move_to(8)
 	settle(lambda: grid["backdrop"].instance.pixmap is not None)
-	render(grid, "04-raster")
+	render(grid, "04c-raster")
 	idx = [e["Name"] for e in grid.entries].index("Stadt aus Glas")
 	grid.move_to(idx)
 	press(grid, "ok")
 	det = s.top
-	settle(lambda: det.item.get("People") and det["backdrop"].instance.pixmap is not None
-		and all(det["pphoto%d" % i].instance.pixmap is not None for i in (0, 1, 2, 3)), 15)
+	settle(lambda: det.item.get("People") and det["backdrop"].instance.pixmap is not None, 15)
 	render(det, "05-details")
 	press(det, "down")
+	settle(lambda: all(det["pphoto%d" % i].instance.pixmap is not None for i in (0, 1, 2, 3, 4)), 15)
 	press(det, "right")
 	press(det, "right")
 	render(det, "05b-besetzung")
 	press(det, "cancel")
 	press(grid, "cancel")
-	hero.row = rows.index("Serien")
-	hero.card = 0
-	hero.selection_changed()
-	settle(lambda: hero.row_items)
-	hero.card = [e.get("Name") for e in hero.row_items].index("Lichterstadt")
-	press(hero, "ok")
+	lib.close()
+	# series detail -> episodes
+	tv = [v for v in hero.views if v.get("CollectionType") == "tvshows"]
+	from JellyfinE2.jfrows import LibraryRowsScreen
+	s.open(LibraryRowsScreen, tv, "tvshows")
+	tvl = s.top
+	goto(tvl, "Alle Serien A-Z")
+	tvl.card = [e.get("Name") for e in tvl.row_items].index("Lichterstadt")
+	tvl.draw_cards()
+	press(tvl, "ok")
 	sdet = s.top
 	settle(lambda: sdet.next_up is not None)
 	sdet.pill = sdet.pills.index("episodes")
@@ -316,17 +333,14 @@ def main():
 	render(eps, "06-episoden")
 	press(eps, "cancel")
 	press(sdet, "cancel")
-	# search with categories
+	tvl.close()
+	# search: rows per category
 	hero.key_search()
 	s.top.close("er")
 	sr = s.top
-	settle(lambda: sr.entries and sr.cat_counts is not None and all(sr["cover%d" % i].instance.pixmap is not None for i in range(min(7, len(sr.entries)))), 15)
-	press(sr, "green")
-	box = s.top
-	box.selection = 1
-	render_choice(box, "07-suche-kategorien", render(sr, "07-suche"))
-	s.top.close(None)
-	press(sr, "cancel")
+	settle(lambda: not sr.loading and sr.rows and ready(sr)(), 15)
+	render(sr, "07-suche")
+	sr.close()
 	press(hero, "blue")
 	rs = s.top
 	rs["list"].moveToIndex(1)

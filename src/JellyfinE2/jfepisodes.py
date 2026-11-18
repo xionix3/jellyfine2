@@ -11,7 +11,7 @@ from Components.MultiContent import MultiContentEntryPixmapAlphaBlend, MultiCont
 from Components.Pixmap import Pixmap
 from Screens.ChoiceBox import ChoiceBox
 
-from .jfcommon import JFScreen, load_pixmap, make_list
+from .jfcommon import JFScreen, make_list
 from .jfimages import image_ref
 from .jfskin import C_ACCENT, C_DIM, C_GREEN, C_PLACEHOLDER, C_TEXT, S, episodes_skin
 from . import jfconfig
@@ -47,6 +47,8 @@ class EpisodesScreen(JFScreen):
 		self.generation = 0
 		self.new_days = jfconfig.get_int("new_days", 7)
 		self["backdrop"] = Pixmap()
+		self["overlay"] = Pixmap()
+		self.static_layers["overlay"] = "dim_overlay.png"
 		self["title"] = Label(album.get("Name", "") if album else series_name)
 		self["subtitle"] = Label("")
 		self["info"] = Label("")
@@ -95,7 +97,7 @@ class EpisodesScreen(JFScreen):
 		if album.get("ProductionYear"):
 			parts.append(str(album["ProductionYear"]))
 		self["subtitle"].setText("  |  ".join(p for p in parts if p))
-		self.load_image("backdrop", album, "backdrop", 1920, 1080)
+		self.load_image("backdrop", album, "backdrop", 1920, 1080, keep=True)
 
 		def ok(tracks):
 			self.entries = tracks
@@ -119,7 +121,7 @@ class EpisodesScreen(JFScreen):
 			self.seasons = seasons
 			if series:
 				self["title"].setText(series.get("Name", ""))
-				self.load_image("backdrop", series, "backdrop", 1920, 1080)
+				self.load_image("backdrop", series, "backdrop", 1920, 1080, keep=True)
 			if not seasons:
 				self.set_status("Keine Staffeln gefunden")
 				return
@@ -256,7 +258,9 @@ class EpisodesScreen(JFScreen):
 		return row
 
 	def load_thumbs(self):
+		"""Thumbnails are decoded off the GUI thread; rows near the selection first."""
 		gen = self.generation
+		sel = self["list"].getSelectedIndex() if self["list"].list else 0
 		for i, it in enumerate(self.entries):
 			if it.get("Id") in self.thumbs:
 				continue
@@ -264,17 +268,14 @@ class EpisodesScreen(JFScreen):
 			if not ref:
 				continue
 
-			def done(path, i=i, it=it):
-				if self.jf_closed or gen != self.generation:
-					return
-				ptr = load_pixmap(path)
-				if ptr is None:
+			def done(ptr, i=i, it=it):
+				if self.jf_closed or gen != self.generation or ptr is None:
 					return
 				self.thumbs[it.get("Id")] = ptr
 				self.update_row(i)
-			path = self.images.get(ref, S(TH_W), S(TH_H), done)
-			if path:
-				done(path)
+			ptr = self.images.pixmap(ref, S(TH_W), S(TH_H), done, urgent=abs(i - sel) < 5)
+			if ptr is not None:
+				done(ptr)
 
 	def update_row(self, i):
 		lst = self["list"]

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2026 xionix
-# Jellyfin for Enigma2 - detail page for movies, episodes and series (backdrop, action pills, cast with photos)
+# Jellyfin for Enigma2 - detail page for movies, episodes and series: the picture stays visible, the description
+# can be read completely, the cast (with photos) only appears when it is selected (down key or "Besetzung")
 from __future__ import absolute_import
 
 from Components.ActionMap import ActionMap
@@ -12,7 +13,8 @@ from Components.ScrollLabel import ScrollLabel
 from Screens.ChoiceBox import ChoiceBox
 
 from .jfcommon import SEP, JFScreen, hero_meta, move_widget, set_text_color, set_widget_pixmap
-from .jfskin import (C_DARK, C_TEXT, CAST_COUNT, CAST_H, CAST_STEP, CAST_W, CAST_X0, CAST_Y, FRAME_PAD, PILL_COUNT, detail_skin, img)
+from .jfimages import image_ref
+from .jfskin import (C_DARK, C_TEXT, CAST_COUNT, CAST_H, CAST_STEP, CAST_W, CAST_X0, CAST_Y, FRAME_PAD, PILL_COUNT, S, detail_skin, img)
 from .jfutil import (clean_text, episode_code, fmt_ends_at, is_favorite, is_played, lang_name, played_percentage, resume_ticks,
 	stream_label, video_label)
 
@@ -22,7 +24,7 @@ ROLES = {"Actor": "Darsteller", "Director": "Regie", "Writer": "Drehbuch", "Prod
 LABELS = {"resume": "Fortsetzen", "start": "Abspielen", "restart": "Von Anfang", "tracks": "Audio & Untertitel", "version": "Version",
 	"season": "Alle Episoden", "series": "Zur Serie", "nextup": "Weiterschauen", "episodes": "Staffeln & Episoden",
 	"playseries": "Abspielen", "played": "Gesehen", "unplayed": "Ungesehen", "fav": "Favorit", "unfav": "Kein Favorit",
-	"similar": "Ähnliche Titel", "cast": "Gesamte Besetzung", "more": "Mehr ..."}
+	"similar": "Ähnliche Titel", "cast": "Besetzung", "castgrid": "Gesamte Besetzung", "more": "Mehr ..."}
 
 
 def cast_list(item):
@@ -74,10 +76,12 @@ class DetailScreen(JFScreen):
 		self.focus = "pills"
 		self.loaded = False
 		self["backdrop"] = Pixmap()
+		self["overlay"] = Pixmap()
+		self.static_layers["overlay"] = "detail_overlay.png"
 		self["badge"] = Pixmap()
 		self["cast_frame"] = Pixmap()
 		self["progress"] = ProgressBar()
-		for name in ("crumb", "title", "meta", "genres", "tech", "cast_title", "status"):
+		for name in ("crumb", "title", "meta", "genres", "tech", "cast_title", "cast_hint", "status"):
 			self[name] = Label("")
 		self["title"].setText(item.get("Name", ""))
 		self["overview"] = ScrollLabel("")
@@ -96,6 +100,8 @@ class DetailScreen(JFScreen):
 			"cancel": self.close,
 			"up": lambda: self.set_focus("pills"),
 			"down": lambda: self.set_focus("cast"),
+			"upRepeated": self["overview"].pageUp,
+			"downRepeated": self["overview"].pageDown,
 			"left": lambda: self.key_horizontal(-1),
 			"right": lambda: self.key_horizontal(1),
 			"leftRepeated": lambda: self.key_horizontal(-1),
@@ -117,7 +123,9 @@ class DetailScreen(JFScreen):
 	def start(self):
 		self["progress"].hide()
 		self["badge"].hide()
-		self["cast_frame"].hide()
+		self.show_cast(False)
+		# the backdrop of the title the user came from is usually decoded already -> shown at once
+		self.load_image("backdrop", self.item, "backdrop", 1920, 1080, keep=True)
 		self.render()
 		self.load()
 
@@ -206,10 +214,10 @@ class DetailScreen(JFScreen):
 		self["meta"].setText(meta)
 		if new:
 			self["badge"].show()
-			move_widget(self, "meta", 196, 190)
+			move_widget(self, "meta", 196, 184)
 		else:
 			self["badge"].hide()
-			move_widget(self, "meta", 120, 190)
+			move_widget(self, "meta", 120, 184)
 		self["genres"].setText(", ".join(it.get("Genres") or []))
 		overview = clean_text(it.get("Overview"))
 		if it.get("Taglines") and t != "Episode":
@@ -225,11 +233,17 @@ class DetailScreen(JFScreen):
 			self["progress"].hide()
 		self.cast = cast_list(it)
 		self.cast_idx = min(self.cast_idx, max(0, len(self.cast) - 1))
-		self.draw_cast()
 		if not self.cast and self.focus == "cast":
 			self.focus = "pills"
+		if self.focus == "cast":
+			self.draw_cast()
+		elif self.cast:
+			# photos are decoded in the background, so the cast row appears at once when selected
+			for p in self.cast[:CAST_COUNT]:
+				self.images.prefetch(image_ref(p, "person"), S(CAST_W), S(CAST_H))
+		self.show_cast(self.focus == "cast")
 		self.draw_focus()
-		self.load_image("backdrop", it, "backdrop", 1280, 720, keep=True)
+		self.load_image("backdrop", it, "backdrop", 1920, 1080, keep=True)
 
 	def crumb_text(self):
 		it = self.item
@@ -301,7 +315,7 @@ class DetailScreen(JFScreen):
 			acts.append("series")
 		if len(it.get("MediaSources") or []) > 1:
 			acts.append("version")
-		if it.get("People"):
+		if self.cast or it.get("People"):
 			acts.append("cast")
 		return acts
 
@@ -350,6 +364,33 @@ class DetailScreen(JFScreen):
 				self[name].setText("")
 				self[role].setText("")
 
+	def show_cast(self, on):
+		"""Cast row and pills share the lower part of the page; the description above stays readable."""
+		for i in range(CAST_COUNT):
+			for name in ("pph%d" % i, "pphoto%d" % i, "pname%d" % i, "prole%d" % i):
+				if not on:
+					self[name].hide()
+					self[name].jf_shown = False
+				elif name.startswith(("pname", "prole")):
+					self[name].show()
+		self["cast_title"].show() if on else self["cast_title"].hide()
+		self["cast_frame"].show() if on else self["cast_frame"].hide()
+		for i in range(PILL_COUNT):
+			used = i < len(self.pills)
+			for name in ("pill%d" % i, "pilltxt%d" % i):
+				self[name].show() if (used and not on) else self[name].hide()
+		self["tech"].hide() if on else self["tech"].show()
+		n = len(self.cast)
+		self["cast_hint"].setText("\u25bc  Besetzung (%d): %s" % (n, ", ".join(p.get("Name", "") for p in self.cast[:4]) + (" ..." if n > 4 else "")) if n else "")
+		self["cast_hint"].hide() if on or not n else self["cast_hint"].show()
+		if on:
+			self["progress"].hide()
+		elif self.pills and self.pills[0] == "resume":
+			pct = played_percentage(self.item)
+			if 0 < pct < 100:
+				self["progress"].setValue(pct)
+				self["progress"].show()
+
 	def draw_focus(self):
 		primary = img("pill_primary.png")
 		secondary = img("pill_secondary.png")
@@ -366,8 +407,16 @@ class DetailScreen(JFScreen):
 	# ------------------------------------------------------------- navigation
 	def set_focus(self, focus):
 		if focus == "cast" and not self.cast:
+			self["overview"].pageDown()
+			return
+		if focus == self.focus:
+			if focus == "pills":
+				self["overview"].pageUp()
 			return
 		self.focus = focus
+		if focus == "cast":
+			self.draw_cast()
+		self.show_cast(focus == "cast")
 		self.draw_focus()
 
 	def key_horizontal(self, step):
@@ -435,6 +484,8 @@ class DetailScreen(JFScreen):
 			jfnav.open_grid(self, {"title": "Ähnlich wie %s" % it.get("Name", ""), "source": "similar", "item_id": it["Id"], "categories": True},
 				callback=self.after_play)
 		elif action == "cast":
+			self.set_focus("cast")
+		elif action == "castgrid":
 			people = [person_item(p) for p in cast_list(it)]
 			jfnav.open_grid(self, {"title": "Besetzung: %s" % it.get("Name", ""), "source": "static", "items": people, "sortable": False},
 				callback=self.after_play)
@@ -510,6 +561,8 @@ class DetailScreen(JFScreen):
 
 	def key_menu(self):
 		lst = [(self.pill_label(a), a) for a in self.actions()]
+		if self.item.get("People"):
+			lst.append((LABELS["castgrid"], "castgrid"))
 		lst.append(("Neu laden", "reload"))
 		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title=self.item.get("Name", ""), list=lst)
 

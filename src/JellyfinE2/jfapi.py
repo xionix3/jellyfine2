@@ -26,7 +26,7 @@ except ImportError:  # pragma: no cover - python 2 fallback
 	from urlparse import urljoin, urlsplit
 
 CLIENT_NAME = "Jellyfin Enigma2"
-CLIENT_VERSION = "1.2.0"
+CLIENT_VERSION = "1.3.0"
 
 SEARCH_TYPES = "Movie,Series,Episode,BoxSet,MusicAlbum,MusicVideo,Video,MusicArtist,Audio"
 LIST_FIELDS = "Overview,Genres,PrimaryImageAspectRatio,ChildCount,DateCreated,DateLastMediaAdded,MediaSourceCount,SeriesPrimaryImage"
@@ -428,8 +428,9 @@ class JellyfinClient(object):
 			res = self.get("/Users/%s/Items" % self.user_id, **params)
 		return res or {"Items": [], "TotalRecordCount": 0}
 
-	def resume(self, limit=24, media_type="Video"):
+	def resume(self, limit=24, media_type="Video", **extra):
 		params = dict(limit=limit, mediaTypes=media_type, fields=LIST_FIELDS, enableImageTypes="Primary,Backdrop,Thumb", imageTypeLimit=1, enableTotalRecordCount=False)
+		params.update(extra)
 		if self.new_api:
 			res = self.get("/UserItems/Resume", userId=self.user_id, **params)
 		else:
@@ -443,8 +444,9 @@ class JellyfinClient(object):
 		res = self.get("/Shows/NextUp", **params) or {}
 		return res.get("Items") or []
 
-	def latest(self, parent_id=None, limit=24):
+	def latest(self, parent_id=None, limit=24, **extra):
 		params = dict(parentId=parent_id, limit=limit, fields=LIST_FIELDS, enableImageTypes="Primary,Backdrop,Thumb", imageTypeLimit=1)
+		params.update(extra)
 		if self.new_api:
 			res = self.get("/Items/Latest", userId=self.user_id, **params)
 		else:
@@ -480,15 +482,34 @@ class JellyfinClient(object):
 		res = self.get("/Items/%s/Similar" % item_id, userId=self.user_id, limit=limit, fields=LIST_FIELDS) or {}
 		return res.get("Items") or []
 
-	def search(self, term, types=None, limit=150):
-		"""Title search. No sortBy: the server returns the best matches first (an alphabetical sort used to
-		push exact hits like 'Bluey' behind the limit); the client re-ranks exact/prefix matches on top."""
-		from .jfutil import rank_search
-		res = self.items(searchTerm=term, recursive=True, limit=limit, includeItemTypes=types or SEARCH_TYPES, enableTotalRecordCount=False)
-		return rank_search(term, res.get("Items") or [])
+	def search(self, term, types=None, limit=100):
+		"""Exact title search: only items whose title really contains the term.
+
+		Two queries: the server's search (searchTerm) and titles starting with the term (nameStartsWith),
+		so an exact title is found even when the server ranks fuzzy hits first. Everything that does
+		not contain the term in its title is dropped."""
+		from .jfutil import strict_matches
+		if types == "Person":
+			return self.search_people(term)
+		types = types or SEARCH_TYPES
+		found = []
+		seen = set()
+		queries = [dict(searchTerm=term, limit=limit), dict(nameStartsWith=term.strip().lower(), sortBy="SortName", limit=50)]
+		for i, q in enumerate(queries):
+			try:
+				res = self.items(recursive=True, includeItemTypes=types, enableTotalRecordCount=False, **q)
+			except JellyfinError:
+				if i == 0:
+					raise
+				continue
+			for it in res.get("Items") or []:
+				if it.get("Id") and it["Id"] not in seen:
+					seen.add(it["Id"])
+					found.append(it)
+		return strict_matches(term, found)
 
 	def search_people(self, term, limit=60):
-		from .jfutil import rank_search
+		from .jfutil import strict_matches
 		params = dict(searchTerm=term, limit=limit, enableImageTypes="Primary", imageTypeLimit=1, fields="PrimaryImageAspectRatio")
 		if self.user_id:
 			params["userId"] = self.user_id
@@ -496,7 +517,7 @@ class JellyfinClient(object):
 		people = [p for p in (res.get("Items") or []) if p.get("Id")]
 		for p in people:
 			p.setdefault("Type", "Person")
-		return rank_search(term, people)
+		return strict_matches(term, people)
 
 	def genres(self, parent_id=None, item_types=None):
 		res = self.get("/Genres", userId=self.user_id, parentId=parent_id, includeItemTypes=item_types, sortBy="SortName", sortOrder="Ascending") or {}

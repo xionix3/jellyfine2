@@ -28,25 +28,27 @@
 | | |
 |:---:|:---:|
 | <img src="docs/screenshots/02-startseite.jpg" alt="Start screen"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
-| **Start screen** – backdrop of the focused title, rows of cards below | **Details** – action buttons, cast with photos |
+| **Start screen** – backdrop of the focused title, rows of cards below | **Details** – the picture stays visible, full description |
+| <img src="docs/screenshots/04-filme.jpg" alt="Movies"> | <img src="docs/screenshots/04b-filme-genre.jpg" alt="Genres"> |
+| **Movies/shows** like the start screen – ▲▼ jumps through the categories | **Genres and folders** as rows of their own |
+| <img src="docs/screenshots/07-suche.jpg" alt="Search"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Cast"> |
+| **Search** – real matches only, one row per category | **Cast** with photos – appears with ▼ |
 | <img src="docs/screenshots/03-neue-episoden.jpg" alt="New episodes"> | <img src="docs/screenshots/03b-navigation.jpg" alt="Sidebar"> |
-| **New episodes of my shows** – one card per show | **Sidebar** – search, movies, shows, lists, settings |
-| <img src="docs/screenshots/04-raster.jpg" alt="Poster grid"> | <img src="docs/screenshots/07-suche-kategorien.jpg" alt="Search with categories"> |
-| **Poster grid** with NEW and watched badges | **Search** – restrict to a category (movies, shows, people …) |
-| <img src="docs/screenshots/06-episoden.jpg" alt="Episodes"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Cast"> |
-| **Seasons & episodes** with thumbnails | **Cast** – OK shows all titles of the person |
-| <img src="docs/screenshots/08-meine-listen.jpg" alt="My lists"> | <img src="docs/screenshots/10-einstellungen.jpg" alt="Settings"> |
-| **My lists** – your own filter rules | **Settings** – e.g. modern or classic start screen |
+| **New episodes of my shows** – one card per show | **Sidebar** – search, start, movies, shows, lists, settings |
+| <img src="docs/screenshots/06-episoden.jpg" alt="Episodes"> | <img src="docs/screenshots/04c-raster.jpg" alt="Show all"> |
+| **Seasons & episodes** | **Show all** (red) – grid with sorting and filters |
 
 <details>
-<summary>More: classic start screen, list editor, login</summary>
+<summary>More: my lists, list editor, settings, classic start screen, login</summary>
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Classic start screen"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="List editor"> |
-| **Classic start screen** (menu on the left) | **List editor** |
-| <img src="docs/screenshots/01-anmeldung.jpg" alt="Login"> | <img src="docs/screenshots/07-suche.jpg" alt="Search results"> |
-| **Login** | **Search results** – best matches first |
+| <img src="docs/screenshots/08-meine-listen.jpg" alt="My lists"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="List editor"> |
+| **My lists** – your own filter rules | **List editor** |
+| <img src="docs/screenshots/10-einstellungen.jpg" alt="Settings"> | <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Classic start screen"> |
+| **Settings** | **Classic start screen** (menu on the left) |
+| <img src="docs/screenshots/01-anmeldung.jpg" alt="Login"> | |
+| **Login** | |
 
 </details>
 
@@ -58,11 +60,13 @@
 
 - **Login** with username/password or **Quick Connect** (no typing), automatic **server discovery** on the LAN
 - **Modern start screen**: large backdrop and info of the focused title, rows of cards below (continue watching, next up, recently added, libraries, favourites, own lists) and a sidebar – the classic layout (menu left, posters right) is still available
+- **Movies, shows and every library** look like the start screen: rows for continue watching, recently added, new releases, favourites, every genre or folder – ▲▼ jumps through them, no sub menus
+- **Smooth**: pictures are decoded outside the GUI (ePicLoad), loaded at the exact screen size and kept in memory – nothing rebuilds while you scroll
 - **Glass look**: rounded, translucent panels, frames and buttons (PNG based, so Enigma2 really blends them)
 - **My lists**: your own filter rules, e.g. *new movies of the last 30 days* or *new episodes of the shows I watch*
 - **Poster grid** with sorting, filters (unplayed, played, favourites, in progress, genre, **category**), NEW badge, progress bars and backdrop
-- **Details** with backdrop, action buttons, audio/subtitle selection, multiple versions, similar titles and **cast with photos** (OK lists the person's titles)
-- **Search** by relevance (exact matches first) with **categories**: movies, shows, episodes, collections, music, people
+- **Details**: the picture stays visible, the full description is readable; action buttons, audio/subtitle selection, versions, similar titles; the **cast with photos** appears with ▼ (OK lists the person's titles)
+- **Search**: only titles that really contain the term – every category is searched on its own and shown as a row (movies, shows, episodes, collections, music, people)
 - **Seasons & episodes**, **music albums**
 - **Auto-update**: checks the GitHub releases on start (at most twice a day), installs the new version on request (checksum verified) and restarts Enigma2
 - **Playback** through the Enigma2 movie player (GStreamer or ServiceApp):
@@ -104,8 +108,9 @@ The login is remembered. Log out with **red** on the start screen.
 | **Start screen** | ▲▼ row · ◀▶ title · ◀ on the first card: sidebar · OK details/open · PLAY play · CH± jump 5 titles · 🔴 all titles of the row · 🟢 search · 🟡 refresh · 🔵 my lists · MENU layout, updates, log out … · EXIT back to the start, then quit |
 | **Classic start screen** | ▲▼ section · OK open · 🟢 search · 🟡 refresh · 🔵 my lists · 🔴 log out · MENU more |
 | **Poster grid** | arrows · CH+/- page · OK open · PLAY play · 🔴 sort · 🟢 filter/genre/category · 🟡 watched ± · 🔵 favourite ± · INFO details |
-| **Search results** | like the grid · 🟢 category (all, movies, shows, episodes, collections, music, people) |
-| **Details** | ◀▶ button · ▼ cast, ▲ back to the buttons · OK run / titles of the person · CH± scroll text · 🟢 play · 🟡 audio/subtitles · 🔴 watched ± · 🔵 favourite ± · MENU all actions |
+| **Movies / shows / library** | like the start screen: ▲▼ category, genre or folder · ◀▶ title · 🔴 all titles of the row as a grid |
+| **Search results** | ▲▼ category (movies, shows, episodes, collections, music, people) · ◀▶ match · 🔴 all matches of the category |
+| **Details** | ◀▶ button · ▼ show the cast, ▲ back · OK run / titles of the person · CH± scroll text · 🟢 play · 🟡 audio/subtitles · 🔴 watched ± · 🔵 favourite ± · MENU all actions |
 | **Episodes** | ▲▼ episode · ◀▶ season · OK play · 🟡 details · MENU mark whole season watched |
 | **My lists** | OK show list · 🟢 new · 🟡 edit · 🔴 delete · 🔵 move up · MENU start screen on/off, duplicate |
 | **Player** | ◀ −10 s · ▶ +30 s · ▲▼ info bar · ⏮ ⏭ previous/next episode · INFO info · STOP/EXIT quit · AUDIO/SUBTITLE as usual |
@@ -170,7 +175,7 @@ For self-signed certificates set *verify SSL certificate* to **no**.
 <details>
 <summary><b>Search does not find a title</b></summary>
 
-Search matches titles (like the Jellyfin web UI); exact matches come first. Press **green** to restrict the results to a category – the plugin then asks the server for e.g. shows only, even when the full list is very long.
+Search matches titles. Every category is queried on its own, plus titles starting with the term; only what really contains the term is shown. If a title is still missing, check in the Jellyfin web UI that it is listed under exactly that name.
 </details>
 
 <details>
@@ -209,8 +214,10 @@ src/JellyfinE2/      plugin (installed to /usr/lib/enigma2/python/Plugins/Extens
   jfrules.py         "my lists" rule engine (pure python)
   jfhome / jfgrid / jfdetail / jfepisodes / jfplayer / jflogin / jfsettings / jfrulesui   screens
   jfskin.py          embedded skins, designed for 1920x1080 and scaled at runtime
+  jfrows.py          row screens (start screen, libraries, search): hero + one row of cards, sidebar
   jfupdate.py        update check against the GitHub releases, download + opkg install
-  images/            glass panels, gradients, frames, pills, icons (generated by scripts/make_assets.py)
+  images/            glass panels, gradients, frames, pills, icons; pixel exact for 1080p, images/hd/ for 720p
+                     (generated by scripts/make_assets.py)
 tests/               fake server, demo data, Enigma2 stubs, end-to-end tests, screenshot renderer
 scripts/             ipk builder, syntax check, asset, icon and banner generators
 ```

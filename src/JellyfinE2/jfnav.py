@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 xionix
 # Jellyfin for Enigma2 - where to go when an item is selected
 from __future__ import absolute_import
 
@@ -53,16 +54,23 @@ def open_grid(screen, spec, callback=None):
 
 
 def open_search(screen, text="", done=None):
-	"""Keyboard -> result grid (relevance order, restrict by category with the green key)."""
+	"""Keyboard -> results as rows per category (only titles that contain the term).
+
+	done(term, result) is called when the result screen closes (result may be a sidebar request)."""
 	from Screens.VirtualKeyBoard import VirtualKeyBoard
 
 	def entered(term=None):
 		term = (term or "").strip()
 		if not term:
 			return
-		open_grid(screen, {"title": 'Suche: "%s"' % term, "source": "search", "term": term, "categories": True},
-			callback=lambda *a: done and done(term))
+		from .jfrows import SearchRowsScreen
+		screen.session.openWithCallback(lambda result=None, *a: done and done(term, result), SearchRowsScreen, term)
 	screen.session.openWithCallback(entered, VirtualKeyBoard, title="Jellyfin durchsuchen (Filme, Serien, Episoden, Musik, Personen)", text=text or "")
+
+
+def views_of_kind(views, kind):
+	want = {"movies": "movies", "tv": "tvshows", "tvshows": "tvshows"}.get(kind, kind)
+	return [v for v in views if (v.get("CollectionType") or "").lower() == want]
 
 
 def open_detail(screen, item, callback=None):

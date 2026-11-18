@@ -38,6 +38,9 @@ class Launcher(object):
 			self.open_login()
 		elif result == "relayout":
 			self.open_home()
+		else:
+			from .jfimages import drop_pixmaps
+			drop_pixmaps()  # free the decoded pictures when the plugin is closed
 
 	def login_closed(self, result=None):
 		if result == "ok":

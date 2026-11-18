@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.3.0] - 2026-11-18
+
+- **Movies, shows and every library look like the start screen**: rows for continue watching, recently added, new releases, best rated unwatched, favourites, every genre (or every folder) and A-Z; up/down jumps through them instead of a sub menu. Red shows all titles of a row as a grid
+- **Search finds exact matches only**: every category (movies, shows, episodes, collections, music, people) is searched on its own, plus titles starting with the term; results that do not contain the term are dropped. Results are shown as one row per category
+- Fix: shows were missing in search results - a single query for all types was filled up with fuzzy movie hits of the server before any show appeared
+- **No more stutter**: pictures are decoded in ePicLoad threads instead of the GUI thread, at the exact widget size (no scaling while painting), and kept in memory; moving inside the visible cards only moves the frame, unchanged cards are not repainted, nothing is hidden and shown again while a picture loads
+- **Details page**: the picture stays visible on the right, the description has room to be read completely, the cast row with photos only appears with the down key (pills and technical line make room for it); the backdrop is there at once when coming from a card
+- Sidebar in every row screen; sub screens hand the sidebar back to the start screen (flat screen stack)
+- Skin pictures exist pixel exact for 1080p and 720p
+
 ## [1.2.0] - 2026-11-18
 
 - **Modern start screen**: large backdrop with title, info and buttons of the focused item, rows of 16:9 cards (one row per section), sidebar with search, movies, shows, lists and settings. The classic layout stays available (setting *Startseite* or MENU)

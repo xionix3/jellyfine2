@@ -28,25 +28,27 @@
 | | |
 |:---:|:---:|
 | <img src="docs/screenshots/02-startseite.jpg" alt="Startscherm"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
-| **Startscherm** – achtergrond van de gekozen titel, daaronder rijen met kaarten | **Details** – actieknoppen, cast met foto's |
+| **Startscherm** – achtergrond van de gekozen titel, daaronder rijen met kaarten | **Details** – het beeld blijft zichtbaar, volledige beschrijving |
+| <img src="docs/screenshots/04-filme.jpg" alt="Films"> | <img src="docs/screenshots/04b-filme-genre.jpg" alt="Genres"> |
+| **Films/series** zoals het startscherm – ▲▼ springt door de categorieën | **Genres en mappen** als eigen rijen |
+| <img src="docs/screenshots/07-suche.jpg" alt="Zoeken"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Cast"> |
+| **Zoeken** – alleen echte treffers, één rij per categorie | **Cast** met foto's – verschijnt met ▼ |
 | <img src="docs/screenshots/03-neue-episoden.jpg" alt="Nieuwe afleveringen"> | <img src="docs/screenshots/03b-navigation.jpg" alt="Zijbalk"> |
-| **Nieuwe afleveringen van mijn series** – één kaart per serie | **Zijbalk** – zoeken, films, series, lijsten, instellingen |
-| <img src="docs/screenshots/04-raster.jpg" alt="Posteroverzicht"> | <img src="docs/screenshots/07-suche-kategorien.jpg" alt="Zoeken met categorieën"> |
-| **Posteroverzicht** met NIEUW- en bekeken-labels | **Zoeken** – beperken tot een categorie (films, series, personen …) |
-| <img src="docs/screenshots/06-episoden.jpg" alt="Afleveringen"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Cast"> |
-| **Seizoenen & afleveringen** met voorbeeldbeelden | **Cast** – OK toont alle titels van de persoon |
-| <img src="docs/screenshots/08-meine-listen.jpg" alt="Mijn lijsten"> | <img src="docs/screenshots/10-einstellungen.jpg" alt="Instellingen"> |
-| **Mijn lijsten** – eigen filterregels | **Instellingen** – o.a. modern of klassiek startscherm |
+| **Nieuwe afleveringen van mijn series** – één kaart per serie | **Zijbalk** – zoeken, start, films, series, lijsten, instellingen |
+| <img src="docs/screenshots/06-episoden.jpg" alt="Afleveringen"> | <img src="docs/screenshots/04c-raster.jpg" alt="Alles tonen"> |
+| **Seizoenen & afleveringen** | **Alles tonen** (rood) – overzicht met sorteren en filters |
 
 <details>
-<summary>Meer: klassiek startscherm, lijsteditor, inloggen</summary>
+<summary>Meer: mijn lijsten, lijsteditor, instellingen, klassiek startscherm, inloggen</summary>
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Klassiek startscherm"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="Lijsteditor"> |
-| **Klassiek startscherm** (menu links) | **Lijsteditor** |
-| <img src="docs/screenshots/01-anmeldung.jpg" alt="Inloggen"> | <img src="docs/screenshots/07-suche.jpg" alt="Zoekresultaten"> |
-| **Inloggen** | **Zoekresultaten** – beste treffers eerst |
+| <img src="docs/screenshots/08-meine-listen.jpg" alt="Mijn lijsten"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="Lijsteditor"> |
+| **Mijn lijsten** – eigen filterregels | **Lijsteditor** |
+| <img src="docs/screenshots/10-einstellungen.jpg" alt="Instellingen"> | <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Klassiek startscherm"> |
+| **Instellingen** | **Klassiek startscherm** (menu links) |
+| <img src="docs/screenshots/01-anmeldung.jpg" alt="Inloggen"> | |
+| **Inloggen** | |
 
 </details>
 
@@ -58,11 +60,13 @@
 
 - **Inloggen** met gebruikersnaam/wachtwoord of **Quick Connect** (zonder typen), automatisch **server zoeken** in het thuisnetwerk
 - **Modern startscherm**: grote achtergrond en info van de gekozen titel, daaronder rijen met kaarten (verder kijken, volgende, onlangs toegevoegd, bibliotheken, favorieten, eigen lijsten) en een zijbalk – de klassieke weergave (menu links, posters rechts) blijft beschikbaar
+- **Films, series en elke bibliotheek** zien eruit als het startscherm: rijen voor verder kijken, onlangs toegevoegd, nieuw verschenen, favorieten, elk genre of elke map – met ▲▼ spring je erdoor, geen submenu's
+- **Vloeiend**: afbeeldingen worden buiten de interface gedecodeerd (ePicLoad), op exacte schermgrootte geladen en in het geheugen gehouden – bij het bladeren wordt niets opnieuw opgebouwd
 - **Glas-look**: afgeronde, doorschijnende vlakken, kaders en knoppen (als PNG, zodat Enigma2 ze echt laat overvloeien)
 - **Mijn lijsten**: eigen filterregels, bv. *nieuwe films van de laatste 30 dagen* of *nieuwe afleveringen van de series die ik kijk*
 - **Posteroverzicht** met sorteren, filters (niet bekeken, bekeken, favorieten, begonnen, genre, **categorie**), NIEUW-label, voortgangsbalken en achtergrondafbeelding
-- **Details** met achtergrond, actieknoppen, keuze van audio en ondertitels, meerdere versies, vergelijkbare titels en **cast met foto's** (OK toont de titels van de persoon)
-- **Zoeken** op relevantie (exacte treffers eerst) met **categorieën**: films, series, afleveringen, collecties, muziek, personen
+- **Details**: het beeld blijft zichtbaar, de volledige beschrijving is leesbaar; actieknoppen, audio- en ondertitelkeuze, versies, vergelijkbare titels; de **cast met foto's** verschijnt met ▼ (OK toont de titels van de persoon)
+- **Zoeken**: alleen titels die de zoekterm echt bevatten – elke categorie wordt apart gezocht en als eigen rij getoond (films, series, afleveringen, collecties, muziek, personen)
 - **Seizoenen & afleveringen**, **muziekalbums**
 - **Automatische updates**: controleert bij het starten (hoogstens twee keer per dag) de GitHub-releases, installeert op verzoek de nieuwe versie (met controlesom) en herstart Enigma2
 - **Afspelen** via de Enigma2-moviespeler (GStreamer of ServiceApp):
@@ -104,8 +108,9 @@ De aanmelding wordt onthouden. Afmelden met **rood** op het startscherm.
 | **Startscherm** | ▲▼ rij · ◀▶ titel · ◀ op de eerste kaart: zijbalk · OK details/openen · PLAY afspelen · CH± 5 titels verder · 🔴 alle titels van de rij · 🟢 zoeken · 🟡 vernieuwen · 🔵 mijn lijsten · MENU weergave, updates, afmelden … · EXIT terug naar het begin, dan afsluiten |
 | **Klassiek startscherm** | ▲▼ onderdeel · OK openen · 🟢 zoeken · 🟡 vernieuwen · 🔵 mijn lijsten · 🔴 afmelden · MENU meer |
 | **Posteroverzicht** | pijltjes · CH+/- pagina · OK openen · PLAY afspelen · 🔴 sorteren · 🟢 filter/genre/categorie · 🟡 bekeken ± · 🔵 favoriet ± · INFO details |
-| **Zoekresultaten** | zoals het overzicht · 🟢 categorie (alle, films, series, afleveringen, collecties, muziek, personen) |
-| **Details** | ◀▶ knop · ▼ cast, ▲ terug naar de knoppen · OK uitvoeren / titels van de persoon · CH± tekst bladeren · 🟢 afspelen · 🟡 audio/ondertitels · 🔴 bekeken ± · 🔵 favoriet ± · MENU alle acties |
+| **Films / series / bibliotheek** | zoals het startscherm: ▲▼ categorie, genre of map · ◀▶ titel · 🔴 alle titels van de rij als overzicht |
+| **Zoekresultaten** | ▲▼ categorie (films, series, afleveringen, collecties, muziek, personen) · ◀▶ treffer · 🔴 alle treffers van de categorie |
+| **Details** | ◀▶ knop · ▼ cast tonen, ▲ terug · OK uitvoeren / titels van de persoon · CH± tekst bladeren · 🟢 afspelen · 🟡 audio/ondertitels · 🔴 bekeken ± · 🔵 favoriet ± · MENU alle acties |
 | **Afleveringen** | ▲▼ aflevering · ◀▶ seizoen · OK afspelen · 🟡 details · MENU heel seizoen als bekeken markeren |
 | **Mijn lijsten** | OK lijst tonen · 🟢 nieuw · 🟡 bewerken · 🔴 verwijderen · 🔵 omhoog · MENU startscherm aan/uit, dupliceren |
 | **Speler** | ◀ −10 s · ▶ +30 s · ▲▼ infobalk · ⏮ ⏭ vorige/volgende aflevering · INFO info · STOP/EXIT stoppen · AUDIO/SUBTITLE zoals gewoonlijk |
@@ -170,7 +175,7 @@ Zet bij zelfondertekende certificaten *SSL-certificaat controleren* op **nee**.
 <details>
 <summary><b>Zoeken vindt een titel niet</b></summary>
 
-Er wordt in de titel gezocht (zoals in de Jellyfin-webinterface); exacte treffers staan vooraan. Met **groen** beperk je het resultaat tot een categorie – de plugin vraagt de server dan gericht om bv. alleen series, ook als de volledige lijst erg lang is.
+Er wordt in de titel gezocht. Elke categorie wordt apart opgevraagd, plus titels die met de term beginnen; alleen wat de term echt bevat wordt getoond. Ontbreekt een titel toch, controleer dan in de Jellyfin-webinterface of hij precies onder die naam staat.
 </details>
 
 <details>
