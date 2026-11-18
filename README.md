@@ -54,7 +54,7 @@ make lint test ipk          # ipk ends up in dist/
 make previews               # PNG mock-ups of the skins in skin-previews/
 ```
 
-CI (GitHub Actions) runs lint, a Python 3.6 syntax check, the test matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 keymaps × Jellyfin 10.8/10.10/10.11 × HD/FHD) and builds the `.ipk` as an artifact. Pushing a tag `vX.Y.Z` (matching `CLIENT_VERSION` in `src/JellyfinE2/jfapi.py`) publishes a GitHub release with the package.
+CI (GitHub Actions) runs lint, a Python 3.6 syntax check, the test matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 keymaps × Jellyfin 10.8/10.10/10.11 × HD/FHD) and builds the `.ipk` as an artifact. Releasing: bump `CLIENT_VERSION` in `src/JellyfinE2/jfapi.py`, add a CHANGELOG entry, then either publish a GitHub release named `vX.Y.Z` (CI builds and attaches the `.ipk`) or push the tag `vX.Y.Z` (CI creates the release).
 
 Layout:
 

@@ -5,6 +5,8 @@ on:
     branches: [main]
     tags: ["v*"]
   pull_request:
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -119,11 +121,17 @@ jobs:
         with:
           name: ipk
           path: dist
-      - name: Create release
+      - name: Create release or attach package to it
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          notes=$(awk -v v="${GITHUB_REF_NAME#v}" '$0 ~ "^## \\[?"v {f=1; next} /^## / && f {exit} f' CHANGELOG.md)
-          gh release create "${GITHUB_REF_NAME}" dist/*.ipk dist/SHA256SUMS \
-            --title "Jellyfin für Enigma2 ${GITHUB_REF_NAME}" \
-            --notes "${notes:-Siehe CHANGELOG.md}"
+          tag="${GITHUB_REF_NAME}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            # release was created in the GitHub UI/API -> just attach the build
+            gh release upload "$tag" dist/*.ipk dist/SHA256SUMS --clobber
+          else
+            notes=$(awk -v v="${tag#v}" '$0 ~ "^## \\[?"v {f=1; next} /^## / && f {exit} f' CHANGELOG.md)
+            gh release create "$tag" dist/*.ipk dist/SHA256SUMS \
+              --title "Jellyfin für Enigma2 $tag" \
+              --notes "${notes:-Siehe CHANGELOG.md}"
+          fi
