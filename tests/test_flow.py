@@ -18,7 +18,14 @@ srv, state, URL = start_server(VERSION)
 shutil.rmtree("/tmp/jellyfine2", ignore_errors=True)
 
 from JellyfinE2 import plugin  # noqa: E402
-from JellyfinE2 import jfconfig  # noqa: E402
+from JellyfinE2 import jfconfig, jfupdate  # noqa: E402
+from Components import Console as console_stub  # noqa: E402
+from Screens import Standby as standby_stub  # noqa: E402
+
+# the classic layout is tested first, the modern (hero) start screen further below
+jfconfig.set_value("home_layout", "classic")
+jfconfig.set_value("update_check", "0")
+jfupdate.API_URL = URL + "/gh/releases/latest"
 from JellyfinE2.jfapi import parse_version  # noqa: E402
 from Components.ActionMap import WARNINGS  # noqa: E402
 from Plugins.Plugin import PluginDescriptor  # noqa: E402
@@ -179,13 +186,41 @@ press(grid, "ok")
 det = s.top
 check(name(det) == "DetailScreen", "detail opened")
 pump(lambda: det.item.get("People") is not None, timeout=10)
-acts = [r[0] for r in det["actions"].list]
-check(acts[:2] == ["resume", "start"] and "audio" in acts and "subs" in acts, "detail actions %s" % acts)
-check("Video: 1080p H264" in det["tech"].getText(), "tech info: %s" % det["tech"].getText().split("\n")[0])
-check("Regie: Rex Regie" in det["people"].getText(), "people")
+acts = det.pills
+check(acts[:3] == ["resume", "restart", "tracks"] and "cast" not in acts[:5], "detail pills %s" % acts)
+check(det["pilltxt0"].getText() == "Fortsetzen" and det["pilltxt0"].instance.fg == 0x101016 and det["pilltxt1"].instance.fg == 0xf2f2f2,
+	"focused pill has dark text on the white pill")
+check("1080p H264" in det["tech"].getText() and "Audio: " in det["tech"].getText(), "tech info: %s" % det["tech"].getText())
+check(det["crumb"].getText().startswith("Film") and "fortsetzen bei 30:00" in det["meta"].getText(), "crumb/meta: %s | %s" % (det["crumb"].getText(), det["meta"].getText()))
+names = [p["Name"] for p in det.cast]
+check(names[0] == "Anna Actor" and names[-1] == "Rex Regie" and len(names) == 11, "cast row actors first, director last %s" % names[:3])
+check(det["pname0"].getText() == "Anna Actor" and det["prole0"].getText() == "Heldin", "cast name + role")
+pump(lambda: det["pphoto0"].instance.pixmap is not None, timeout=10)
+check(det["pphoto0"].visible and not det["pph0"].visible, "actor photo loaded")
+check(not det["pphoto3"].visible and det["pph3"].visible and det["pph3"].getText() == "DD", "initials for actor without photo")
 check(det["progress"].visible and det["progress"].value == 30, "resume progress bar")
-pump(lambda: det["backdrop"].instance.pixmap is not None and det["poster"].instance.pixmap is not None, timeout=10)
-check(det["poster"].instance.pixmap is not None, "poster loaded")
+pump(lambda: det["backdrop"].instance.pixmap is not None, timeout=10)
+check(det["backdrop"].instance.pixmap is not None, "detail backdrop loaded")
+# cast row: down, scroll to the 10th person, open filmography
+press(det, "down")
+check(det.focus == "cast" and det["cast_frame"].visible, "focus on cast row")
+for _ in range(9):
+	press(det, "right")
+check(det.cast_idx == 9 and det.cast_first == 2 and det["pname7"].getText() == "Jan Jury", "cast row scrolls (%d/%d)" % (det.cast_idx, det.cast_first))
+press(det, "ok")
+pg = s.top
+pump(lambda: len(pg.entries) > 0, timeout=10)
+check(name(pg) == "GridScreen" and pg.spec["params"]["personIds"] == "p11", "person filmography grid")
+press(pg, "cancel")
+press(det, "up")
+check(det.focus == "pills" and not det["cast_frame"].visible, "back to pills")
+# full cast as poster grid via menu
+press(det, "menu")
+choose(s, "Gesamte Besetzung")
+cg = s.top
+pump(lambda: len(cg.entries) == 11, timeout=10)
+check(name(cg) == "GridScreen" and cg.entries[0]["Type"] == "Person" and cg.entries[0]["ImageTags"]["Primary"] == "ph-p1", "cast grid")
+press(cg, "cancel")
 # choose english audio + german subs
 press(det, "yellow")
 choose(s, "Audiospur")
@@ -195,8 +230,8 @@ press(det, "yellow")
 choose(s, "Untertitel")
 choose(s, "GER")
 check(det.sub_index == 3, "subtitle index 3")
-# resume playback
-det["actions"].moveToIndex(0)
+# resume playback (first pill)
+det.pill = 0
 press(det, "ok")
 pump(lambda: name(s.top) == "JellyfinPlayer", timeout=10)
 player = s.top
@@ -281,9 +316,11 @@ check(sgrid["count0"].visible and sgrid["count0"].getText() == "4", "unplayed ba
 press(sgrid, "ok")
 sdet = s.top
 pump(lambda: sdet.next_up is not None, timeout=10)
-acts = [r[0] for r in sdet["actions"].list]
-check(acts[0] == "nextup" and "episodes" in acts, "series detail actions %s" % acts)
-sdet["actions"].moveToIndex(acts.index("episodes"))
+acts = sdet.pills
+check(acts[0] == "nextup" and "episodes" in acts and sdet["pilltxt0"].getText() == "S01E02 ansehen", "series detail pills %s" % acts)
+press(sdet, "right")
+check(sdet.pill == 1 and sdet["pilltxt1"].instance.fg == 0x101016 and sdet["pilltxt0"].instance.fg == 0xf2f2f2, "pill focus moves")
+sdet.pill = acts.index("episodes")
 press(sdet, "ok")
 eps = s.top
 check(name(eps) == "EpisodesScreen", "episodes screen")
@@ -370,13 +407,52 @@ check(sub.entries[0]["Name"] == "Strand", "folder content")
 press(sub, "cancel")
 press(hv, "cancel")
 
-# --- search
+# --- search (relevance order, categories)
 press(home, "green")
 type_text(s, "film 1")
 sr = s.top
 pump(lambda: len(sr.entries) > 0, timeout=10)
 check(name(sr) == "GridScreen" and len(sr.entries) == 10, "search results %d" % len(sr.entries))
+sq = [q for q in state.item_queries if q.get("searchterm")][-1]
+check("sortby" not in sq, "search keeps the server's relevance order (no sortBy)")
 press(sr, "cancel")
+press(home, "green")
+type_text(s, "i")
+sr = s.top
+pump(lambda: len(sr.entries) > 0 and sr.cat_counts is not None, timeout=10)
+counts = sr.cat_counts
+check(counts["Movie"] == 40 and counts["Series"] == 2 and counts["Episode"] > 0 and counts["Person"] > 0, "search counts per category %s" % counts)
+check(sr["key_green"].getText() == "Kategorie", "green = category on search")
+press(sr, "green")
+labels = [c[0] for c in s.top.list]
+check(labels[0].startswith("Alle") and any(lbl.startswith("Personen") for lbl in labels) and not any(lbl.startswith("Videos  (0") for lbl in labels),
+	"category choices %s" % labels)
+choose(s, "Serien")
+pump(lambda: not sr.loading and sr.entries and all(e["Type"] == "Series" for e in sr.entries), timeout=10)
+check(len(sr.entries) == 2 and "Kategorie: Serien" in sr["subtitle"].getText(), "search restricted to series (%d)" % len(sr.entries))
+sq = [q for q in state.item_queries if q.get("searchterm")][-1]
+check(sq.get("includeitemtypes") == "Series", "category filter on the server")
+press(sr, "green")
+choose(s, "Personen")
+pump(lambda: not sr.loading and sr.entries and sr.entries[0]["Type"] == "Person", timeout=10)
+check(all(e["Type"] == "Person" for e in sr.entries), "person search")
+press(sr, "ok")
+pump(lambda: name(s.top) == "GridScreen" and s.top is not sr and s.top.entries, timeout=10)
+check(s.top.spec["params"].get("personIds"), "person -> filmography")
+press(s.top, "cancel")
+press(sr, "cancel")
+# favourites (mixed list): restrict to a category
+home["menu"].moveToIndex([sec[0] for sec in home.sections].index("favorites"))
+press(home, "ok")
+fav = s.top
+pump(lambda: len(fav.entries) > 0, timeout=10)
+press(fav, "green")
+check(any(c[0] == "Kategorie: Filme" for c in s.top.list), "favourites offer categories")
+choose(s, "Kategorie: Serien")
+pump(lambda: not fav.loading, timeout=10)
+fq = state.item_queries[-1]
+check(fq.get("includeitemtypes") == "Series" and fq.get("filters") == "IsFavorite", "favourites restricted to series")
+press(fav, "cancel")
 
 # --- settings
 # --- rule editor: new list "Komödien" (all time, newest first)
@@ -449,7 +525,109 @@ pump(lambda: name(s.top) == "HomeScreen", timeout=15)
 check(name(s.top) == "HomeScreen" and jfconfig.client().token == "tok123", "quick connect login")
 home = s.top
 pump(lambda: len(home.sections) > 5, timeout=10)
-press(home, "cancel")
+
+# --- modern start screen (hero): switch via MENU
+press(home, "menu")
+choose(s, "Ansicht: Moderne Startseite")
+pump(lambda: name(s.top) == "HeroHomeScreen", timeout=5)
+hero = s.top
+check(name(hero) == "HeroHomeScreen" and jfconfig.get("home_layout") == "hero", "switched to hero layout")
+pump(lambda: hero.row_items and hero.cells.items[0] is not None, timeout=10)
+rows = [sec[1] for sec in hero.sections]
+check(rows[:2] == ["Neue Filme", "Neue Episoden meiner Serien"] and "Suche" not in rows and "Einstellungen" not in rows, "hero rows %s" % rows[:4])
+check(hero["row_title"].getText() == "Neue Filme" and hero["next_row"].getText() == "Neue Episoden meiner Serien", "row labels")
+check(hero["hero_title"].getText() == "Film 01" and "NEU" not in hero["hero_meta"].getText() and hero["hero_new"].visible,
+	"hero shows focused movie + NEU badge: %s | %s | %s" % (hero["hero_title"].getText(), hero["hero_meta"].getText(), hero["hero_new"].visible))
+check(hero["hero_pill1"].getText() == "Abspielen" and hero["hero_pill2"].getText() == "Details", "hero pills")
+check(hero.row_items[-1].get("_jf_more"), "last card = show all")
+pump(lambda: hero["ccover1"].visible and hero["ccover1"].instance.pixmap is not None, timeout=10)
+check(hero["ccover1"].instance.pixmap is not None, "landscape card image loaded")
+pump(lambda: hero["backdrop"].instance.pixmap is not None, timeout=10)
+check(hero["backdrop"].instance.pixmap is not None, "hero backdrop loaded")
+for _ in range(6):
+	press(hero, "right")
+check(hero.card == 6 and hero.first == 2 and hero["frame"].instance.pos == (int(round((160 + 4 * 340 - 8) * HEIGHT / 1080.0)), int(round((672 - 8) * HEIGHT / 1080.0))), "cards scroll, frame on 5th card %s" % (hero["frame"].instance.pos,))
+check(hero["hero_title"].getText() == hero.row_items[6]["Name"], "hero follows focus")
+press(hero, "down")
+check(hero.row == 1 and hero.card == 0, "down = next row")
+pump(lambda: hero.row_items and hero.row_items[0].get("_jf_new_count"), timeout=10)
+check(hero["hero_title"].getText() == "Serie Eins" and "3 neue Folgen" in hero["hero_meta"].getText() and hero["hero_pill1"].getText() == "Neue Folge",
+	"grouped series in hero: %s" % hero["hero_meta"].getText())
+press(hero, "ok")
+check(name(s.top) == "EpisodesScreen", "OK on grouped tile -> episodes")
+press(s.top, "cancel")
+press(hero, "up")
+press(hero, "left")
+check(hero.mode == "rail" and hero["rail_sel"].visible and hero.rail == 1 and hero["rail_name1"].visible and hero["rail_name1"].instance.fg == 0xf2f2f2
+	and hero["rail_name0"].instance.fg == 0x9a9aae and not hero["hero_title"].visible and not hero["hero_pillbg1"].visible, "left on first card -> expanded rail")
+press(hero, "up")
+check(hero.rail == 0 and hero["rail_name0"].instance.fg == 0xf2f2f2, "rail up")
+press(hero, "ok")
+type_text(s, "serie")
+pump(lambda: name(s.top) == "GridScreen" and s.top.entries, timeout=10)
+check(s.top.spec["source"] == "search", "rail search")
+press(s.top, "cancel")
+check(hero.last_search == "serie", "last search remembered")
+press(hero, "down")
+press(hero, "down")
+press(hero, "ok")
+pump(lambda: name(s.top) == "GridScreen" and s.top.entries, timeout=10)
+check(s.top.spec.get("collection_type") == "movies", "rail -> movie library")
+press(s.top, "cancel")
+press(hero, "right")
+check(hero.mode == "rows" and hero["frame"].visible and not hero["rail_sel"].visible and not hero["rail_name0"].visible and hero["hero_title"].visible,
+	"back to rows")
+press(hero, "red")
+pump(lambda: name(s.top) == "GridScreen" and s.top.entries, timeout=10)
+check(s.top.spec["source"] == "rule", "red = all titles of the row")
+press(s.top, "cancel")
+press(hero, "info")
+check(name(s.top) == "DetailScreen", "INFO -> details")
+press(s.top, "cancel")
+press(hero, "right")
+press(hero, "cancel")
+check(name(s.top) == "HeroHomeScreen" and hero.card == 0, "EXIT on a moved row jumps back, does not close")
+
+# --- auto update (GitHub release check)
+check(jfupdate.is_newer("v1.10.0", "1.9.3") and not jfupdate.is_newer("v1.2.0", "1.2.0"), "version compare")
+check(jfupdate.due("0") and not jfupdate.due(str(__import__("time").time())), "check interval")
+jfconfig.set_value("update_check", "1")
+jfconfig.set_update_stamp(0)
+press(hero, "cancel")
+check(not s.stack, "plugin closed")
+plugin.main(s)
+hero = s.top
+pump(lambda: name(s.top) == "MessageBox", timeout=10)
+box = s.top
+check(name(box) == "MessageBox" and "9.9.9 ist verfügbar" in box.text and "- Neue Startseite mit Titelbild" in box.text and "Installation" not in box.text,
+	"update offered: %r" % box.text[:80])
+check(float(jfconfig.get_update_stamp()) > 0, "check time stored")
+answer(s, True)
+pump(lambda: console_stub.COMMANDS, timeout=10)
+check(console_stub.COMMANDS and console_stub.COMMANDS[-1].startswith("opkg install --force-reinstall") and "/tmp/jellyfine2_update.ipk" in console_stub.COMMANDS[-1],
+	"opkg install %s" % console_stub.COMMANDS[-1:])
+pump(lambda: name(s.top) == "MessageBox" and "neu starten" in s.top.text, timeout=5)
+answer(s, True)
+check(standby_stub.RESTARTS == [3], "GUI restart requested")
+while s.stack:
+	s.top.close()
+# no second prompt within the interval; manual check with a broken checksum
+plugin.main(s)
+pump(timeout=1.5)
+check(name(s.top) == "HeroHomeScreen", "no repeated update prompt")
+state.gh_sum = "0" * 64
+s.top.updater().run_check(manual=True)
+pump(lambda: name(s.top) == "MessageBox", timeout=10)
+answer(s, True)
+pump(lambda: name(s.top) == "MessageBox" and "Prüfsumme" in s.top.text, timeout=10)
+check("Prüfsumme" in s.top.text and len(console_stub.COMMANDS) == 1, "bad checksum -> no install")
+answer(s, False)
+state.gh_version = "1.0.0"
+s.top.updater().run_check(manual=True)
+pump(lambda: name(s.top) == "MessageBox", timeout=10)
+check("ist aktuell" in s.top.text, "manual check: up to date")
+answer(s, False)
+press(s.top, "cancel")
 check(not s.stack, "plugin closed")
 
 # --- static checks
@@ -464,7 +642,7 @@ if parse_version(VERSION) >= (10, 9, 0):
 else:
 	check(old_routes and not new_routes, "old routes only")
 missing = [r for r in state.requests if r[1] not in ("/System/Info/Public",) and r[0] != "GET" or False]
-noauth = [r for r in state.requests if 'Client="Jellyfin Enigma2"' not in r[4].get("Authorization", "")]
+noauth = [r for r in state.requests if 'Client="Jellyfin Enigma2"' not in r[4].get("Authorization", "") and not r[1].startswith("/gh/")]
 check(not noauth, "every request carries the MediaBrowser auth header")
 check(len(state.connections) < 40 and len(state.requests) > 150, "keep-alive: %d requests over %d connections" % (len(state.requests), len(state.connections)))
 

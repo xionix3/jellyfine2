@@ -132,6 +132,16 @@ def draw_list(img, el, comp):
 	img.alpha_composite(layer)
 
 
+_png = {}
+
+
+def skin_png(path, w, h):
+	key = (path, w, h)
+	if key not in _png:
+		_png[key] = Image.open(path).convert("RGBA").resize((w, h), Image.LANCZOS)
+	return _png[key]
+
+
 def render(scr, name, background=None):
 	root = ET.fromstring(scr.skin)
 	sx, sy = xy(root, "position")
@@ -146,9 +156,14 @@ def render(scr, name, background=None):
 		w, h = xy(el, "size")
 		name_ = el.get("name")
 		comp = scr.get(name_) if name_ else None
+		if isinstance(comp, GUIComponent) and comp.instance is not None and comp.instance.pos is not None:
+			x, y = comp.instance.pos  # moved at runtime (selection frames, badges ...)
 		layer = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
 		d = ImageDraw.Draw(layer)
 		bg = parse_color(el.get("backgroundColor"))
+		if el.tag == "ePixmap":
+			canvas.alpha_composite(skin_png(el.get("pixmap"), w, h), (x, y))
+			continue
 		if el.tag == "eLabel":
 			d.rectangle([x, y, x + w - 1, y + h - 1], fill=bg)
 			canvas.alpha_composite(layer)
@@ -164,9 +179,12 @@ def render(scr, name, background=None):
 			continue
 		if isinstance(comp, Pixmap):
 			pix = comp.instance.pixmap if comp.instance else None
-			if pix is not None:
-				pic = Image.open(pix.path).convert("RGBA")
+			path = pix.path if pix is not None else el.get("pixmap")  # skin pixmap until setPixmap
+			if path:
+				pic = Image.open(path).convert("RGBA")
 				pic = pic.resize((w, h), Image.LANCZOS) if el.get("scale") == "1" else pic
+				if el.get("alphatest") != "blend":
+					pic.putalpha(255)
 				canvas.alpha_composite(pic, (x, y))
 			continue
 		if isinstance(comp, ProgressBar):
@@ -178,7 +196,8 @@ def render(scr, name, background=None):
 			if el.get("transparent") != "1" and bg:
 				d.rectangle([x, y, x + w - 1, y + h - 1], fill=bg)
 			size = int(el.get("font", "Regular;28").split(";")[1])
-			draw_text(d, (x, y, w, h), comp.text, size, parse_color(el.get("foregroundColor"), (240, 240, 240, 255)),
+			fg = comp.instance.fg if comp.instance is not None and comp.instance.fg is not None else el.get("foregroundColor")
+			draw_text(d, (x, y, w, h), comp.text, size, parse_color(fg, (240, 240, 240, 255)),
 				el.get("halign", "left"), "top" if isinstance(comp, ScrollLabel) else el.get("valign", "top"), el.get("noWrap") == "1")
 			canvas.alpha_composite(layer)
 	img.alpha_composite(canvas, (sx, sy))
@@ -187,6 +206,29 @@ def render(scr, name, background=None):
 	img.convert("RGB").resize((1280, 720), Image.LANCZOS).save(path, quality=90)
 	print(path)
 	return img
+
+
+def render_choice(box, name, background):
+	"""ChoiceBox in a neutral dialog look (the real one comes from the user's skin)."""
+	img = background.copy()
+	W, H = img.size
+	rows = box.list
+	rh = 54
+	w, h = 760, 90 + rh * len(rows) + 30
+	x, y = (W - w) // 2, (H - h) // 2
+	layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+	d = ImageDraw.Draw(layer)
+	d.rounded_rectangle([x, y, x + w, y + h], radius=18, fill=(26, 26, 36, 245), outline=(255, 255, 255, 60), width=2)
+	draw_text(d, (x + 30, y + 22, w - 60, 50), box.dlg_title, 34, (240, 240, 240, 255))
+	for i, row in enumerate(rows):
+		ry = y + 90 + i * rh
+		if i == box.selection:
+			d.rounded_rectangle([x + 16, ry, x + w - 16, ry + rh - 6], radius=12, fill=(0, 164, 220, 255))
+		draw_text(d, (x + 36, ry, w - 72, rh - 6), row[0], 28, (245, 245, 245, 255), valign="center", nowrap=True)
+	img.alpha_composite(layer)
+	path = os.path.join(OUT, name + ".jpg")
+	img.convert("RGB").resize((1280, 720), Image.LANCZOS).save(path, quality=90)
+	print(path)
 
 
 def settle(cond=None, timeout=10):
@@ -199,7 +241,8 @@ def main():
 	enigma.DESKTOP[:] = [1920, 1080]
 	srv, state, url = start_server("10.10.7", demo=True)
 	shutil.rmtree("/tmp/jellyfine2", ignore_errors=True)
-	from JellyfinE2 import plugin
+	from JellyfinE2 import plugin, jfconfig
+	jfconfig.set_value("update_check", "0")
 	s = Session()
 	plugin.main(s)
 	login = s.top
@@ -210,20 +253,36 @@ def main():
 	render(login, "01-anmeldung")
 	login.server = url
 	press(login, "green")
-	settle(lambda: s.top.__class__.__name__ == "HomeScreen")
-	home = s.top
-	home.cl.server_name = "Mein Jellyfin"
-	home["subtitle"].setText("patrick  @  Mein Jellyfin  (Jellyfin 10.10.7)")
-	settle(lambda: home.cells.items[0] is not None and home["backdrop"].instance and home["backdrop"].instance.pixmap is not None
-		and all(home["pcover%d" % i].instance.pixmap is not None for i in range(4)), 15)
-	render(home, "02-startseite")
-	titles = [sec[1] for sec in home.sections]
-	home["menu"].moveToIndex(titles.index("Neue Episoden meiner Serien"))
-	settle(lambda: home.cells.items[0] is not None and home.cells.items[0].get("Type") == "Episode" and home["pcover0"].instance.pixmap is not None, 15)
-	render(home, "03-neue-episoden")
-	home["menu"].moveToIndex(titles.index("Filme"))
-	settle(lambda: home.cells.items[0] is not None and home.cells.items[0].get("Type") == "Movie")
-	press(home, "ok")
+	settle(lambda: s.top.__class__.__name__ == "HeroHomeScreen")
+	hero = s.top
+	hero.cl.server_name = "Mein Jellyfin"
+	hero["server"].setText("patrick  @  Mein Jellyfin  (Jellyfin 10.10.7)")
+	rows = [sec[1] for sec in hero.sections]
+
+	def cards_ready():
+		return (hero.row_items and hero["backdrop"].instance.pixmap is not None
+			and all(hero["ccover%d" % i].instance.pixmap is not None for i in range(min(5, len(hero.row_items) - 1))))
+	hero.row = rows.index("Weiterschauen")
+	hero.selection_changed()
+	settle(cards_ready, 15)
+	press(hero, "right")
+	settle(cards_ready, 15)
+	render(hero, "02-startseite")
+	hero.row = rows.index("Neue Episoden meiner Serien")
+	hero.card = 0
+	hero.selection_changed()
+	settle(lambda: cards_ready() and hero.row_items[0].get("_jf_new_count"), 15)
+	render(hero, "03-neue-episoden")
+	press(hero, "left")
+	press(hero, "down")
+	press(hero, "down")
+	render(hero, "03b-navigation")
+	press(hero, "right")
+	hero.row = rows.index("Filme")
+	hero.card = 0
+	hero.selection_changed()
+	settle(cards_ready, 15)
+	press(hero, "red")
 	grid = s.top
 	settle(lambda: grid.entries and all(grid["cover%d" % i].instance.pixmap is not None for i in range(14)) and grid["backdrop"].instance.pixmap is not None, 15)
 	grid.move_to(8)
@@ -233,44 +292,67 @@ def main():
 	grid.move_to(idx)
 	press(grid, "ok")
 	det = s.top
-	settle(lambda: det.item.get("People") and det["poster"].instance.pixmap is not None and det["backdrop"].instance.pixmap is not None, 15)
+	settle(lambda: det.item.get("People") and det["backdrop"].instance.pixmap is not None
+		and all(det["pphoto%d" % i].instance.pixmap is not None for i in (0, 1, 2, 3)), 15)
 	render(det, "05-details")
+	press(det, "down")
+	press(det, "right")
+	press(det, "right")
+	render(det, "05b-besetzung")
 	press(det, "cancel")
 	press(grid, "cancel")
-	home["menu"].moveToIndex(titles.index("Serien"))
-	settle()
-	press(home, "ok")
-	sg = s.top
-	settle(lambda: sg.entries)
-	sg.move_to([e["Name"] for e in sg.entries].index("Lichterstadt"))
-	press(sg, "ok")
+	hero.row = rows.index("Serien")
+	hero.card = 0
+	hero.selection_changed()
+	settle(lambda: hero.row_items)
+	hero.card = [e.get("Name") for e in hero.row_items].index("Lichterstadt")
+	press(hero, "ok")
 	sdet = s.top
 	settle(lambda: sdet.next_up is not None)
-	acts = [r[0] for r in sdet["actions"].list]
-	sdet["actions"].moveToIndex(acts.index("episodes"))
+	sdet.pill = sdet.pills.index("episodes")
 	press(sdet, "ok")
 	eps = s.top
 	settle(lambda: eps.entries and len(eps.thumbs) >= min(4, len(eps.entries)) and eps["backdrop"].instance.pixmap is not None, 15)
 	render(eps, "06-episoden")
 	press(eps, "cancel")
 	press(sdet, "cancel")
-	press(sg, "cancel")
-	press(home, "blue")
+	# search with categories
+	hero.key_search()
+	s.top.close("er")
+	sr = s.top
+	settle(lambda: sr.entries and sr.cat_counts is not None and all(sr["cover%d" % i].instance.pixmap is not None for i in range(min(7, len(sr.entries)))), 15)
+	press(sr, "green")
+	box = s.top
+	box.selection = 1
+	render_choice(box, "07-suche-kategorien", render(sr, "07-suche"))
+	s.top.close(None)
+	press(sr, "cancel")
+	press(hero, "blue")
 	rs = s.top
 	rs["list"].moveToIndex(1)
-	render(rs, "07-meine-listen")
+	render(rs, "08-meine-listen")
 	press(rs, "yellow")
 	ed = s.top
 	ed["list"].moveToIndex(3)
 	ed.update_description()
-	render(ed, "08-listen-editor")
+	render(ed, "09-listen-editor")
 	press(ed, "cancel")
 	press(rs, "cancel")
-	home["menu"].moveToIndex([sec[0] for sec in home.sections].index("settings"))
-	press(home, "ok")
+	hero.key_settings()
 	st = s.top
-	st["list"].moveToIndex(0)
-	render(st, "09-einstellungen")
+	st["list"].moveToIndex([r[0] for r in st["list"].list].index("home_layout"))
+	st.update_description()
+	render(st, "10-einstellungen")
+	press(st, "red")
+	# classic layout for comparison
+	jfconfig.set_value("home_layout", "classic")
+	hero.close("relayout")
+	settle(lambda: s.top.__class__.__name__ == "HomeScreen")
+	home = s.top
+	home["subtitle"].setText("patrick  @  Mein Jellyfin  (Jellyfin 10.10.7)")
+	settle(lambda: home.cells.items[0] is not None and home["backdrop"].instance.pixmap is not None
+		and all(home["pcover%d" % i].instance.pixmap is not None for i in range(4)), 15)
+	render(home, "11-startseite-klassisch")
 	srv.shutdown()
 	os._exit(0)
 

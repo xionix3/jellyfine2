@@ -52,6 +52,19 @@ def open_grid(screen, spec, callback=None):
 	screen.session.openWithCallback(callback or _noop, GridScreen, spec)
 
 
+def open_search(screen, text="", done=None):
+	"""Keyboard -> result grid (relevance order, restrict by category with the green key)."""
+	from Screens.VirtualKeyBoard import VirtualKeyBoard
+
+	def entered(term=None):
+		term = (term or "").strip()
+		if not term:
+			return
+		open_grid(screen, {"title": 'Suche: "%s"' % term, "source": "search", "term": term, "categories": True},
+			callback=lambda *a: done and done(term))
+	screen.session.openWithCallback(entered, VirtualKeyBoard, title="Jellyfin durchsuchen (Filme, Serien, Episoden, Musik, Personen)", text=text or "")
+
+
 def open_detail(screen, item, callback=None):
 	from .jfdetail import DetailScreen
 	screen.session.openWithCallback(callback or _noop, DetailScreen, item)

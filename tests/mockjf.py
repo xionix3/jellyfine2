@@ -41,6 +41,24 @@ def media_source(item_id, vcodec="h264", acodecs=("ac3",), width=1920, subs=("ge
 		"Bitrate": bitrate, "MediaStreams": streams, "DefaultAudioStreamIndex": 1, "SupportsDirectPlay": True, "SupportsTranscoding": True}
 
 
+CAST = [("p1", "Anna Actor", "Heldin"), ("p3", "Bert Bühne", "Schurke"), ("p4", "Carla Casting", "Kommissarin"), ("p5", "Dirk Dreh", "Taxifahrer"),
+	("p6", "Eva Engel", "Ärztin"), ("p7", "Fritz Film", "Barkeeper"), ("p8", "Gina Gage", "Pilotin"), ("p9", "Hans Held", "Vater"),
+	("p10", "Ida Idol", "Tochter"), ("p11", "Jan Jury", "Richter")]
+PEOPLE = [{"Id": pid, "Name": n, "Type": "Actor", "Role": r, "PrimaryImageTag": "ph-" + pid if pid != "p5" else None} for pid, n, r in CAST]
+PEOPLE = [dict((k, v) for k, v in p.items() if v is not None) for p in PEOPLE] + [{"Id": "p2", "Name": "Rex Regie", "Type": "Director"}]
+
+# fake GitHub release for the update check (served under /gh/)
+GH_ASSET = "enigma2-plugin-extensions-jellyfine2_all.ipk"
+GH_IPK = b"!<arch>\n" + b"debian-binary   0           0     0     100644  4         `\n2.0\n"
+
+
+def gh_release(base, version="9.9.9"):
+	return {"tag_name": "v" + version, "draft": False, "prerelease": False, "html_url": base + "/gh/page",
+		"body": "## Änderungen\n\n- Neue Startseite mit **Titelbild**\n- Suche mit [Kategorien](https://x)\n\nInstallation: wget ...",
+		"assets": [{"name": GH_ASSET, "browser_download_url": base + "/gh/dl/" + GH_ASSET},
+			{"name": "SHA256SUMS", "browser_download_url": base + "/gh/dl/SHA256SUMS"}]}
+
+
 class Library(object):
 	def __init__(self):
 		self.items = {}
@@ -65,7 +83,7 @@ class Library(object):
 				"ImageTags": {"Primary": "tag%d" % i} if i != 3 else {}, "BackdropImageTags": ["bd%d" % i],
 				"UserData": {"Played": i in (1, 2), "IsFavorite": i == 4, "PlaybackPositionTicks": 0, "PlayedPercentage": 0},
 				"MediaSources": [media_source(mid, vcodec, acodecs, width)],
-				"People": [{"Id": "p1", "Name": "Anna Actor", "Type": "Actor", "Role": "Heldin"}, {"Id": "p2", "Name": "Rex Regie", "Type": "Director"}],
+				"People": PEOPLE,
 				"Studios": [{"Name": "Studio X"}], "Taglines": ["Ein Film."] if i == 5 else [],
 				"DateCreated": ago(i), "PremiereDate": ago(i * 20)}
 			if i == 6:
@@ -229,12 +247,24 @@ class Handler(BaseHTTPRequestHandler):
 			return self.send_json({}, 401)
 		if path.startswith("/Items/") and "/Images/" in path:
 			return self.send_image(path, q)
+		if path.startswith("/gh/"):
+			return self.github(path)
 
 		if not self.authed():
 			return self.send_json({"error": "unauthorized"}, 401)
 
 		if path == "/Users/Me":
 			return self.send_json({"Id": USER_ID, "Name": "patrick"})
+		if path == "/Persons":
+			term = (q.get("searchterm") or "").lower()
+			persons = {}
+			for it in lib.items.values():
+				for p in it.get("People") or []:
+					persons.setdefault(p["Id"], {"Id": p["Id"], "Name": p["Name"], "Type": "Person",
+						"ImageTags": {"Primary": p["PrimaryImageTag"]} if p.get("PrimaryImageTag") else {}})
+			people = [p for p in persons.values() if term in p["Name"].lower()]
+			people.sort(key=lambda p: (not p["Name"].lower().startswith(term), p["Name"]))
+			return self.send_json({"Items": people[:int(q.get("limit", 100))], "TotalRecordCount": len(people)})
 		if path == "/Sessions/Capabilities/Full":
 			return self.send_empty()
 		if path == "/Sessions/Logout":
@@ -329,6 +359,26 @@ class Handler(BaseHTTPRequestHandler):
 			return self.send_json(it["UserData"])
 		return self.send_json({"error": "no route %s %s" % (method, self.path)}, 404)
 
+	def github(self, path):
+		import hashlib
+		st = self.state
+		base = "http://%s:%d" % self.server.server_address[:2]
+		if path == "/gh/releases/latest":
+			return self.send_json(gh_release(base, getattr(st, "gh_version", "9.9.9")))
+		if path == "/gh/dl/" + GH_ASSET:
+			st.gh_downloads = getattr(st, "gh_downloads", 0) + 1
+			data = GH_IPK
+		elif path == "/gh/dl/SHA256SUMS":
+			digest = getattr(st, "gh_sum", None) or hashlib.sha256(GH_IPK).hexdigest()
+			data = ("%s  %s\n" % (digest, GH_ASSET)).encode("ascii")
+		else:
+			return self.send_json({}, 404)
+		self.send_response(200)
+		self.send_header("Content-Type", "application/octet-stream")
+		self.send_header("Content-Length", str(len(data)))
+		self.end_headers()
+		self.wfile.write(data)
+
 	def send_image(self, path="", q=None):
 		data = JPEG
 		if self.state.demo:
@@ -337,7 +387,10 @@ class Handler(BaseHTTPRequestHandler):
 			item = self.state.lib.items.get(parts[2], {"Id": parts[2]})
 			itype = parts[4] if len(parts) > 4 else "Primary"
 			mw, mh = int((q or {}).get("maxwidth", 400)), int((q or {}).get("maxheight", 600))
-			if itype == "Primary" and item.get("Type") in ("Movie", "Series", "Season", "BoxSet"):
+			if itype == "Primary" and parts[2].startswith("dp"):
+				w = min(mw, mh * 2 // 3)
+				data = artwork(item, "person", w, w * 3 // 2)
+			elif itype == "Primary" and item.get("Type") in ("Movie", "Series", "Season", "BoxSet"):
 				w = min(mw, mh * 2 // 3)
 				data = artwork(item, "poster", w, w * 3 // 2)
 			else:
@@ -387,7 +440,11 @@ class Handler(BaseHTTPRequestHandler):
 		if q.get("mincommunityrating"):
 			items = [it for it in items if (it.get("CommunityRating") or 0) >= float(q["mincommunityrating"])]
 		self.state.item_queries.append(q)
-		sort = q.get("sortby", "SortName")
+		if q.get("searchterm") and not q.get("sortby"):
+			# like Jellyfin: relevance (title starts with the term first) when no sort order is given
+			term = q["searchterm"].lower()
+			items.sort(key=lambda i: (not i.get("Name", "").lower().startswith(term), i.get("Name", "")))
+		sort = q.get("sortby") or ("" if q.get("searchterm") else "SortName")
 		first = sort.split(",")[0]
 		desc = q.get("sortorder") == "Descending"
 		if "IndexNumber" in sort:
@@ -398,7 +455,7 @@ class Handler(BaseHTTPRequestHandler):
 			items.sort(key=lambda i: i.get(first) or ("" if first != "CommunityRating" else 0), reverse=desc)
 		elif first == "DateLastContentAdded":
 			items.sort(key=lambda i: i.get("DateLastMediaAdded") or "", reverse=desc)
-		else:
+		elif first:
 			items.sort(key=lambda i: i.get("Name", ""), reverse=desc)
 		total = len(items)
 		start = int(q.get("startindex", 0))

@@ -18,11 +18,11 @@ MTIME = int(os.environ.get("SOURCE_DATE_EPOCH") or time.time())
 
 CONTROL = """Package: {pkg}
 Version: {ver}
-Description: Jellyfin-Client für Enigma2 (OpenPLi 9, Python 3)
- Filme, Serien und Musik vom eigenen Jellyfin-Server: Poster-Raster, Details,
- Staffeln/Episoden, Suche, Fortsetzen, Gesehen-Status, Favoriten, Quick Connect,
- Eigene Listen (z.B. neue Filme, neue Episoden meiner Serien), NEU-Markierung,
- Direktwiedergabe oder Server-Transkodierung (HLS), automatische nächste Episode.
+Description: Jellyfin-Client für Enigma2 (OpenPLi 9, Python 3) - von xionix
+ Filme, Serien und Musik vom eigenen Jellyfin-Server: moderne Startseite mit
+ Titelbild und Kartenreihen, Detailseite mit Schauspielerfotos, Suche mit
+ Kategorien, Fortsetzen, Gesehen-Status, Favoriten, Quick Connect, eigene Listen,
+ NEU-Markierung, Direktwiedergabe oder HLS-Transkodierung, Auto-Update.
 Section: extra
 Priority: optional
 Maintainer: {maint}
@@ -32,12 +32,12 @@ OE: enigma2-plugin-extensions-jellyfine2
 Homepage: {home}
 Depends: enigma2
 Source: local
-""".format(pkg=PKG, ver=VERSION, maint=os.environ.get("IPK_MAINTAINER", "enigma2-plugin-jellyfin contributors"),
-	home=os.environ.get("IPK_HOMEPAGE", "https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "")) if os.environ.get("GITHUB_REPOSITORY") or os.environ.get("IPK_HOMEPAGE") else "https://jellyfin.org")
+""".format(pkg=PKG, ver=VERSION, maint=os.environ.get("IPK_MAINTAINER", "xionix <https://github.com/xionix3>"),
+	home=os.environ.get("IPK_HOMEPAGE", "https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "xionix3/jellyfine2")))
 
 POSTINST = """#!/bin/sh
 echo ""
-echo "Jellyfin-Plugin {ver} installiert."
+echo "Jellyfin-Plugin {ver} (von xionix) installiert."
 echo "Bitte Enigma2 neu starten (Menü > Standby/Neustart > GUI neu starten)."
 echo ""
 exit 0
@@ -91,12 +91,17 @@ def build_data(tar):
 	parts = DEST.split("/")
 	for i in range(1, len(parts) + 1):
 		add_dir(tar, "./" + "/".join(parts[:i]) + "/")
-	for name in sorted(os.listdir(SRC)):
-		path = os.path.join(SRC, name)
-		if os.path.isdir(path) or name.endswith((".pyc", ".pyo")) or name.startswith("."):
-			continue
-		with open(path, "rb") as f:
-			add_bytes(tar, "./%s/%s" % (DEST, name), f.read())
+	for root, dirs, files in os.walk(SRC):
+		dirs[:] = sorted(d for d in dirs if d != "__pycache__" and not d.startswith("."))
+		rel = os.path.relpath(root, SRC)
+		base = DEST if rel == "." else "%s/%s" % (DEST, rel.replace(os.sep, "/"))
+		if rel != ".":
+			add_dir(tar, "./%s/" % base)
+		for name in sorted(files):
+			if name.endswith((".pyc", ".pyo")) or name.startswith("."):
+				continue
+			with open(os.path.join(root, name), "rb") as f:
+				add_bytes(tar, "./%s/%s" % (base, name), f.read())
 
 
 def build_control(tar):

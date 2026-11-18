@@ -28,6 +28,7 @@ d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(255, 255, 255), width=8 * S
 d.polygon([(cx - 30 * SS, cy - 48 * SS), (cx - 30 * SS, cy + 48 * SS), (cx + 52 * SS, cy)], fill=(255, 255, 255))
 d.text((330 * SS, 120 * SS), "Jellyfin für Enigma2", font=ImageFont.truetype(FB, 64 * SS), fill=(255, 255, 255), anchor="lm")
 d.text((334 * SS, 196 * SS), "Filme, Serien & Musik vom eigenen Server  ·  OpenPLi 9", font=ImageFont.truetype(FR, 30 * SS), fill=(235, 235, 245), anchor="lm")
+d.text((334 * SS, 250 * SS), "von xionix", font=ImageFont.truetype(FB, 26 * SS), fill=(255, 255, 255), anchor="lm")
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 img.resize((W, H), Image.LANCZOS).save(OUT, optimize=True)
 print(OUT)

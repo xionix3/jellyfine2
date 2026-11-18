@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 xionix
 # Jellyfin for Enigma2 - settings
 from __future__ import absolute_import
 
@@ -13,6 +14,17 @@ from .jfcommon import JFScreen, make_list, text_row
 from .jfskin import C_ACCENT, list_skin
 
 ROW_W = 1200
+AUTHOR = "xionix"
+HOMEPAGE = "https://github.com/xionix3/jellyfine2"
+
+
+def about_text(cl=None):
+	lines = ["Jellyfin für Enigma2  -  Version %s" % CLIENT_VERSION, "", "Entwickelt von %s" % AUTHOR, HOMEPAGE, "",
+		"Freie Software (GPL-2.0-or-later). Kein offizielles Jellyfin-Projekt.", "Box: %s" % jfconfig.box_name()]
+	if cl is not None and cl.server:
+		ver = ".".join(str(x) for x in cl.server_version) if cl.server_version != (0, 0, 0) else "?"
+		lines.append("Server: %s (Jellyfin %s)" % (cl.server_name or cl.server, ver))
+	return "\n".join(lines)
 
 
 class SettingsScreen(JFScreen):
@@ -23,12 +35,13 @@ class SettingsScreen(JFScreen):
 		self.vals = dict((s[0], getattr(jfconfig.config.plugins.jellyfine2, s[0]).value) for s in jfconfig.SETTINGS)
 		cl = self.cl
 		self["title"] = Label("Jellyfin - Einstellungen")
-		self["subtitle"] = Label("Plugin %s  |  %s @ %s" % (CLIENT_VERSION, cl.user_name or "-", cl.server or "-"))
+		self["subtitle"] = Label("Plugin %s von %s  |  %s @ %s" % (CLIENT_VERSION, AUTHOR, cl.user_name or "-", cl.server or "-"))
 		self["list"] = make_list(fonts=((28,), (28,)), item_height=62)
 		self["description"] = Label("")
 		self["status"] = Label("")
 		self.add_keys(red="Abbrechen", green="Speichern", yellow="Bild-Cache leeren", blue="Abmelden")
-		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions", "ChannelSelectBaseActions"], {
+		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions", "ChannelSelectBaseActions", "MenuActions"], {
+			"menu": self.key_menu,
 			"ok": lambda: self.change(1),
 			"cancel": self.close,
 			"up": self["list"].up,
@@ -101,3 +114,16 @@ class SettingsScreen(JFScreen):
 
 	def logout(self):
 		self.session.openWithCallback(lambda yes=False: yes and self.close("logout"), MessageBox, "Abmelden und Anmeldedaten löschen?", MessageBox.TYPE_YESNO, default=False)
+
+	def key_menu(self):
+		from Screens.ChoiceBox import ChoiceBox
+		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title="Jellyfin", list=[("Nach Updates suchen", "update"), ("Über dieses Plugin", "about")])
+
+	def menu_chosen(self, choice=None):
+		if choice is None:
+			return
+		if choice[1] == "update":
+			from .jfupdate import Updater
+			Updater(self).run_check(manual=True)
+		else:
+			self.session.open(MessageBox, about_text(self.cl), MessageBox.TYPE_INFO)

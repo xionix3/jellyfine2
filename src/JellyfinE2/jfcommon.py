@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 xionix
 # Jellyfin for Enigma2 - shared screen helpers
 from __future__ import absolute_import
 
@@ -206,21 +207,22 @@ class JFScreen(Screen):
 class CoverCells(object):
 	"""A set of poster cells (placeholder, cover, progress, badges, label) on a screen."""
 
-	def __init__(self, screen, prefix, count, w, h, badges=True):
+	def __init__(self, screen, prefix, count, w, h, badges=True, kind="poster"):
 		self.screen = screen
 		self.prefix = prefix
 		self.count = count
 		self.w = w
 		self.h = h
 		self.badges = badges
+		self.kind = kind
 		self.items = [None] * count
 		for i in range(count):
 			screen[self.n("ph", i)] = Label("")
 			screen[self.n("cover", i)] = Pixmap()
 			screen[self.n("prog", i)] = ProgressBar()
 			if badges:
-				screen[self.n("seen", i)] = Label("gesehen")
-				screen[self.n("new", i)] = Label("NEU")
+				screen[self.n("seen", i)] = Pixmap()  # badge PNG from the skin
+				screen[self.n("new", i)] = Pixmap()
 				screen[self.n("count", i)] = Label("")
 			screen[self.n("label", i)] = Label("")
 
@@ -285,7 +287,7 @@ class CoverCells(object):
 				cnt.show()
 			else:
 				cnt.hide()
-		s.load_image(self.n("cover", i), item, "poster", self.w, self.h, placeholder=self.n("ph", i))
+		s.load_image(self.n("cover", i), item, self.kind, self.w, self.h, placeholder=self.n("ph", i))
 
 
 def make_list(fonts=((28,),), item_height=58):
@@ -316,10 +318,10 @@ def text_row(data, text, width, height, value=None, value_width=0, x=18, color=N
 	return row
 
 
-def prefetch_posters(screen, items, w, h):
+def prefetch_posters(screen, items, w, h, kind="poster"):
 	"""Warm the image cache (e.g. next grid page) without touching widgets."""
 	for it in items:
-		ref = image_ref(it, "poster")
+		ref = image_ref(it, kind)
 		if ref:
 			screen.images.get(ref, S(w), S(h), _ignore)
 
@@ -332,3 +334,78 @@ def move_widget(screen, name, x, y):
 	w = screen[name]
 	if w.instance is not None:
 		w.instance.move(ePoint(S(x), S(y)))
+
+
+def set_text_color(screen, name, rgb):
+	"""Change a label's text colour at runtime (pills: dark text on the white focus pill)."""
+	from enigma import gRGB
+	w = screen[name]
+	if w.instance is not None:
+		w.instance.setForegroundColor(gRGB(rgb))
+		w.instance.invalidate()
+
+
+_STATIC = {}
+
+
+def set_widget_pixmap(screen, name, path):
+	"""Swap the picture of a Pixmap widget to a static skin PNG (decoded once)."""
+	w = screen[name]
+	ptr = _STATIC.get(path)
+	if ptr is None:
+		ptr = _STATIC[path] = load_pixmap(path)
+	if ptr is not None and w.instance is not None:
+		w.instance.setPixmap(ptr)
+
+
+SEP = "   ·   "
+
+
+def hero_meta(item):
+	"""(meta line, is_new) for hero/detail headers: year, runtime, rating, seasons, resume ..."""
+	from .jfutil import episode_code, fmt_clock, fmt_rating, fmt_runtime, resume_ticks, ticks_to_seconds
+	parts = []
+	t = item.get("Type")
+	fresh = item.get("_jf_new_count")
+	new = bool(fresh) or is_new(item, jfconfig.get_int("new_days", 7))
+	if fresh:
+		parts.append("%d neue Folge%s" % (fresh, "n" if fresh > 1 else ""))
+	if t == "Episode":
+		code = episode_code(item)
+		name = item.get("Name") or ""
+		parts.append(("%s  %s" % (code, name)).strip())
+	elif item.get("ProductionYear"):
+		parts.append(str(item["ProductionYear"]))
+	rt = fmt_runtime(item.get("RunTimeTicks"))
+	if rt and t not in ("Series", "Season", "BoxSet", "MusicAlbum", "Folder"):
+		parts.append(rt)
+	if item.get("OfficialRating"):
+		parts.append(item["OfficialRating"])
+	r = fmt_rating(item.get("CommunityRating"))
+	if r:
+		parts.append("Bewertung %s" % r)
+	if t == "Series" and item.get("ChildCount"):
+		n = item["ChildCount"]
+		parts.append("%d Staffel%s" % (n, "n" if n != 1 else ""))
+	elif t in ("Season", "BoxSet", "MusicAlbum", "Folder") and item.get("ChildCount"):
+		parts.append("%s %s" % (item["ChildCount"], {"Season": "Episoden", "MusicAlbum": "Titel"}.get(t, "Titel")))
+	pos = resume_ticks(item)
+	if pos and not is_played(item):
+		parts.append("fortsetzen bei %s" % fmt_clock(ticks_to_seconds(pos)))
+	elif is_played(item) and t not in ("Series", "Season", "BoxSet"):
+		parts.append("gesehen")
+	return SEP.join(p for p in parts if p), new
+
+
+def play_label(item):
+	"""Text of the primary pill for an item."""
+	from .jfutil import resume_ticks
+	t = item.get("Type")
+	if t in ("BoxSet", "Folder", "CollectionFolder", "Playlist", "Person", "MusicArtist"):
+		return "Öffnen"
+	focus = item.get("_jf_focus")
+	if focus:
+		return "Neue Folge"
+	if resume_ticks(item) and not is_played(item):
+		return "Fortsetzen"
+	return "Abspielen"

@@ -15,7 +15,9 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/Lizenz-GPL--2.0-43a047" alt="GPL-2.0"></a>
 </p>
 
-**Jellyfin für Enigma2** ist ein inoffizieller [Jellyfin](https://jellyfin.org)-Client für Receiver mit **OpenPLi 9**. Du siehst Filme, Serien und Musik von deinem eigenen Jellyfin-Server direkt am Fernseher – mit Postern, Fortsetzen-Funktion, eigenen Listen wie „Neue Filme“ und automatischer nächster Episode. Entwickelt und gestaltet auf der **Octagon SF8008**, läuft aber auf jeder OpenPLi-9-Box (reines Python, `Architecture: all`).
+**Jellyfin für Enigma2** ist ein inoffizieller [Jellyfin](https://jellyfin.org)-Client für Receiver mit **OpenPLi 9**. Du siehst Filme, Serien und Musik von deinem eigenen Jellyfin-Server direkt am Fernseher – mit großem Titelbild, Schauspielerfotos, Fortsetzen-Funktion, eigenen Listen wie „Neue Filme“, automatischer nächster Episode und Auto-Update. Entwickelt und gestaltet auf der **Octagon SF8008**, läuft aber auf jeder OpenPLi-9-Box (reines Python, `Architecture: all`).
+
+<p align="center"><b>Entwickelt von <a href="https://github.com/xionix3">xionix</a></b></p>
 
 ---
 
@@ -23,14 +25,28 @@
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/02-startseite.jpg" alt="Startseite"> | <img src="docs/screenshots/03-neue-episoden.jpg" alt="Neue Episoden"> |
-| **Startseite** – eigene Listen oben, Vorschau rechts | **Neue Episoden meiner Serien** – eine Kachel pro Serie |
-| <img src="docs/screenshots/04-raster.jpg" alt="Poster-Raster"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
-| **Poster-Raster** mit NEU- und Gesehen-Schildern | **Details** mit Fortsetzen, Audiospur und Untertiteln |
-| <img src="docs/screenshots/06-episoden.jpg" alt="Episoden"> | <img src="docs/screenshots/07-meine-listen.jpg" alt="Meine Listen"> |
-| **Staffeln & Episoden** mit Vorschaubildern | **Meine Listen** – eigene Filterregeln |
-| <img src="docs/screenshots/08-listen-editor.jpg" alt="Listen-Editor"> | <img src="docs/screenshots/09-einstellungen.jpg" alt="Einstellungen"> |
-| **Listen-Editor** | **Einstellungen** |
+| <img src="docs/screenshots/02-startseite.jpg" alt="Startseite"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
+| **Startseite** – Titelbild des gewählten Titels, darunter Kartenreihen | **Details** – Aktionen als Buttons, Besetzung mit Fotos |
+| <img src="docs/screenshots/03-neue-episoden.jpg" alt="Neue Episoden"> | <img src="docs/screenshots/03b-navigation.jpg" alt="Seitenleiste"> |
+| **Neue Episoden meiner Serien** – eine Karte pro Serie | **Seitenleiste** – Suche, Filme, Serien, Listen, Einstellungen |
+| <img src="docs/screenshots/04-raster.jpg" alt="Poster-Raster"> | <img src="docs/screenshots/07-suche-kategorien.jpg" alt="Suche mit Kategorien"> |
+| **Poster-Raster** mit NEU- und Gesehen-Schildern | **Suche** – nach Kategorie einschränken (Filme, Serien, Personen …) |
+| <img src="docs/screenshots/06-episoden.jpg" alt="Episoden"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Besetzung"> |
+| **Staffeln & Episoden** mit Vorschaubildern | **Besetzung** – OK zeigt alle Filme der Person |
+| <img src="docs/screenshots/08-meine-listen.jpg" alt="Meine Listen"> | <img src="docs/screenshots/10-einstellungen.jpg" alt="Einstellungen"> |
+| **Meine Listen** – eigene Filterregeln | **Einstellungen** – u. a. moderne oder klassische Startseite |
+
+<details>
+<summary>Weitere: klassische Startseite, Listen-Editor, Anmeldung</summary>
+
+| | |
+|:---:|:---:|
+| <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Klassische Startseite"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="Listen-Editor"> |
+| **Klassische Startseite** (Menü links) | **Listen-Editor** |
+| <img src="docs/screenshots/01-anmeldung.jpg" alt="Anmeldung"> | <img src="docs/screenshots/07-suche.jpg" alt="Suchergebnisse"> |
+| **Anmeldung** | **Suchergebnisse** – beste Treffer zuerst |
+
+</details>
 
 <sub>Die Screenshots zeigen die echten Plugin-Bildschirme mit Demo-Inhalten (erfundene Titel, generierte Bilder). Sie werden bei jedem CI-Lauf neu erzeugt.</sub>
 
@@ -39,11 +55,14 @@
 ## ✨ Funktionen
 
 - **Anmeldung** mit Benutzer/Passwort oder **Quick Connect** (ohne Tippen), automatische **Serversuche** im Heimnetz
-- **Startseite** mit Weiterschauen, Als Nächstes, Neu hinzugefügt, allen Bibliotheken und Favoriten – alle Vorschauen laden parallel und bleiben zwischengespeichert
+- **Moderne Startseite**: großes Hintergrundbild und Infos zum gewählten Titel, darunter Reihen mit Karten (Weiterschauen, Als Nächstes, Neu hinzugefügt, Bibliotheken, Favoriten, eigene Listen) und eine Seitenleiste – die klassische Ansicht (Menü links, Poster rechts) gibt es weiterhin
+- **Glas-Optik**: abgerundete, halbtransparente Flächen, Rahmen und Buttons (als PNG, damit Enigma2 sie wirklich überblendet)
 - **Meine Listen**: eigene Filterregeln, z. B. *Neue Filme der letzten 30 Tage* oder *Neue Episoden meiner Serien*
-- **Poster-Raster** mit Sortierung, Filtern (ungesehen, gesehen, Favoriten, begonnen, Genre), NEU-Schild, Fortschrittsbalken und Hintergrundbild
-- **Details** mit Fortsetzen, Audiospur- und Untertitelauswahl, mehreren Versionen, Besetzung und ähnlichen Titeln
-- **Staffeln & Episoden**, **Musikalben**, **Suche**
+- **Poster-Raster** mit Sortierung, Filtern (ungesehen, gesehen, Favoriten, begonnen, Genre, **Kategorie**), NEU-Schild, Fortschrittsbalken und Hintergrundbild
+- **Details** mit Hintergrundbild, Aktions-Buttons, Audiospur- und Untertitelauswahl, mehreren Versionen, ähnlichen Titeln und **Besetzung mit Fotos** (OK zeigt die Filme der Person)
+- **Suche** nach Relevanz (genaue Treffer zuerst) mit **Kategorien**: Filme, Serien, Episoden, Sammlungen, Musik, Personen
+- **Staffeln & Episoden**, **Musikalben**
+- **Auto-Update**: prüft beim Start (höchstens zweimal täglich) die GitHub-Releases, installiert auf Wunsch die neue Version (mit Prüfsumme) und startet Enigma2 neu
 - **Wiedergabe** über den Enigma2-Movieplayer (GStreamer oder ServiceApp):
   direkt in Originalqualität (auf UHD-Boxen auch 4K/HEVC) oder vom Server umgewandelt (HLS), z. B. bei DTS-Ton oder Bild-Untertiteln
 - Fortschritt und Gesehen-Status werden an den Server gemeldet, **nächste Episode startet automatisch**
@@ -65,7 +84,7 @@ opkg install /tmp/enigma2-plugin-extensions-jellyfine2_*_all.ipk
 init 4 && sleep 2 && init 3      # GUI neu starten
 ```
 
-**Update:** genauso – die neue Version installiert sich über die alte, Einstellungen und Listen bleiben erhalten.
+**Update:** passiert automatisch – das Plugin meldet sich, sobald es eine neue Version gibt (abschaltbar unter *Einstellungen → Automatisch nach Updates suchen*, manuell über *MENU → Nach Updates suchen*). Alternativ wie oben installieren; Einstellungen und Listen bleiben erhalten.
 **Entfernen:** `opkg remove enigma2-plugin-extensions-jellyfine2`
 
 ## 🚀 Erste Schritte
@@ -80,9 +99,11 @@ Die Anmeldung bleibt gespeichert. Abmelden mit **Rot** auf der Startseite.
 
 | Bildschirm | Tasten |
 |---|---|
-| **Startseite** | ▲▼ Bereich wählen · OK öffnen · 🟢 Suche · 🟡 aktualisieren · 🔵 Meine Listen · MENU Einstellungen & mehr · 🔴 abmelden |
-| **Poster-Raster** | Pfeiltasten · CH+/- Seite · OK öffnen · PLAY abspielen · 🔴 Sortierung · 🟢 Filter/Genre · 🟡 gesehen ± · 🔵 Favorit ± · INFO Details |
-| **Details** | ▲▼ Aktion · ◀▶ / CH± Text blättern · 🟢 abspielen · 🟡 Audio/Untertitel · 🔴 gesehen ± · 🔵 Favorit ± |
+| **Startseite** | ▲▼ Reihe · ◀▶ Titel · ◀ am Anfang: Seitenleiste · OK Details/öffnen · PLAY abspielen · CH± 5 Titel weiter · 🔴 alle Titel der Reihe · 🟢 Suche · 🟡 aktualisieren · 🔵 Meine Listen · MENU Ansicht, Updates, Abmelden … · EXIT zurück zum Anfang, dann beenden |
+| **Klassische Startseite** | ▲▼ Bereich · OK öffnen · 🟢 Suche · 🟡 aktualisieren · 🔵 Meine Listen · 🔴 abmelden · MENU mehr |
+| **Poster-Raster** | Pfeiltasten · CH+/- Seite · OK öffnen · PLAY abspielen · 🔴 Sortierung · 🟢 Filter/Genre/Kategorie · 🟡 gesehen ± · 🔵 Favorit ± · INFO Details |
+| **Suchergebnisse** | wie Raster · 🟢 Kategorie (Alle, Filme, Serien, Episoden, Sammlungen, Musik, Personen) |
+| **Details** | ◀▶ Button wählen · ▼ Besetzung, ▲ zurück zu den Buttons · OK ausführen / Filme der Person · CH± Text blättern · 🟢 abspielen · 🟡 Audio/Untertitel · 🔴 gesehen ± · 🔵 Favorit ± · MENU alle Aktionen |
 | **Episoden** | ▲▼ Episode · ◀▶ Staffel · OK abspielen · 🟡 Details · MENU ganze Staffel als gesehen markieren |
 | **Meine Listen** | OK Liste anzeigen · 🟢 neu · 🟡 bearbeiten · 🔴 löschen · 🔵 nach oben · MENU Startseite an/aus, duplizieren |
 | **Player** | ◀ −10 s · ▶ +30 s · ▲▼ Infoleiste · ⏮ ⏭ vorige/nächste Episode · INFO Infos · STOP/EXIT beenden · AUDIO/SUBTITLE wie gewohnt |
@@ -111,10 +132,12 @@ Vorbelegt sind **Neue Filme** und **Neue Episoden meiner Serien**. **Serien mit 
 | HEVC / DTS / TrueHD / VC-1 / VP9 | was die Box direkt abspielen darf (DTS/TrueHD standardmäßig → AC3) |
 | Player | GStreamer (4097) oder – falls installiert – ServiceApp exteplayer3/gstplayer |
 | Nächste Episode automatisch, Fortsetzen | Verhalten bei Serien und gespeicherter Position |
+| Startseite | Modern (Titelbild + Kartenreihen) oder Klassisch (Menü links, Poster rechts) |
 | NEU-Markierung, Hintergrundbilder | Aussehen |
 | Eigene Listen auf der Startseite | ganz oben · nach „Weiterschauen“ · unten |
 | Bild-Cache | RAM (schnell) oder HDD/USB (bleibt nach Neustart erhalten) |
 | SSL-Zertifikat prüfen | für Server mit selbstsigniertem Zertifikat abschalten |
+| Automatisch nach Updates suchen | prüft beim Start die Releases auf GitHub und bietet neue Versionen an |
 
 ## ❓ Häufige Fragen
 
@@ -143,6 +166,12 @@ Bei selbstsignierten Zertifikaten *SSL-Zertifikat prüfen* auf **Nein** stellen.
 </details>
 
 <details>
+<summary><b>Die Suche findet einen Titel nicht</b></summary>
+
+Gesucht wird im Titel (wie in der Jellyfin-Weboberfläche); genaue Treffer stehen ganz vorne. Mit **Grün** lässt sich das Ergebnis auf eine Kategorie einschränken – dann fragt das Plugin den Server gezielt nach z. B. nur Serien, auch wenn die Gesamtliste sehr lang ist.
+</details>
+
+<details>
 <summary><b>Fehler melden</b></summary>
 
 Bitte ein [Issue](https://github.com/xionix3/jellyfine2/issues/new/choose) anlegen und die Zeilen mit `[Jellyfin]` aus dem Enigma2-Debug-Log anhängen (*Menü → Einstellungen → System → Logs*), dazu Box, Image-Version und Jellyfin-Version.
@@ -166,10 +195,10 @@ make lint test ipk      # .ipk liegt danach in dist/
 make screenshots        # erzeugt docs/screenshots/ neu
 ```
 
-Die CI (GitHub Actions) prüft Lint und Python-3.6-Syntax, testet in einer Matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 × Jellyfin 10.8/10.10/10.11 × HD/FHD), baut die `.ipk` und erzeugt die Screenshots. Ein veröffentlichtes Release `vX.Y.Z` bekommt die `.ipk` automatisch angehängt. Details zum Aufbau stehen in der [englischen Version](README.en.md#development).
+Die CI (GitHub Actions) prüft Lint und Python-3.6-Syntax, testet in einer Matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 × Jellyfin 10.8/10.10/10.11 × HD/FHD), baut die `.ipk` und erzeugt die Screenshots. **Releases entstehen automatisch:** Wird `CLIENT_VERSION` in `src/JellyfinE2/jfapi.py` erhöht und nach `main` gepusht, legt die CI den Tag `vX.Y.Z` und das Release mit `.ipk`, `SHA256SUMS` und dem Abschnitt aus dem [CHANGELOG](CHANGELOG.md) an – darauf greift das Auto-Update zu. Details zum Aufbau stehen in der [englischen Version](README.en.md#development).
 
 Beiträge sind willkommen – Issues und Pull Requests gerne auf Deutsch oder Englisch.
 
 ## 📄 Lizenz
 
-[GPL-2.0-or-later](LICENSE). Dieses Projekt ist nicht mit dem Jellyfin-Projekt oder OpenPLi verbunden. Bitte nur mit deinem eigenen Jellyfin-Server und Medien nutzen, an denen du die Rechte hast.
+[GPL-2.0-or-later](LICENSE) · © 2026 [xionix](https://github.com/xionix3). Dieses Projekt ist nicht mit dem Jellyfin-Projekt oder OpenPLi verbunden. Bitte nur mit deinem eigenen Jellyfin-Server und Medien nutzen, an denen du die Rechte hast.

@@ -53,6 +53,18 @@ class ePoint(object):
 		return self.py
 
 
+class gRGB(object):
+	def __init__(self, *a):
+		if len(a) == 1:
+			self.v = int(a[0])
+		else:
+			r, g, b = a[:3]
+			self.v = (int(r) << 16) | (int(g) << 8) | int(b)
+
+	def argb(self):
+		return self.v
+
+
 class eSize(object):
 	def __init__(self, w, h):
 		self.w, self.h = w, h

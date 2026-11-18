@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 xionix
 # Jellyfin for Enigma2 - poster grid (libraries, search results, collections ...)
 from __future__ import absolute_import
 
@@ -14,7 +15,7 @@ from Screens.ChoiceBox import ChoiceBox
 
 from . import jfconfig
 from .jfcommon import CoverCells, JFScreen, move_widget, prefetch_posters
-from .jfskin import COVER_H, COVER_W, GRID_COLS, GRID_ROWS, cell_pos, grid_skin
+from .jfskin import COVER_H, COVER_W, FRAME_PAD, GRID_COLS, GRID_ROWS, cell_pos, grid_skin
 from .jfutil import (clean_text, display_title, episode_code, fmt_rating, fmt_runtime, is_favorite, is_new, is_played, parse_date,
 	resume_ticks, ticks_to_seconds, fmt_clock)
 
@@ -36,6 +37,32 @@ FILTERS = [
 	("IsFavorite", "Favoriten"),
 	("IsResumable", "Begonnen"),
 ]
+
+# (includeItemTypes, label) - restrict mixed lists and search results to one kind of item
+CATEGORIES = [
+	(None, "Alle"),
+	("Movie", "Filme"),
+	("Series", "Serien"),
+	("Episode", "Episoden"),
+	("BoxSet", "Sammlungen"),
+	("MusicAlbum,Audio,MusicArtist,MusicVideo", "Musik"),
+	("Video", "Videos"),
+	("Person", "Personen"),
+]
+CLIENT_SIDE = ("resume", "latest", "rule", "similar", "static", "nextup")
+
+
+def in_category(item, types):
+	return not types or item.get("Type") in types.split(",")
+
+
+def count_categories(items):
+	counts = {}
+	for types, _label in CATEGORIES[1:]:
+		counts[types] = sum(1 for it in items if in_category(it, types))
+	counts[None] = len(items)
+	return counts
+
 
 PAGE = GRID_COLS * GRID_ROWS
 CHUNK = PAGE * 6
@@ -94,13 +121,15 @@ class GridScreen(JFScreen):
 		self.sort_idx = spec.get("sort", 0)
 		self.filter_idx = 0
 		self.genre = None
+		self.category = None
+		self.cat_counts = None
 		self["title"] = Label(spec.get("title", ""))
 		self["subtitle"] = Label("")
 		self["pageinfo"] = Label("")
 		self["info_title"] = Label("")
 		self["info_meta"] = Label("")
 		self["info_overview"] = Label("")
-		self["frame"] = Label("")
+		self["frame"] = Pixmap()
 		self["status"] = Label("")
 		self["backdrop"] = Pixmap()
 		self.backdrops = jfconfig.get_bool("backdrops")
@@ -109,7 +138,8 @@ class GridScreen(JFScreen):
 		self.onClose.append(self.bd_timer.stop)
 		self.cells = CoverCells(self, "", PAGE, COVER_W, COVER_H)
 		sortable = spec.get("source") == "items" and spec.get("sortable", True)
-		self.add_keys(red="Sortierung" if sortable else "", green="Filter" if sortable else "", yellow="Gesehen +/-", blue="Favorit +/-",
+		green = "Filter" if sortable else ("Kategorie" if self.has_categories() else "")
+		self.add_keys(red="Sortierung" if sortable else "", green=green, yellow="Gesehen +/-", blue="Favorit +/-",
 			hint="MENU Optionen  |  CH+/- Seite  |  PLAY")
 		self["actions"] = ActionMap(["OkCancelActions", "DirectionActions", "ColorActions", "MenuActions", "ChannelSelectBaseActions",
 			"EPGSelectActions", "InfobarSeekActions"], {
@@ -167,16 +197,37 @@ class GridScreen(JFScreen):
 			params["filters"] = f
 		if self.genre:
 			params["genreIds"] = self.genre[0]
+		if self.category:
+			params["includeItemTypes"] = self.category
+			params.setdefault("recursive", True)
 		params["startIndex"] = start
 		params["limit"] = CHUNK
 		return params
 
 	def fetch(self, start):
+		"""Worker thread: returns (items, total, category counts or None)."""
 		src = self.spec.get("source")
 		cl = self.cl
+		cat = self.category
 		if src == "items":
 			res = cl.items(**self.build_params(start))
-			return res.get("Items") or [], res.get("TotalRecordCount")
+			return res.get("Items") or [], res.get("TotalRecordCount"), None
+		if src == "search":
+			term = self.spec["term"]
+			if cat == "Person":
+				items = cl.search_people(term)
+			elif cat:
+				items = cl.search(term, types=cat)
+			else:
+				from .jfutil import rank_search
+				try:
+					people = cl.search_people(term)
+				except Exception as e:
+					print("[Jellyfin] person search failed: %s" % e)
+					people = []
+				items = rank_search(term, cl.search(term) + people)
+				return items, len(items), count_categories(items)
+			return items, len(items), None
 		if src == "resume":
 			items = cl.resume(limit=100)
 		elif src == "nextup":
@@ -185,8 +236,6 @@ class GridScreen(JFScreen):
 			items = cl.latest(self.spec.get("parent_id"), limit=100)
 		elif src == "similar":
 			items = cl.similar(self.spec["item_id"], limit=60)
-		elif src == "search":
-			items = cl.search(self.spec["term"])
 		elif src == "static":
 			items = list(self.spec.get("items") or [])
 		elif src == "rule":
@@ -194,7 +243,9 @@ class GridScreen(JFScreen):
 			items = run_rule(cl, self.spec["rule"])
 		else:
 			items = []
-		return items, len(items)
+		counts = count_categories(items)
+		items = [it for it in items if in_category(it, cat)]
+		return items, len(items), counts
 
 	def load_more(self, first=False):
 		if self.loading:
@@ -209,7 +260,9 @@ class GridScreen(JFScreen):
 			if gen != self.generation:
 				return
 			self.loading = False
-			items, total = res
+			items, total, counts = res
+			if counts is not None:
+				self.cat_counts = counts
 			self.entries.extend(items)
 			self.total = total if total is not None else len(self.entries)
 			if self.spec.get("source") != "items" or len(items) == 0:
@@ -219,7 +272,7 @@ class GridScreen(JFScreen):
 				self["frame"].hide()
 				self.set_info(None)
 				self.update_header()
-				self.set_status("Keine Einträge gefunden")
+				self.set_status("Keine Einträge gefunden" + ("\n(Kategorie: %s - GRÜN wechselt)" % self.category_label() if self.category else ""))
 				return
 			self.set_status(None)
 			self.index = min(self.index, len(self.entries) - 1)
@@ -237,6 +290,8 @@ class GridScreen(JFScreen):
 	# ------------------------------------------------------------- drawing
 	def update_header(self):
 		parts = ["%d Titel" % self.total]
+		if self.category:
+			parts.append("Kategorie: %s" % self.category_label())
 		if self.spec.get("source") == "items" and self.spec.get("sortable", True):
 			parts.append("Sortierung: %s" % SORTS[self.sort_idx][2])
 			if self.filter_idx:
@@ -259,7 +314,7 @@ class GridScreen(JFScreen):
 				self.cells.set_item(i, self.entries[idx] if idx < len(self.entries) else None)
 		cell = self.index - self.page * PAGE
 		x, y = cell_pos(cell)
-		move_widget(self, "frame", x - 7, y - 7)
+		move_widget(self, "frame", x - FRAME_PAD, y - FRAME_PAD)
 		self["frame"].show()
 		self.set_info(self.current())
 		self.update_header()
@@ -388,25 +443,82 @@ class GridScreen(JFScreen):
 		choices = [(label, i) for i, (_s, _o, label) in enumerate(SORTS)]
 		self.session.openWithCallback(self.sort_chosen, ChoiceBox, title="Sortierung", list=choices, selection=self.sort_idx)
 
-	def sort_chosen(self, choice):
+	def sort_chosen(self, choice=None):
 		if choice is not None:
 			self.sort_idx = choice[1]
 			self.reload()
 
+	# ------------------------------------------------------------- categories
+	def has_categories(self):
+		src = self.spec.get("source")
+		if src == "search" or self.spec.get("categories"):
+			return True
+		if src == "items":
+			types = (self.spec.get("params") or {}).get("includeItemTypes") or ""
+			return len([c for c in CATEGORIES[1:] if any(t in types.split(",") for t in c[0].split(","))]) > 1
+		return src in CLIENT_SIDE and src != "nextup"
+
+	def category_choices(self):
+		"""[(label, types)] for this list; with counts when known (search, client side lists)."""
+		src = self.spec.get("source")
+		allowed = CATEGORIES
+		if src == "items":
+			types = (self.spec.get("params") or {}).get("includeItemTypes")
+			allowed = [c for c in CATEGORIES if c[0] != "Person"]
+			if types:
+				wanted = types.split(",")
+				allowed = [c for c in allowed if c[0] is None or any(t in wanted for t in c[0].split(","))]
+		elif src != "search":
+			allowed = [c for c in CATEGORIES if c[0] != "Person"]
+		out = []
+		counts = self.cat_counts
+		for types, label in allowed:
+			if counts is not None and src != "items":
+				n = counts.get(types, 0)
+				if n == 0 and types is not None and types != self.category:
+					continue
+				label = "%s  (%d%s)" % (label, n, "+" if src == "search" and n >= 150 else "")
+			out.append((label, types))
+		return out
+
+	def category_label(self):
+		for types, label in CATEGORIES:
+			if types == self.category:
+				return label
+		return "?"
+
+	def choose_category(self):
+		choices = [(label, ("c", types)) for label, types in self.category_choices()]
+		if len(choices) <= 2 and self.spec.get("source") in CLIENT_SIDE:
+			self.info("Diese Liste enthält nur eine Kategorie")
+			return
+		sel = [c[1][1] for c in choices].index(self.category) if self.category in [c[1][1] for c in choices] else 0
+		self.session.openWithCallback(self.filter_chosen, ChoiceBox, title="Kategorie", list=choices, selection=sel)
+
 	def key_green(self):
 		if self.spec.get("source") != "items" or not self.spec.get("sortable", True):
+			if self.has_categories():
+				self.choose_category()
 			return
-		choices = [(label, ("f", i)) for i, (_f, label) in enumerate(FILTERS)]
+		choices = []
+		if self.has_categories():
+			choices += [("Kategorie: %s" % label, ("c", types)) for label, types in self.category_choices()]
+		choices += [(label, ("f", i)) for i, (_f, label) in enumerate(FILTERS)]
 		choices.append(("Genre wählen ...", ("g", None)))
 		if self.genre:
 			choices.append(("Genre-Filter entfernen", ("g-", None)))
-		self.session.openWithCallback(self.filter_chosen, ChoiceBox, title="Filter", list=choices, selection=self.filter_idx)
+		self.session.openWithCallback(self.filter_chosen, ChoiceBox, title="Filter", list=choices)
 
-	def filter_chosen(self, choice):
+	def filter_chosen(self, choice=None):
 		if choice is None:
 			return
 		kind, val = choice[1]
-		if kind == "f":
+		if kind == "c":
+			if val != self.category:
+				self.category = val
+				self.genre = None if val == "Person" else self.genre
+				self.reload()
+		elif kind == "f":
 			self.filter_idx = val
 			self.reload()
 		elif kind == "g-":
@@ -421,9 +533,9 @@ class GridScreen(JFScreen):
 					return
 				lst = [(g.get("Name", "?"), (g.get("Id"), g.get("Name"))) for g in genres]
 				self.session.openWithCallback(self.genre_chosen, ChoiceBox, title="Genre", list=lst)
-			self.run(self.cl.genres, params.get("parentId"), params.get("includeItemTypes"), callback=ok, status="Lade Genres ...")
+			self.run(self.cl.genres, params.get("parentId"), self.category or params.get("includeItemTypes"), callback=ok, status="Lade Genres ...")
 
-	def genre_chosen(self, choice):
+	def genre_chosen(self, choice=None):
 		if choice is not None:
 			self.genre = choice[1]
 			self.reload()
@@ -460,12 +572,14 @@ class GridScreen(JFScreen):
 		if self.spec.get("source") == "items" and self.spec.get("sortable", True):
 			choices.append(("Sortierung ...", "sort"))
 			choices.append(("Filter ...", "filter"))
+		elif self.has_categories():
+			choices.append(("Kategorie ...", "category"))
 		if self.spec.get("source") == "rule":
 			choices.append(("Liste bearbeiten ...", "edit_rule"))
 		choices.append(("Neu laden", "reload"))
 		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title=display_title(item) if item else "Optionen", list=choices)
 
-	def menu_chosen(self, choice):
+	def menu_chosen(self, choice=None):
 		if choice is None:
 			return
 		action = choice[1]
@@ -492,7 +606,7 @@ class GridScreen(JFScreen):
 			jfnav.open_grid(self, {"title": "Ähnlich wie %s" % item.get("Name", ""), "source": "similar", "item_id": item["Id"]})
 		elif action == "sort":
 			self.key_red()
-		elif action == "filter":
+		elif action in ("filter", "category"):
 			self.key_green()
 		elif action == "reload":
 			self.reload(keep_index=True)

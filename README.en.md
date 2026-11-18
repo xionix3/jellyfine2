@@ -15,7 +15,9 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--2.0-43a047" alt="GPL-2.0"></a>
 </p>
 
-**Jellyfin for Enigma2** is an unofficial [Jellyfin](https://jellyfin.org) client for set-top boxes running **OpenPLi 9**. Watch movies, shows and music from your own Jellyfin server on your TV – with posters, resume, your own lists like "new movies" and automatic next episode. Designed on the **Octagon SF8008**, runs on every OpenPLi 9 box (pure Python, `Architecture: all`).
+**Jellyfin for Enigma2** is an unofficial [Jellyfin](https://jellyfin.org) client for set-top boxes running **OpenPLi 9**. Watch movies, shows and music from your own Jellyfin server on your TV – with a large hero backdrop, cast photos, resume, your own lists like "new movies", automatic next episode and auto-update. Designed on the **Octagon SF8008**, runs on every OpenPLi 9 box (pure Python, `Architecture: all`).
+
+<p align="center"><b>Made by <a href="https://github.com/xionix3">xionix</a></b></p>
 
 > The user interface is currently German.
 
@@ -25,14 +27,28 @@
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/02-startseite.jpg" alt="Start screen"> | <img src="docs/screenshots/03-neue-episoden.jpg" alt="New episodes"> |
-| **Start screen** – own lists on top, preview on the right | **New episodes of my shows** – one tile per show |
-| <img src="docs/screenshots/04-raster.jpg" alt="Poster grid"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
-| **Poster grid** with NEW and watched badges | **Details** with resume, audio and subtitle tracks |
-| <img src="docs/screenshots/06-episoden.jpg" alt="Episodes"> | <img src="docs/screenshots/07-meine-listen.jpg" alt="My lists"> |
-| **Seasons & episodes** with thumbnails | **My lists** – your own filter rules |
-| <img src="docs/screenshots/08-listen-editor.jpg" alt="List editor"> | <img src="docs/screenshots/09-einstellungen.jpg" alt="Settings"> |
-| **List editor** | **Settings** |
+| <img src="docs/screenshots/02-startseite.jpg" alt="Start screen"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
+| **Start screen** – backdrop of the focused title, rows of cards below | **Details** – action buttons, cast with photos |
+| <img src="docs/screenshots/03-neue-episoden.jpg" alt="New episodes"> | <img src="docs/screenshots/03b-navigation.jpg" alt="Sidebar"> |
+| **New episodes of my shows** – one card per show | **Sidebar** – search, movies, shows, lists, settings |
+| <img src="docs/screenshots/04-raster.jpg" alt="Poster grid"> | <img src="docs/screenshots/07-suche-kategorien.jpg" alt="Search with categories"> |
+| **Poster grid** with NEW and watched badges | **Search** – restrict to a category (movies, shows, people …) |
+| <img src="docs/screenshots/06-episoden.jpg" alt="Episodes"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Cast"> |
+| **Seasons & episodes** with thumbnails | **Cast** – OK shows all titles of the person |
+| <img src="docs/screenshots/08-meine-listen.jpg" alt="My lists"> | <img src="docs/screenshots/10-einstellungen.jpg" alt="Settings"> |
+| **My lists** – your own filter rules | **Settings** – e.g. modern or classic start screen |
+
+<details>
+<summary>More: classic start screen, list editor, login</summary>
+
+| | |
+|:---:|:---:|
+| <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Classic start screen"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="List editor"> |
+| **Classic start screen** (menu on the left) | **List editor** |
+| <img src="docs/screenshots/01-anmeldung.jpg" alt="Login"> | <img src="docs/screenshots/07-suche.jpg" alt="Search results"> |
+| **Login** | **Search results** – best matches first |
+
+</details>
 
 <sub>The screenshots show the real plugin screens with demo content (made-up titles, generated artwork). CI regenerates them on every run.</sub>
 
@@ -41,11 +57,14 @@
 ## ✨ Features
 
 - **Login** with username/password or **Quick Connect** (no typing), automatic **server discovery** on the LAN
-- **Start screen** with continue watching, next up, recently added, all libraries and favourites – every preview loads in parallel and stays cached
+- **Modern start screen**: large backdrop and info of the focused title, rows of cards below (continue watching, next up, recently added, libraries, favourites, own lists) and a sidebar – the classic layout (menu left, posters right) is still available
+- **Glass look**: rounded, translucent panels, frames and buttons (PNG based, so Enigma2 really blends them)
 - **My lists**: your own filter rules, e.g. *new movies of the last 30 days* or *new episodes of the shows I watch*
-- **Poster grid** with sorting, filters (unplayed, played, favourites, in progress, genre), NEW badge, progress bars and backdrop
-- **Details** with resume, audio/subtitle selection, multiple versions, cast and similar titles
-- **Seasons & episodes**, **music albums**, **search**
+- **Poster grid** with sorting, filters (unplayed, played, favourites, in progress, genre, **category**), NEW badge, progress bars and backdrop
+- **Details** with backdrop, action buttons, audio/subtitle selection, multiple versions, similar titles and **cast with photos** (OK lists the person's titles)
+- **Search** by relevance (exact matches first) with **categories**: movies, shows, episodes, collections, music, people
+- **Seasons & episodes**, **music albums**
+- **Auto-update**: checks the GitHub releases on start (at most twice a day), installs the new version on request (checksum verified) and restarts Enigma2
 - **Playback** through the Enigma2 movie player (GStreamer or ServiceApp):
   direct play in original quality (4K/HEVC on UHD boxes) or transcoded by the server (HLS), e.g. for DTS audio or picture-based subtitles
 - Progress and watched state are reported to the server, **next episode plays automatically**
@@ -67,7 +86,7 @@ opkg install /tmp/enigma2-plugin-extensions-jellyfine2_*_all.ipk
 init 4 && sleep 2 && init 3      # restart the GUI
 ```
 
-**Update:** same way – the new version installs over the old one, settings and lists are kept.
+**Update:** automatic – the plugin tells you when a new version is out (can be turned off under *Settings → check for updates automatically*, manual check via *MENU → check for updates*). Installing as above works too; settings and lists are kept.
 **Remove:** `opkg remove enigma2-plugin-extensions-jellyfine2`
 
 ## 🚀 Getting started
@@ -82,9 +101,11 @@ The login is remembered. Log out with **red** on the start screen.
 
 | Screen | Keys |
 |---|---|
-| **Start screen** | ▲▼ section · OK open · 🟢 search · 🟡 refresh · 🔵 my lists · MENU settings & more · 🔴 log out |
-| **Poster grid** | arrows · CH+/- page · OK open · PLAY play · 🔴 sort · 🟢 filter/genre · 🟡 watched ± · 🔵 favourite ± · INFO details |
-| **Details** | ▲▼ action · ◀▶ / CH± scroll text · 🟢 play · 🟡 audio/subtitles · 🔴 watched ± · 🔵 favourite ± |
+| **Start screen** | ▲▼ row · ◀▶ title · ◀ on the first card: sidebar · OK details/open · PLAY play · CH± jump 5 titles · 🔴 all titles of the row · 🟢 search · 🟡 refresh · 🔵 my lists · MENU layout, updates, log out … · EXIT back to the start, then quit |
+| **Classic start screen** | ▲▼ section · OK open · 🟢 search · 🟡 refresh · 🔵 my lists · 🔴 log out · MENU more |
+| **Poster grid** | arrows · CH+/- page · OK open · PLAY play · 🔴 sort · 🟢 filter/genre/category · 🟡 watched ± · 🔵 favourite ± · INFO details |
+| **Search results** | like the grid · 🟢 category (all, movies, shows, episodes, collections, music, people) |
+| **Details** | ◀▶ button · ▼ cast, ▲ back to the buttons · OK run / titles of the person · CH± scroll text · 🟢 play · 🟡 audio/subtitles · 🔴 watched ± · 🔵 favourite ± · MENU all actions |
 | **Episodes** | ▲▼ episode · ◀▶ season · OK play · 🟡 details · MENU mark whole season watched |
 | **My lists** | OK show list · 🟢 new · 🟡 edit · 🔴 delete · 🔵 move up · MENU start screen on/off, duplicate |
 | **Player** | ◀ −10 s · ▶ +30 s · ▲▼ info bar · ⏮ ⏭ previous/next episode · INFO info · STOP/EXIT quit · AUDIO/SUBTITLE as usual |
@@ -113,10 +134,12 @@ Own lists appear as sections at the top of the start screen. Per list you can se
 | HEVC / DTS / TrueHD / VC-1 / VP9 | what the box may play directly (DTS/TrueHD default → AC3) |
 | Player | GStreamer (4097) or – if installed – ServiceApp exteplayer3/gstplayer |
 | Autoplay next episode, resume | behaviour for shows and saved positions |
+| Start screen | modern (backdrop + rows of cards) or classic (menu left, posters right) |
 | NEW badge, backdrops | look |
 | Own lists on the start screen | top · after "continue watching" · bottom |
 | Image cache | RAM (fast) or HDD/USB (survives a reboot) |
 | Verify SSL certificate | turn off for servers with a self-signed certificate |
+| Check for updates automatically | looks for new releases on GitHub on start and offers to install them |
 
 ## ❓ FAQ
 
@@ -142,6 +165,12 @@ Set *max. streaming bitrate* to e.g. 8 or 10 Mbit/s – the server then scales l
 <summary><b>SSL error with https</b></summary>
 
 For self-signed certificates set *verify SSL certificate* to **no**.
+</details>
+
+<details>
+<summary><b>Search does not find a title</b></summary>
+
+Search matches titles (like the Jellyfin web UI); exact matches come first. Press **green** to restrict the results to a category – the plugin then asks the server for e.g. shows only, even when the full list is very long.
 </details>
 
 <details>
@@ -172,7 +201,7 @@ make screenshots        # regenerates docs/screenshots/
 
 CI (GitHub Actions) runs lint and a Python 3.6 syntax check, the test matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 keymaps × Jellyfin 10.8/10.10/10.11 × HD/FHD), builds the `.ipk` and renders the screenshots.
 
-**Releasing:** bump `CLIENT_VERSION` in `src/JellyfinE2/jfapi.py`, add a `CHANGELOG.md` entry, then publish a GitHub release named `vX.Y.Z` – CI builds the package and attaches it (plus a stable-named copy for the one-line install). Pushing the tag `vX.Y.Z` works as well.
+**Releasing is automatic:** bump `CLIENT_VERSION` in `src/JellyfinE2/jfapi.py`, add a `CHANGELOG.md` entry and push to `main`. When the tests pass, CI creates the tag `vX.Y.Z` and the release with the `.ipk` (plus a stable-named copy for the one-line install and the auto-update), `SHA256SUMS` and the changelog section. Publishing a release or pushing a tag `vX.Y.Z` by hand works as well.
 
 ```
 src/JellyfinE2/      plugin (installed to /usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2)
@@ -180,12 +209,14 @@ src/JellyfinE2/      plugin (installed to /usr/lib/enigma2/python/Plugins/Extens
   jfrules.py         "my lists" rule engine (pure python)
   jfhome / jfgrid / jfdetail / jfepisodes / jfplayer / jflogin / jfsettings / jfrulesui   screens
   jfskin.py          embedded skins, designed for 1920x1080 and scaled at runtime
+  jfupdate.py        update check against the GitHub releases, download + opkg install
+  images/            glass panels, gradients, frames, pills, icons (generated by scripts/make_assets.py)
 tests/               fake server, demo data, Enigma2 stubs, end-to-end tests, screenshot renderer
-scripts/             ipk builder, syntax check, icon and banner generators
+scripts/             ipk builder, syntax check, asset, icon and banner generators
 ```
 
 Contributions are welcome – issues and pull requests in English or German.
 
 ## 📄 License
 
-[GPL-2.0-or-later](LICENSE). This project is not affiliated with the Jellyfin project or OpenPLi. Please use it with your own Jellyfin server and media you have the rights to.
+[GPL-2.0-or-later](LICENSE) · © 2026 [xionix](https://github.com/xionix3). This project is not affiliated with the Jellyfin project or OpenPLi. Please use it with your own Jellyfin server and media you have the rights to.

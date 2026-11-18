@@ -290,3 +290,51 @@ def clean_text(text):
 	while "\n\n\n" in text:
 		text = text.replace("\n\n\n", "\n\n")
 	return text.strip()
+
+
+def norm_text(text):
+	"""Lowercase, without accents and punctuation: 'Amélie!' -> 'amelie'."""
+	import unicodedata
+	text = unicodedata.normalize("NFKD", text or "")
+	text = "".join(c for c in text if not unicodedata.combining(c)).lower()
+	out = []
+	for c in text:
+		out.append(c if c.isalnum() else " ")
+	return " ".join("".join(out).split())
+
+
+TYPE_ORDER = {"Movie": 0, "Series": 0, "BoxSet": 1, "Person": 1, "MusicArtist": 2, "MusicAlbum": 2, "Season": 3, "Episode": 4,
+	"Video": 4, "MusicVideo": 4, "Audio": 5}
+
+
+def match_rank(term, item):
+	"""0 exact title, 1 title starts with term, 2 a word starts with term, 3 contains term, 9 no title match."""
+	t = norm_text(term)
+	if not t:
+		return 9
+	best = 9
+	for field in ("Name", "OriginalTitle", "SortName"):
+		n = norm_text(item.get(field))
+		if not n:
+			continue
+		if n == t:
+			r = 0
+		elif n.startswith(t):
+			r = 1
+		elif (" " + n).find(" " + t) >= 0:
+			r = 2
+		elif t in n or t.replace(" ", "") in n.replace(" ", ""):
+			r = 3
+		else:
+			continue
+		best = min(best, r)
+	return best
+
+
+def rank_search(term, items):
+	"""Best title matches first, movies/series before episodes; keeps the server's order otherwise.
+
+	Results that do not contain the search term at all (some servers/plugins search fuzzy) go to the end."""
+	keyed = [(match_rank(term, it), TYPE_ORDER.get(it.get("Type"), 6), i, it) for i, it in enumerate(items)]
+	keyed.sort(key=lambda k: (min(k[0], 4), k[1] if k[0] < 9 else 0, k[2]))
+	return [k[3] for k in keyed]

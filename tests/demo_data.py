@@ -74,8 +74,7 @@ class DemoLibrary(object):
 				"Genres": genres, "Overview": overview, "ImageTags": {"Primary": "p"}, "BackdropImageTags": ["b"],
 				"UserData": ud, "DateCreated": ago(added), "PremiereDate": ago(added + 30),
 				"MediaSources": [media_source(mid, "hevc" if i % 3 == 0 else "h264", ("eac3", "ac3"), 3840 if i % 3 == 0 else 1920)],
-				"People": [{"Id": "dp1", "Name": "Lena Berger", "Type": "Actor", "Role": "Hauptrolle"},
-					{"Id": "dp2", "Name": "Jonas Wirth", "Type": "Actor"}, {"Id": "dp3", "Name": "Mara Ostrowski", "Type": "Director"}],
+				"People": demo_people(i),
 				"Studios": [{"Name": "Demo Studios"}], "Taglines": []}
 		for si, (name, year, status, genres, rating, overview, seasons, eps) in enumerate(SERIES):
 			sid = "ds%d" % si
@@ -119,6 +118,17 @@ class DemoLibrary(object):
 
 _cache = {}
 
+DEMO_CAST = [("dp1", "Lena Berger", "Mira Sand"), ("dp2", "Jonas Wirth", "Kommissar Falk"), ("dp4", "Selin Aydın", "Dr. Yara Lenz"),
+	("dp5", "Tobias Kern", "Vincent"), ("dp6", "Nora Lindqvist", "Agentin Holm"), ("dp7", "Paul Hofer", "Großvater Emil"),
+	("dp8", "Elif Demir", "Journalistin"), ("dp9", "Ben Okafor", "Pilot"), ("dp10", "Clara Weiß", "Nachbarin"), ("dp11", "Max Brandt", "Barkeeper")]
+
+
+def demo_people(i):
+	order = DEMO_CAST[i % 3:] + DEMO_CAST[:i % 3]
+	people = [{"Id": pid, "Name": n, "Type": "Actor", "Role": r, "PrimaryImageTag": "pp"} for pid, n, r in order]
+	people[5].pop("PrimaryImageTag")  # one without photo -> initials
+	return people + [{"Id": "dp3", "Name": "Mara Ostrowski", "Type": "Director", "PrimaryImageTag": "pp"}]
+
 
 def _font(size):
 	try:
@@ -152,7 +162,21 @@ def artwork(item, kind, w, h):
 		pts.append((w, h))
 		d.polygon(pts, fill=tuple(int(c * (0.8 - layer * 0.25)) for c in c1))
 	img = img.filter(ImageFilter.GaussianBlur(max(1, w // 400)))
-	if kind == "poster":
+	if kind == "person":
+		img = Image.new("RGB", (w, h))
+		d = ImageDraw.Draw(img)
+		for y in range(h):
+			t = y / float(h)
+			d.line([(0, y), (w, y)], fill=tuple(int(c2[i] * 0.55 * (1 - t) + c1[i] * t) for i in range(3)))
+		skin = rnd.choice([(232, 196, 170), (198, 150, 118), (150, 104, 76), (240, 210, 190), (110, 76, 56)])
+		hair = rnd.choice([(40, 30, 25), (90, 60, 35), (180, 140, 90), (25, 25, 30), (120, 120, 125)])
+		shirt = tuple(rnd.randint(40, 200) for _ in range(3))
+		d.ellipse([w * 0.12, h * 0.66, w * 0.88, h * 1.25], fill=shirt)
+		d.rectangle([w * 0.42, h * 0.52, w * 0.58, h * 0.70], fill=skin)
+		d.ellipse([w * 0.27, h * 0.20, w * 0.73, h * 0.60], fill=skin)
+		d.chord([w * 0.25, h * 0.15, w * 0.75, h * 0.50], 180, 360, fill=hair)
+		img = img.filter(ImageFilter.GaussianBlur(max(1, w // 120)))
+	elif kind == "poster":
 		d = ImageDraw.Draw(img)
 		title = item.get("SeriesName") if item.get("Type") == "Episode" else item.get("Name", "")
 		size = max(12, int(w / 9))

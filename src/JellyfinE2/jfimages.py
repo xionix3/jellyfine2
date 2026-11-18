@@ -78,7 +78,8 @@ def clear():
 def image_ref(item, kind="poster"):
 	"""Return (item_id, image_type, tag) for the best image of an item or None.
 
-	kind: poster (2:3), thumb (16:9), backdrop (16:9 large)
+	kind: poster (2:3), thumb (16:9, falls back to the poster), landscape (16:9 only),
+	backdrop (16:9 large), person (actor photo of a People entry or Person item)
 	"""
 	tags = item.get("ImageTags") or {}
 	t = item.get("Type")
@@ -108,6 +109,16 @@ def image_ref(item, kind="poster"):
 			return (item["ParentBackdropItemId"], "Backdrop", pb[0])
 		if tags.get("Primary"):
 			return (item["Id"], "Primary", tags["Primary"])
+		return None
+	if kind == "landscape":
+		ref = image_ref(item, "thumb")
+		if ref and ref[1] == "Primary" and t not in ("Episode", "Video", "MusicVideo"):
+			return None
+		return ref
+	if kind == "person":
+		tag = item.get("PrimaryImageTag") or tags.get("Primary")
+		if tag and item.get("Id"):
+			return (item["Id"], "Primary", tag)
 		return None
 	if kind == "backdrop":
 		bd = item.get("BackdropImageTags") or []

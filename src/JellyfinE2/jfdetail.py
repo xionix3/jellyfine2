@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
-# Jellyfin for Enigma2 - detail page for movies, episodes and series
+# Copyright (C) 2026 xionix
+# Jellyfin for Enigma2 - detail page for movies, episodes and series (backdrop, action pills, cast with photos)
 from __future__ import absolute_import
 
 from Components.ActionMap import ActionMap
@@ -10,12 +11,49 @@ from Components.ProgressBar import ProgressBar
 from Components.ScrollLabel import ScrollLabel
 from Screens.ChoiceBox import ChoiceBox
 
-from .jfcommon import JFScreen, make_list, text_row
-from .jfskin import detail_skin
-from .jfutil import (clean_text, episode_code, fmt_clock, fmt_ends_at, fmt_rating, fmt_runtime, is_favorite, is_played,
-	lang_name, played_percentage, resume_ticks, stream_label, ticks_to_seconds, video_label)
+from .jfcommon import SEP, JFScreen, hero_meta, move_widget, set_text_color, set_widget_pixmap
+from .jfskin import (C_DARK, C_TEXT, CAST_COUNT, CAST_H, CAST_STEP, CAST_W, CAST_X0, CAST_Y, FRAME_PAD, PILL_COUNT, detail_skin, img)
+from .jfutil import (clean_text, episode_code, fmt_ends_at, is_favorite, is_played, lang_name, played_percentage, resume_ticks,
+	stream_label, video_label)
 
 PLAYABLE = ("Movie", "Episode", "Video", "MusicVideo", "Trailer", "Recording", "Program", "TvChannel")
+ROLES = {"Actor": "Darsteller", "Director": "Regie", "Writer": "Drehbuch", "Producer": "Produktion", "GuestStar": "Gaststar",
+	"Composer": "Musik"}
+LABELS = {"resume": "Fortsetzen", "start": "Abspielen", "restart": "Von Anfang", "tracks": "Audio & Untertitel", "version": "Version",
+	"season": "Alle Episoden", "series": "Zur Serie", "nextup": "Weiterschauen", "episodes": "Staffeln & Episoden",
+	"playseries": "Abspielen", "played": "Gesehen", "unplayed": "Ungesehen", "fav": "Favorit", "unfav": "Kein Favorit",
+	"similar": "Ähnliche Titel", "cast": "Gesamte Besetzung", "more": "Mehr ..."}
+
+
+def cast_list(item):
+	"""Actors first (with role), then directors/writers; each person only once."""
+	people = item.get("People") or []
+	order = {"Actor": 0, "GuestStar": 1, "Director": 2, "Writer": 3, "Producer": 4}
+	seen = set()
+	out = []
+	for p in sorted(people, key=lambda p: order.get(p.get("Type"), 5)):
+		pid = p.get("Id")
+		if not pid or pid in seen:
+			continue
+		seen.add(pid)
+		out.append(p)
+	return out
+
+
+def initials(name):
+	parts = [w for w in (name or "").split() if w[:1].isalpha()]
+	return "".join(w[0].upper() for w in parts[:2]) or "?"
+
+
+def person_item(p):
+	"""People entry -> Person item usable in a poster grid."""
+	it = {"Id": p.get("Id"), "Name": p.get("Name", ""), "Type": "Person"}
+	if p.get("PrimaryImageTag"):
+		it["ImageTags"] = {"Primary": p["PrimaryImageTag"]}
+	role = p.get("Role") or ROLES.get(p.get("Type"), "")
+	if role:
+		it["Overview"] = role
+	return it
 
 
 class DetailScreen(JFScreen):
@@ -28,28 +66,40 @@ class DetailScreen(JFScreen):
 		self.audio_index = None
 		self.sub_index = None
 		self.source_id = None
+		self.pills = []
+		self.pill = 0
+		self.cast = []
+		self.cast_idx = 0
+		self.cast_first = 0
+		self.focus = "pills"
+		self.loaded = False
 		self["backdrop"] = Pixmap()
-		self["poster"] = Pixmap()
-		self["poster_ph"] = Label(item.get("Name", ""))
+		self["badge"] = Pixmap()
+		self["cast_frame"] = Pixmap()
 		self["progress"] = ProgressBar()
-		self["actions"] = make_list(fonts=((28,), (24,)), item_height=58)
-		self["title"] = Label(item.get("Name", ""))
-		self["tagline"] = Label("")
-		self["meta"] = Label("")
-		self["genres"] = Label("")
+		for name in ("crumb", "title", "meta", "genres", "tech", "cast_title", "status"):
+			self[name] = Label("")
+		self["title"].setText(item.get("Name", ""))
 		self["overview"] = ScrollLabel("")
-		self["tech"] = Label("")
-		self["people"] = Label("")
-		self["status"] = Label("")
-		self.add_keys(red="Gesehen +/-", green="Abspielen", yellow="Audio / Untertitel", blue="Favorit +/-", hint="CH+/- oder </> Text blättern")
+		for i in range(PILL_COUNT):
+			self["pill%d" % i] = Pixmap()
+			self["pilltxt%d" % i] = Label("")
+		for i in range(CAST_COUNT):
+			self["pph%d" % i] = Label("")
+			self["pphoto%d" % i] = Pixmap()
+			self["pname%d" % i] = Label("")
+			self["prole%d" % i] = Label("")
+		self.add_keys(red="Gesehen +/-", green="Abspielen", yellow="Audio / Untertitel", blue="Favorit +/-", hint="CH+/- Text blättern   MENU Optionen")
 		self["key_actions"] = ActionMap(["OkCancelActions", "DirectionActions", "ColorActions", "MenuActions", "ChannelSelectBaseActions",
 			"EPGSelectActions", "InfobarSeekActions"], {
 			"ok": self.key_ok,
 			"cancel": self.close,
-			"up": self["actions"].up,
-			"down": self["actions"].down,
-			"left": self["overview"].pageUp,
-			"right": self["overview"].pageDown,
+			"up": lambda: self.set_focus("pills"),
+			"down": lambda: self.set_focus("cast"),
+			"left": lambda: self.key_horizontal(-1),
+			"right": lambda: self.key_horizontal(1),
+			"leftRepeated": lambda: self.key_horizontal(-1),
+			"rightRepeated": lambda: self.key_horizontal(1),
 			"nextBouquet": self["overview"].pageDown,
 			"prevBouquet": self["overview"].pageUp,
 			"red": self.key_red,
@@ -57,6 +107,7 @@ class DetailScreen(JFScreen):
 			"yellow": self.key_yellow,
 			"blue": self.key_blue,
 			"menu": self.key_menu,
+			"info": self.key_menu,
 			"playpauseService": self.key_green,
 			"unPauseService": self.key_green,
 		}, -1)
@@ -65,7 +116,8 @@ class DetailScreen(JFScreen):
 	# ------------------------------------------------------------- data
 	def start(self):
 		self["progress"].hide()
-		self["status"].setText("")
+		self["badge"].hide()
+		self["cast_frame"].hide()
 		self.render()
 		self.load()
 
@@ -90,8 +142,13 @@ class DetailScreen(JFScreen):
 			if full:
 				self.item = full
 			self.next_up = nxt
+			self.loaded = True
 			self.render()
-		self.run(fetch, callback=ok, status=None)
+
+		def fail(err):
+			self["status"].setText("")
+			self.show_error(err)
+		self.run(fetch, callback=ok, errback=fail)
 		self["status"].setText("Lade Details ...")
 
 	def media_source(self):
@@ -133,171 +190,222 @@ class DetailScreen(JFScreen):
 		it = self.item
 		t = it.get("Type")
 		self["status"].setText("")
-		title = it.get("Name") or ""
-		if t == "Episode":
-			title = "%s  %s" % (episode_code(it), title) if episode_code(it) else title
-		self["title"].setText(title)
-		tag = ""
-		if t == "Episode" and it.get("SeriesName"):
-			tag = it["SeriesName"] + (" - %s" % it["SeasonName"] if it.get("SeasonName") else "")
-		elif it.get("Taglines"):
-			tag = it["Taglines"][0]
-		elif it.get("OriginalTitle") and it.get("OriginalTitle") != it.get("Name"):
-			tag = it["OriginalTitle"]
-		self["tagline"].setText(tag)
-
-		meta = []
-		if it.get("ProductionYear"):
-			meta.append(str(it["ProductionYear"]))
+		self["crumb"].setText(self.crumb_text())
+		self["title"].setText(it.get("Name") or "")
+		meta, new = hero_meta(it)
+		extra = []
 		if t == "Series":
-			if it.get("ChildCount"):
-				meta.append("%s Staffeln" % it["ChildCount"])
-			if it.get("Status") == "Continuing":
-				meta.append("laufend")
-			elif it.get("Status") == "Ended":
-				meta.append("beendet")
-		rt = fmt_runtime(it.get("RunTimeTicks"))
-		if rt and t != "Series":
-			meta.append(rt)
-		if it.get("OfficialRating"):
-			meta.append(it["OfficialRating"])
-		r = fmt_rating(it.get("CommunityRating"))
-		if r:
-			meta.append("Bewertung %s" % r)
+			extra.append({"Continuing": "laufend", "Ended": "beendet"}.get(it.get("Status"), ""))
 		if it.get("CriticRating"):
-			meta.append("Kritiker %s%%" % it["CriticRating"])
+			extra.append("Kritiker %s%%" % it["CriticRating"])
 		if t in PLAYABLE and it.get("RunTimeTicks"):
-			ends = fmt_ends_at(it["RunTimeTicks"], resume_ticks(it) if not is_played(it) else 0)
-			if ends:
-				meta.append(ends)
-		if is_played(it):
-			meta.append("gesehen")
+			extra.append(fmt_ends_at(it["RunTimeTicks"], resume_ticks(it) if not is_played(it) else 0) or "")
 		if is_favorite(it):
-			meta.append("Favorit")
-		self["meta"].setText("   |   ".join(meta))
+			extra.append("Favorit")
+		meta = SEP.join([m for m in [meta] + extra if m])
+		self["meta"].setText(meta)
+		if new:
+			self["badge"].show()
+			move_widget(self, "meta", 196, 190)
+		else:
+			self["badge"].hide()
+			move_widget(self, "meta", 120, 190)
 		self["genres"].setText(", ".join(it.get("Genres") or []))
-		self["overview"].setText(clean_text(it.get("Overview")) or "Keine Beschreibung vorhanden.")
+		overview = clean_text(it.get("Overview"))
+		if it.get("Taglines") and t != "Episode":
+			overview = ("%s\n\n%s" % (it["Taglines"][0], overview)).strip()
+		self["overview"].setText(overview or ("Lade ..." if not self.loaded else "Keine Beschreibung vorhanden."))
 		self["tech"].setText(self.tech_text())
-		self["people"].setText(self.people_text())
+		self.build_pills()
 		pct = played_percentage(it)
-		if 0 < pct < 100 and not is_played(it) and t in PLAYABLE:
+		if 0 < pct < 100 and not is_played(it) and t in PLAYABLE and self.pills and self.pills[0] == "resume":
 			self["progress"].setValue(pct)
 			self["progress"].show()
 		else:
 			self["progress"].hide()
-		self["poster_ph"].setText(it.get("SeriesName") if t == "Episode" else it.get("Name", ""))
-		self.load_image("poster", it, "poster", 340, 510, placeholder="poster_ph")
-		self.load_image("backdrop", it, "backdrop", 1920, 1080)
-		self.build_actions()
+		self.cast = cast_list(it)
+		self.cast_idx = min(self.cast_idx, max(0, len(self.cast) - 1))
+		self.draw_cast()
+		if not self.cast and self.focus == "cast":
+			self.focus = "pills"
+		self.draw_focus()
+		self.load_image("backdrop", it, "backdrop", 1280, 720, keep=True)
+
+	def crumb_text(self):
+		it = self.item
+		t = it.get("Type")
+		if t == "Episode":
+			return SEP.join(x for x in (it.get("SeriesName"), it.get("SeasonName")) if x)
+		if t == "Series":
+			studios = [s.get("Name") for s in (it.get("Studios") or [])][:2]
+			return SEP.join(["Serie"] + studios)
+		if t == "Movie":
+			parts = ["Film"]
+			if it.get("OriginalTitle") and it.get("OriginalTitle") != it.get("Name"):
+				parts.append(it["OriginalTitle"])
+			return SEP.join(parts)
+		return {"MusicVideo": "Musikvideo", "Video": "Video", "Trailer": "Trailer"}.get(t, t or "")
 
 	def tech_text(self):
 		it = self.item
 		if it.get("Type") not in PLAYABLE:
-			studios = ", ".join(s.get("Name", "") for s in (it.get("Studios") or [])[:4])
-			return "Studio/Sender: %s" % studios if studios else ""
-		lines = []
+			people = it.get("People") or []
+			directors = [p.get("Name") for p in people if p.get("Type") == "Director"]
+			return "Regie: %s" % ", ".join(directors[:3]) if directors else ""
+		parts = []
 		video = self.streams("Video")
 		ms = self.media_source()
-		first = []
 		if video:
-			first.append("Video: %s" % video_label(video[0]))
+			parts.append(video_label(video[0]))
 		if ms.get("Container"):
-			first.append("Container: %s" % ms["Container"].split(",")[0].upper())
-		if ms.get("Size"):
-			first.append("%.1f GB" % (ms["Size"] / 1073741824.0))
+			parts.append(ms["Container"].split(",")[0].upper())
 		if len(it.get("MediaSources") or []) > 1:
-			first.append("Version: %s" % (ms.get("Name") or "?"))
-		if first:
-			lines.append("   |   ".join(first))
+			parts.append("Version: %s" % (ms.get("Name") or "?"))
 		audio = self.streams("Audio")
 		if audio:
 			sel = self.selected_audio()
-			names = []
-			for s in audio[:5]:
-				label = stream_label(s)
-				names.append("[%s]" % label if sel is s else label)
-			more = " (+%d)" % (len(audio) - 5) if len(audio) > 5 else ""
-			lines.append("Audio: %s%s" % (", ".join(names), more))
+			more = " (+%d)" % (len(audio) - 1) if len(audio) > 1 else ""
+			parts.append("Audio: %s%s" % (stream_label(sel) if sel else "?", more))
 		subs = self.streams("Subtitle")
 		if subs:
+			sel = self.selected_sub()
 			langs = []
 			for s in subs:
 				name = lang_name(s.get("Language")) or s.get("DisplayTitle") or "?"
 				if name not in langs:
 					langs.append(name)
-			sel = self.selected_sub()
-			lines.append("Untertitel: %s   (gewählt: %s)" % (", ".join(langs[:8]), stream_label(sel) if sel else "aus"))
-		return "\n".join(lines)
+			parts.append("UT: %s (%d)" % (stream_label(sel) if sel else "aus", len(langs)))
+		return SEP.join(parts)
 
-	def people_text(self):
-		people = self.item.get("People") or []
-		directors = [p.get("Name") for p in people if p.get("Type") == "Director"]
-		actors = [p.get("Name") for p in people if p.get("Type") == "Actor"]
-		lines = []
-		if directors:
-			lines.append("Regie: %s" % ", ".join(directors[:3]))
-		if actors:
-			lines.append("Mit: %s" % ", ".join(actors[:8]))
-		studios = [s.get("Name") for s in (self.item.get("Studios") or [])]
-		if studios and self.item.get("Type") in PLAYABLE:
-			lines.append("Studio: %s" % ", ".join(studios[:3]))
-		return "\n".join(lines)
-
-	def build_actions(self):
+	def actions(self):
 		it = self.item
 		t = it.get("Type")
-		rows = []
-		w = 340
-
-		def add(text, key, value=None):
-			rows.append(text_row(key, text, w, 58, x=16))
-
+		acts = []
 		if t in PLAYABLE:
-			pos = resume_ticks(it)
-			if pos and not is_played(it):
-				add("Fortsetzen (%s)" % fmt_clock(ticks_to_seconds(pos)), "resume")
-				add("Von Anfang", "start")
+			if resume_ticks(it) and not is_played(it):
+				acts += ["resume", "restart"]
 			else:
-				add("Abspielen", "start")
-			if len(self.streams("Audio")) > 1:
-				add("Audiospur", "audio")
-			if self.streams("Subtitle"):
-				add("Untertitel", "subs")
-			if len(it.get("MediaSources") or []) > 1:
-				add("Version", "version")
+				acts.append("start")
+			if self.streams("Audio") or self.streams("Subtitle"):
+				acts.append("tracks")
 			if t == "Episode" and it.get("SeriesId"):
-				add("Alle Episoden", "season")
-				add("Zur Serie", "series")
+				acts.append("season")
 		elif t == "Series":
-			if self.next_up:
-				add("Weiter: %s" % episode_code(self.next_up), "nextup")
-			add("Staffeln & Episoden", "episodes")
-			add("Serie abspielen", "playseries")
-		add("Ungesehen" if is_played(it) else "Gesehen", "played")
-		add("Aus Favoriten" if is_favorite(it) else "Favorit", "fav")
+			acts.append("nextup" if self.next_up else "playseries")
+			acts.append("episodes")
+		acts.append("unplayed" if is_played(it) else "played")
+		acts.append("unfav" if is_favorite(it) else "fav")
 		if t in ("Movie", "Series"):
-			add("Ähnliche Titel", "similar")
+			acts.append("similar")
+		if t == "Episode" and it.get("SeriesId"):
+			acts.append("series")
+		if len(it.get("MediaSources") or []) > 1:
+			acts.append("version")
 		if it.get("People"):
-			add("Besetzung", "cast")
-		idx = self["actions"].getSelectedIndex() if self["actions"].list else 0
-		self["actions"].setList(rows)
-		if rows:
-			self["actions"].moveToIndex(min(idx, len(rows) - 1))
+			acts.append("cast")
+		return acts
+
+	def pill_label(self, key):
+		if key == "nextup" and self.next_up:
+			code = episode_code(self.next_up)
+			return "%s ansehen" % code if code else LABELS["nextup"]
+		return LABELS.get(key, key)
+
+	def build_pills(self):
+		acts = self.actions()
+		if len(acts) > PILL_COUNT:
+			acts = acts[:PILL_COUNT - 1] + ["more"]
+		self.pills = acts
+		self.pill = min(self.pill, len(acts) - 1) if acts else 0
+		for i in range(PILL_COUNT):
+			if i < len(acts):
+				self["pilltxt%d" % i].setText(self.pill_label(acts[i]))
+				self["pilltxt%d" % i].show()
+				self["pill%d" % i].show()
+			else:
+				self["pilltxt%d" % i].setText("")
+				self["pilltxt%d" % i].hide()
+				self["pill%d" % i].hide()
+
+	def draw_cast(self):
+		n = len(self.cast)
+		self["cast_title"].setText(("Besetzung  (%d)" % n) if n > CAST_COUNT else ("Besetzung" if n else ""))
+		if self.cast_idx < self.cast_first:
+			self.cast_first = self.cast_idx
+		elif self.cast_idx >= self.cast_first + CAST_COUNT:
+			self.cast_first = self.cast_idx - CAST_COUNT + 1
+		for i in range(CAST_COUNT):
+			idx = self.cast_first + i
+			ph, photo, name, role = ("pph%d" % i, "pphoto%d" % i, "pname%d" % i, "prole%d" % i)
+			if idx < n:
+				p = self.cast[idx]
+				self[ph].setText(initials(p.get("Name")))
+				self[name].setText(p.get("Name") or "")
+				self[role].setText(p.get("Role") or ROLES.get(p.get("Type"), ""))
+				self.load_image(photo, p, "person", CAST_W, CAST_H, placeholder=ph)
+			else:
+				self[ph].hide()
+				self[photo].hide()
+				self[photo].jf_token = None
+				self[name].setText("")
+				self[role].setText("")
+
+	def draw_focus(self):
+		primary = img("pill_primary.png")
+		secondary = img("pill_secondary.png")
+		for i in range(min(PILL_COUNT, len(self.pills))):
+			on = self.focus == "pills" and i == self.pill
+			set_widget_pixmap(self, "pill%d" % i, primary if on else secondary)
+			set_text_color(self, "pilltxt%d" % i, C_DARK if on else C_TEXT)
+		if self.focus == "cast" and self.cast:
+			move_widget(self, "cast_frame", CAST_X0 + (self.cast_idx - self.cast_first) * CAST_STEP - FRAME_PAD, CAST_Y - FRAME_PAD)
+			self["cast_frame"].show()
+		else:
+			self["cast_frame"].hide()
+
+	# ------------------------------------------------------------- navigation
+	def set_focus(self, focus):
+		if focus == "cast" and not self.cast:
+			return
+		self.focus = focus
+		self.draw_focus()
+
+	def key_horizontal(self, step):
+		if self.focus == "pills":
+			if self.pills:
+				self.pill = max(0, min(len(self.pills) - 1, self.pill + step))
+				self.draw_focus()
+		elif self.cast:
+			idx = max(0, min(len(self.cast) - 1, self.cast_idx + step))
+			if idx != self.cast_idx:
+				first = self.cast_first
+				self.cast_idx = idx
+				if not first <= idx < first + CAST_COUNT:
+					self.draw_cast()
+				self.draw_focus()
+
+	def key_ok(self):
+		if self.focus == "cast" and self.cast:
+			self.open_person(self.cast[self.cast_idx])
+		elif self.pills:
+			self.do(self.pills[self.pill])
+
+	def open_person(self, p):
+		from .jfnav import open_item
+		open_item(self, {"Id": p.get("Id"), "Type": "Person", "Name": p.get("Name")}, callback=self.after_play)
 
 	# ------------------------------------------------------------- actions
-	def key_ok(self):
-		cur = self["actions"].getCurrent()
-		if cur:
-			self.do(cur[0])
-
 	def do(self, action):
 		from . import jfnav
 		from .jfplayer import play_item
 		it = self.item
+		opts = dict(on_finished=self.after_play, audio_index=self.audio_index, sub_index=self.sub_index, media_source_id=self.source_id)
 		if action == "resume":
-			play_item(self, it, resume=True, on_finished=self.after_play, audio_index=self.audio_index, sub_index=self.sub_index, media_source_id=self.source_id)
-		elif action == "start":
-			play_item(self, it, resume=False, on_finished=self.after_play, audio_index=self.audio_index, sub_index=self.sub_index, media_source_id=self.source_id)
+			play_item(self, it, resume=True, **opts)
+		elif action in ("start", "restart"):
+			play_item(self, it, resume=False, **opts)
+		elif action == "tracks":
+			self.key_yellow()
 		elif action == "audio":
 			self.choose_audio()
 		elif action == "subs":
@@ -317,31 +425,23 @@ class DetailScreen(JFScreen):
 			focus_ep = self.next_up.get("Id") if self.next_up else None
 			self.session.openWithCallback(self.after_play, EpisodesScreen, series_id=it["Id"], season_id=focus_season,
 				series_name=it.get("Name", ""), focus_id=focus_ep)
-		elif action == "playseries":
+		elif action in ("playseries", "nextup"):
 			play_item(self, it, on_finished=self.after_play)
-		elif action == "played":
+		elif action in ("played", "unplayed"):
 			self.key_red()
-		elif action == "fav":
+		elif action in ("fav", "unfav"):
 			self.key_blue()
 		elif action == "similar":
-			jfnav.open_grid(self, {"title": "Ähnlich wie %s" % it.get("Name", ""), "source": "similar", "item_id": it["Id"]})
+			jfnav.open_grid(self, {"title": "Ähnlich wie %s" % it.get("Name", ""), "source": "similar", "item_id": it["Id"], "categories": True},
+				callback=self.after_play)
 		elif action == "cast":
-			people = it.get("People") or []
-			roles = {"Actor": "Darsteller", "Director": "Regie", "Writer": "Drehbuch", "Producer": "Produktion", "GuestStar": "Gaststar"}
-			lst = []
-			for p in people[:40]:
-				role = p.get("Role") or roles.get(p.get("Type"), p.get("Type") or "")
-				lst.append(("%s%s" % (p.get("Name"), " - %s" % role if role else ""), p))
-			self.session.openWithCallback(self.person_chosen, ChoiceBox, title="Besetzung", list=lst)
+			people = [person_item(p) for p in cast_list(it)]
+			jfnav.open_grid(self, {"title": "Besetzung: %s" % it.get("Name", ""), "source": "static", "items": people, "sortable": False},
+				callback=self.after_play)
+		elif action == "more":
+			self.key_menu()
 
-	def person_chosen(self, choice):
-		if choice is None:
-			return
-		p = choice[1]
-		from .jfnav import open_item
-		open_item(self, {"Id": p.get("Id"), "Type": "Person", "Name": p.get("Name")})
-
-	def version_chosen(self, choice):
+	def version_chosen(self, choice=None):
 		if choice is not None:
 			self.source_id = choice[1]
 			self.audio_index = None
@@ -357,7 +457,7 @@ class DetailScreen(JFScreen):
 		pos = audio.index(sel) if sel in audio else 0
 		self.session.openWithCallback(self.audio_chosen, ChoiceBox, title="Audiospur", list=lst, selection=pos)
 
-	def audio_chosen(self, choice):
+	def audio_chosen(self, choice=None):
 		if choice is not None:
 			self.audio_index = choice[1]
 			self["tech"].setText(self.tech_text())
@@ -369,7 +469,7 @@ class DetailScreen(JFScreen):
 		pos = subs.index(sel) + 1 if sel in subs else 0
 		self.session.openWithCallback(self.subs_chosen, ChoiceBox, title="Untertitel (externe/Bild-Untertitel werden eingebrannt)", list=lst, selection=pos)
 
-	def subs_chosen(self, choice):
+	def subs_chosen(self, choice=None):
 		if choice is not None:
 			self.sub_index = choice[1]
 			self["tech"].setText(self.tech_text())
@@ -409,15 +509,11 @@ class DetailScreen(JFScreen):
 		self.toggle_favorite(self.item, callback=lambda it: self.render())
 
 	def key_menu(self):
-		rows = self["actions"].list or []
-		labels = {"resume": "Fortsetzen", "start": "Abspielen / Von Anfang", "audio": "Audiospur", "subs": "Untertitel", "version": "Version",
-			"season": "Alle Episoden", "series": "Zur Serie", "nextup": "Nächste Episode", "episodes": "Staffeln & Episoden",
-			"playseries": "Serie abspielen", "played": "Gesehen-Status ändern", "fav": "Favorit ändern", "similar": "Ähnliche Titel", "cast": "Besetzung"}
-		lst = [(labels.get(r[0], r[0]), r[0]) for r in rows]
+		lst = [(self.pill_label(a), a) for a in self.actions()]
 		lst.append(("Neu laden", "reload"))
 		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title=self.item.get("Name", ""), list=lst)
 
-	def menu_chosen(self, choice):
+	def menu_chosen(self, choice=None):
 		if choice is None:
 			return
 		if choice[1] == "reload":

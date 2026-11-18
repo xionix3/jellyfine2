@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0] - 2026-11-18
+
+- **Modern start screen**: large backdrop with title, info and buttons of the focused item, rows of 16:9 cards (one row per section), sidebar with search, movies, shows, lists and settings. The classic layout stays available (setting *Startseite* or MENU)
+- **Glass look**: rounded translucent panels, selection frames, buttons and badges as alpha PNGs
+- **Details page** redesigned: backdrop, action buttons, **cast row with actor photos** (OK lists the person's titles), full cast as poster grid
+- **Search**: results in relevance order (exact title matches first) - an alphabetical sort used to push exact hits like "Bluey" behind the result limit; results that do not contain the term go to the end. New **categories** (movies, shows, episodes, collections, music, people) with counts; people search
+- **Category filter** for mixed lists (favourites, collections, own lists, similar titles, continue watching)
+- **Auto-update**: checks the GitHub releases on start (at most every 12 h), downloads the package, verifies `SHA256SUMS`, installs with opkg and offers a GUI restart; manual check via MENU, can be turned off
+- **Releases are created by CI** when `CLIENT_VERSION` is bumped on `main`
+- Fix: backdrops were not visible on the box in 1.0/1.1 - Enigma2 does not blend translucent label fills, the dark overlay replaced the picture. Overlays are now alpha PNGs
+- Credits: "von xionix" in the plugin list, settings, about dialog and package
+
 ## [1.1.1] - 2026-11-18
 
 - Fix: closing the list editor without saving could crash the plugin

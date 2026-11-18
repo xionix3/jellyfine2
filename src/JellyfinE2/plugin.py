@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 xionix
 # Jellyfin for Enigma2 - plugin entry
 from __future__ import absolute_import
 
@@ -9,7 +10,7 @@ from . import jfconfig
 from .jfapi import CLIENT_VERSION
 
 NAME = "Jellyfin"
-DESCRIPTION = "Jellyfin-Client: Filme, Serien und Musik vom eigenen Server"
+DESCRIPTION = "Jellyfin-Client: Filme, Serien und Musik vom eigenen Server - von xionix"
 
 
 class Launcher(object):
@@ -25,8 +26,8 @@ class Launcher(object):
 			self.open_login()
 
 	def open_home(self):
-		from .jfhome import HomeScreen
-		self.session.openWithCallback(self.home_closed, HomeScreen)
+		from .jfhome import home_screen_class
+		self.session.openWithCallback(self.home_closed, home_screen_class())
 
 	def open_login(self):
 		from .jflogin import LoginScreen
@@ -35,6 +36,8 @@ class Launcher(object):
 	def home_closed(self, result=None):
 		if result == "login":
 			self.open_login()
+		elif result == "relayout":
+			self.open_home()
 
 	def login_closed(self, result=None):
 		if result == "ok":

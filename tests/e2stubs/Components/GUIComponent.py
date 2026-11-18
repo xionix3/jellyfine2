@@ -4,6 +4,7 @@ class FakeInstance(object):
 		self.pos = None
 		self.pixmap = None
 		self.title = None
+		self.fg = None
 
 	def move(self, p):
 		self.pos = (p.x(), p.y())
@@ -22,6 +23,12 @@ class FakeInstance(object):
 
 	def setTitle(self, t):
 		self.title = t
+
+	def setForegroundColor(self, col):
+		self.fg = col.argb() if hasattr(col, "argb") else col
+
+	def invalidate(self):
+		pass
 
 
 class GUIComponent(object):

@@ -115,7 +115,8 @@ jobs:
 
   release:
     name: GitHub Release
-    if: startsWith(github.ref, 'refs/tags/v')
+    # tag push, release published in the UI, or a version bump on main (auto-release)
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'push' && github.ref == 'refs/heads/main')
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -126,17 +127,45 @@ jobs:
         with:
           name: ipk
           path: dist
-      - name: Create release or attach package to it
+      - name: Decide what to publish
+        id: plan
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="${GITHUB_REF_NAME}"
-          if gh release view "$tag" >/dev/null 2>&1; then
-            # release was created in the GitHub UI/API -> just attach the build
-            gh release upload "$tag" dist/*.ipk dist/SHA256SUMS --clobber
+          ver=$(sed -n 's/^CLIENT_VERSION = "\(.*\)"/\1/p' src/JellyfinE2/jfapi.py)
+          if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+            tag="v${ver}"
+            if gh release view "$tag" >/dev/null 2>&1 || git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+              echo "Version $ver is already released - nothing to do"
+              echo "publish=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
           else
-            notes=$(awk -v v="${tag#v}" '$0 ~ "^## \\[?"v {f=1; next} /^## / && f {exit} f' CHANGELOG.md)
-            gh release create "$tag" dist/*.ipk dist/SHA256SUMS \
-              --title "Jellyfin für Enigma2 $tag" \
-              --notes "${notes:-Siehe CHANGELOG.md}"
+            tag="${GITHUB_REF_NAME}"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "publish=true" >> "$GITHUB_OUTPUT"
+      - name: Create release or attach package to it
+        if: steps.plan.outputs.publish == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.plan.outputs.tag }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.ipk dist/SHA256SUMS --clobber
+          else
+            notes=$(awk -v v="${TAG#v}" '$0 ~ "^## \\[?"v {f=1; next} /^## / && f {exit} f' CHANGELOG.md)
+            {
+              echo "**Installation auf der Box / installation on the box:**"
+              echo '```sh'
+              echo "wget -O /tmp/jellyfin.ipk https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/enigma2-plugin-extensions-jellyfine2_all.ipk && opkg install /tmp/jellyfin.ipk && init 4 && sleep 2 && init 3"
+              echo '```'
+              echo
+              echo "### Changes"
+              echo "${notes:-See CHANGELOG.md}"
+            } > notes.md
+            gh release create "$TAG" dist/*.ipk dist/SHA256SUMS \
+              --target "${GITHUB_SHA}" \
+              --title "Jellyfin für Enigma2 $TAG" \
+              --notes-file notes.md
           fi

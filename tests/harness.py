@@ -125,7 +125,15 @@ def check_skin(scr):
 		elif w.get("source") and not w.get("source").startswith("global."):
 			if w.get("source") not in scr:
 				SKIN_ERRORS.append("%s: source %s missing" % (scr.__class__.__name__, w.get("source")))
-	for el in list(root.iter("widget")) + list(root.iter("eLabel")):
+	for el in list(root.iter("widget")) + list(root.iter("ePixmap")):
+		pix = el.get("pixmap")
+		if pix is not None:
+			# absolute paths are used as is by resolveFilename; a missing file is a SkinError on the box
+			if not os.path.isabs(pix) or not os.path.isfile(pix):
+				SKIN_ERRORS.append("%s: pixmap %s does not exist (SkinError on box!)" % (scr.__class__.__name__, pix))
+			if el.get("alphatest") != "blend" and pix.endswith(".png"):
+				SKIN_ERRORS.append("%s: %s needs alphatest=blend" % (scr.__class__.__name__, os.path.basename(pix)))
+	for el in list(root.iter("widget")) + list(root.iter("eLabel")) + list(root.iter("ePixmap")):
 		pos = el.get("position")
 		size = el.get("size")
 		if pos and size:

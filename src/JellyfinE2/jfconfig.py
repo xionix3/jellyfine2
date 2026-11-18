@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (C) 2026 xionix
 # Jellyfin for Enigma2 - persistent settings
 from __future__ import absolute_import
 
@@ -20,6 +21,7 @@ _c.deviceid = ConfigText(default="", fixed_size=False)
 _c.servername = ConfigText(default="", fixed_size=False)
 _c.serverversion = ConfigText(default="", fixed_size=False)
 _c.rules = ConfigText(default="", fixed_size=False)
+_c.update_last = ConfigText(default="0", fixed_size=False)
 
 
 # id, label, choices [(value, label)], default, help
@@ -51,11 +53,15 @@ SETTINGS = [
 	("show_played", "Gesehen-Markierung im Raster", [("1", "Ja"), ("0", "Nein")], "1", ""),
 	("new_days", "NEU-Markierung", [("7", "7 Tage"), ("3", "3 Tage"), ("14", "14 Tage"), ("30", "30 Tage"), ("0", "Aus")], "7",
 		"Titel, die in diesem Zeitraum zum Server hinzugefügt wurden (Serien: neue Folgen), bekommen ein NEU-Schild."),
-	("backdrops", "Hintergrundbilder", [("1", "Ja"), ("0", "Nein (schneller)")], "1", "Zeigt das Hintergrundbild des gewählten Titels hinter Raster und Startseite."),
+	("home_layout", "Startseite", [("hero", "Modern (großes Titelbild, Kartenreihen)"), ("classic", "Klassisch (Menü links, Poster rechts)")], "hero",
+		"Modern: Titelbild des gewählten Films oben, darunter Reihen mit Karten (hoch/runter: Reihe, links/rechts: Titel)."),
+	("backdrops", "Hintergrundbilder", [("1", "Ja"), ("0", "Nein (schneller)")], "1", "Zeigt das Hintergrundbild des gewählten Titels auf Startseite, Raster und Detailseite."),
 	("rules_first", "Eigene Listen auf der Startseite", [("top", "Ganz oben"), ("after_resume", "Nach 'Weiterschauen'"), ("bottom", "Nach den Bibliotheken")], "top",
 		"Position der eigenen Listen (z.B. 'Neue Filme') auf der Startseite. Verwalten unter 'Meine Listen'."),
 	("cache_dir", "Bild-Cache", [], "tmp", "RAM ist schnell, wird aber beim Neustart geleert. Auf HDD/USB bleiben Poster erhalten."),
 	("verify_ssl", "SSL-Zertifikat prüfen", [("1", "Ja"), ("0", "Nein")], "1", "Für Server mit selbstsigniertem Zertifikat auf 'Nein' stellen."),
+	("update_check", "Automatisch nach Updates suchen", [("1", "Ja (beim Start, höchstens 2x täglich)"), ("0", "Nein")], "1",
+		"Prüft auf GitHub (xionix3/jellyfine2), ob eine neue Version erschienen ist, und bietet die Installation an. Manuell: MENU > Nach Updates suchen."),
 	("mainmenu", "Im Hauptmenü anzeigen", [("1", "Ja"), ("0", "Nein")], "1", "Änderung wird nach einem GUI-Neustart wirksam."),
 	("extmenu", "Im Erweiterungsmenü (blau) anzeigen", [("1", "Ja"), ("0", "Nein")], "0", "Änderung wird nach einem GUI-Neustart wirksam."),
 ]
@@ -84,6 +90,16 @@ def cache_dir():
 	if value != "tmp" and os.path.ismount(value):
 		return os.path.join(value, "jellyfin-cache"), 400 * 1024 * 1024
 	return "/tmp/jellyfine2", 80 * 1024 * 1024
+
+
+def get_update_stamp():
+	return _c.update_last.value
+
+
+def set_update_stamp(ts):
+	_c.update_last.value = str(int(ts))
+	_c.update_last.save()
+	configfile.save()
 
 
 def load_rules():

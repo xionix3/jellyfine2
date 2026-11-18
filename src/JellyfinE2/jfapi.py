@@ -26,8 +26,9 @@ except ImportError:  # pragma: no cover - python 2 fallback
 	from urlparse import urljoin, urlsplit
 
 CLIENT_NAME = "Jellyfin Enigma2"
-CLIENT_VERSION = "1.1.1"
+CLIENT_VERSION = "1.2.0"
 
+SEARCH_TYPES = "Movie,Series,Episode,BoxSet,MusicAlbum,MusicVideo,Video,MusicArtist,Audio"
 LIST_FIELDS = "Overview,Genres,PrimaryImageAspectRatio,ChildCount,DateCreated,DateLastMediaAdded,MediaSourceCount,SeriesPrimaryImage"
 # only real ItemFields values (ProductionYear, ratings ... are always returned)
 DETAIL_FIELDS = ("Overview,Genres,People,Studios,Taglines,MediaSources,MediaStreams,ProviderIds,OriginalTitle,"
@@ -479,11 +480,23 @@ class JellyfinClient(object):
 		res = self.get("/Items/%s/Similar" % item_id, userId=self.user_id, limit=limit, fields=LIST_FIELDS) or {}
 		return res.get("Items") or []
 
-	def search(self, term, limit=150):
-		res = self.items(searchTerm=term, recursive=True, limit=limit,
-			includeItemTypes="Movie,Series,Episode,BoxSet,MusicAlbum,MusicVideo,Video,MusicArtist,Audio",
-			sortBy="SortName", sortOrder="Ascending")
-		return res.get("Items") or []
+	def search(self, term, types=None, limit=150):
+		"""Title search. No sortBy: the server returns the best matches first (an alphabetical sort used to
+		push exact hits like 'Bluey' behind the limit); the client re-ranks exact/prefix matches on top."""
+		from .jfutil import rank_search
+		res = self.items(searchTerm=term, recursive=True, limit=limit, includeItemTypes=types or SEARCH_TYPES, enableTotalRecordCount=False)
+		return rank_search(term, res.get("Items") or [])
+
+	def search_people(self, term, limit=60):
+		from .jfutil import rank_search
+		params = dict(searchTerm=term, limit=limit, enableImageTypes="Primary", imageTypeLimit=1, fields="PrimaryImageAspectRatio")
+		if self.user_id:
+			params["userId"] = self.user_id
+		res = self.get("/Persons", **params) or {}
+		people = [p for p in (res.get("Items") or []) if p.get("Id")]
+		for p in people:
+			p.setdefault("Type", "Person")
+		return rank_search(term, people)
 
 	def genres(self, parent_id=None, item_types=None):
 		res = self.get("/Genres", userId=self.user_id, parentId=parent_id, includeItemTypes=item_types, sortBy="SortName", sortOrder="Ascending") or {}

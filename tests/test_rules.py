@@ -31,4 +31,14 @@ check(len(run_rule(cl, r)) == 10, "random 10")
 check(load_rules("") == DEFAULT_RULES and load_rules("kaputt") == DEFAULT_RULES, "defaults on empty/broken config")
 check(load_rules(dump_rules(DEFAULT_RULES)) == DEFAULT_RULES, "roundtrip")
 print(rule_summary(DEFAULT_RULES[1]))
+# search ranking: exact/prefix title matches first, fuzzy server results last (the "bluey" report)
+from JellyfinE2.jfutil import rank_search, norm_text
+fuzzy = [{"Id": "1", "Name": "Blue Planet", "Type": "Movie"}, {"Id": "2", "Name": "Die wilden Kerle", "Type": "Movie"},
+    {"Id": "3", "Name": "Bluey - Die Folge", "Type": "Episode"}, {"Id": "4", "Name": "Bluey", "Type": "Series"},
+    {"Id": "5", "Name": "Mein Freund Bluey", "Type": "Movie"}, {"Id": "6", "Name": "BLUEY: Der Film", "Type": "Movie"},
+    {"Id": "7", "Name": "Big Blue", "Type": "Movie", "OriginalTitle": "Le Grand Bleu"}]
+ranked = [i["Id"] for i in rank_search("bluey", fuzzy)]
+check(ranked == ["4", "6", "3", "5", "1", "2", "7"], "bluey ranking %s" % ranked)
+check(norm_text("Amélie: Die fabelhafte Welt!") == "amelie die fabelhafte welt" and [i["Id"] for i in rank_search("amelie", [{"Id": "a", "Name": "x"}, {"Id": "b", "Name": "Amélie"}])] == ["b", "a"],
+    "accents ignored")
 print("failures", fails); srv.shutdown(); os._exit(1 if fails else 0)
