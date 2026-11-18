@@ -37,12 +37,13 @@ jobs:
   test:
     name: "Tests (py ${{ matrix.python }}, OpenPLi ${{ matrix.openpli }}, Jellyfin ${{ matrix.jellyfin }}, ${{ matrix.height }}p)"
     needs: lint
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { python: "3.9",  openpli: "release-9.0", jellyfin: "10.8.13",  height: 1080 }
+          # Python 3.9 is no longer shipped for the newest Ubuntu runner image
+          - { python: "3.9",  openpli: "release-9.0", jellyfin: "10.8.13",  height: 1080, os: ubuntu-24.04 }
           - { python: "3.11", openpli: "release-9.0", jellyfin: "10.10.7",  height: 1080 }
           - { python: "3.12", openpli: "release-9.2", jellyfin: "10.10.7",  height: 1080 }
           - { python: "3.12", openpli: "release-9.2", jellyfin: "10.10.7",  height: 720 }
