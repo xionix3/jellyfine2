@@ -7,6 +7,11 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/sponsors/xionix3"><img src="docs/sponsor.png" alt="☕ Kaffee spendieren über GitHub Sponsors" width="400"></a><br>
+  <sub>☕ Das Plugin ist und bleibt kostenlos – ohne Werbung, ohne Abo. Wenn es dir gefällt, freue ich mich über einen Kaffee. Völlig freiwillig, danke! ❤</sub>
+</p>
+
+<p align="center">
   <a href="https://github.com/xionix3/jellyfine2/actions/workflows/ci.yml"><img src="https://github.com/xionix3/jellyfine2/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://github.com/xionix3/jellyfine2/releases/latest"><img src="https://img.shields.io/github/v/release/xionix3/jellyfine2?label=Release&color=00a4dc" alt="Release"></a>
   <a href="https://github.com/xionix3/jellyfine2/releases"><img src="https://img.shields.io/github/downloads/xionix3/jellyfine2/total?label=Downloads&color=aa5cc3" alt="Downloads"></a>
