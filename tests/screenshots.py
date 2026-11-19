@@ -246,7 +246,7 @@ def main():
 	s = Session()
 	plugin.main(s)
 	login = s.top
-	login.server, login.username, login.password = "http://192.168.1.10:8096", "patrick", "geheim"
+	login.server, login.username, login.password = "http://192.168.1.10:8096", "demo", "geheim"
 	login.build()
 	login["list"].moveToIndex(3)
 	login["description"].setText(login.DESCRIPTIONS["login"])
@@ -256,7 +256,7 @@ def main():
 	settle(lambda: s.top.__class__.__name__ == "HeroHomeScreen")
 	hero = s.top
 	hero.cl.server_name = "Mein Jellyfin"
-	hero["server"].setText("patrick  @  Mein Jellyfin  (Jellyfin 10.10.7)")
+	hero["server"].setText("demo  @  Mein Jellyfin  (Jellyfin 10.10.7)")
 	settle(lambda: len(hero.rows) > 4 and not hero.loading, 15)
 
 	def ready(scr):
@@ -363,7 +363,7 @@ def main():
 	hero.close("relayout")
 	settle(lambda: s.top.__class__.__name__ == "HomeScreen")
 	home = s.top
-	home["subtitle"].setText("patrick  @  Mein Jellyfin  (Jellyfin 10.10.7)")
+	home["subtitle"].setText("demo  @  Mein Jellyfin  (Jellyfin 10.10.7)")
 	settle(lambda: home.cells.items[0] is not None and home["backdrop"].instance.pixmap is not None
 		and all(home["pcover%d" % i].instance.pixmap is not None for i in range(4)), 15)
 	render(home, "11-startseite-klassisch")

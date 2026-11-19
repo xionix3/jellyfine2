@@ -6,7 +6,7 @@ from JellyfinE2.jfapi import JellyfinClient
 from JellyfinE2.jfrules import run_rule, TEMPLATE, DEFAULT_RULES, load_rules, dump_rules, rule_summary
 srv, st, url = start_server("10.10.3")
 cl = JellyfinClient(url, "dev", "test")
-cl.public_info(); cl.authenticate("patrick", "geheim")
+cl.public_info(); cl.authenticate("demo", "geheim")
 fails = 0
 def check(c, m):
     global fails

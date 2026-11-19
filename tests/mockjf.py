@@ -240,8 +240,8 @@ class Handler(BaseHTTPRequestHandler):
 		if path == "/System/Info/Public":
 			return self.send_json({"ServerName": "Mein Jellyfin" if st.demo else "TestServer", "Version": st.version, "Id": "srv1", "LocalAddress": "http://127.0.0.1"})
 		if path == "/Users/AuthenticateByName" and method == "POST":
-			if body and body.get("Username") == "patrick" and body.get("Pw") == "geheim":
-				return self.send_json({"AccessToken": TOKEN, "User": {"Id": USER_ID, "Name": "patrick"}})
+			if body and body.get("Username") == "demo" and body.get("Pw") == "geheim":
+				return self.send_json({"AccessToken": TOKEN, "User": {"Id": USER_ID, "Name": "demo"}})
 			return self.send_json({"error": "bad"}, 401)
 		if path == "/QuickConnect/Enabled":
 			return self.send_json(True)
@@ -257,7 +257,7 @@ class Handler(BaseHTTPRequestHandler):
 			return self.send_json({"Secret": q.get("secret"), "Authenticated": st.qc_polls >= 2})
 		if path == "/Users/AuthenticateWithQuickConnect" and method == "POST":
 			if body and body.get("Secret") == "sec1" and st.qc_polls >= 2:
-				return self.send_json({"AccessToken": TOKEN, "User": {"Id": USER_ID, "Name": "patrick"}})
+				return self.send_json({"AccessToken": TOKEN, "User": {"Id": USER_ID, "Name": "demo"}})
 			return self.send_json({}, 401)
 		if path.startswith("/Items/") and "/Images/" in path:
 			return self.send_image(path, q)
@@ -268,7 +268,7 @@ class Handler(BaseHTTPRequestHandler):
 			return self.send_json({"error": "unauthorized"}, 401)
 
 		if path == "/Users/Me":
-			return self.send_json({"Id": USER_ID, "Name": "patrick"})
+			return self.send_json({"Id": USER_ID, "Name": "demo"})
 		if path == "/Persons":
 			term = (q.get("searchterm") or "").lower()
 			persons = {}
