@@ -48,14 +48,17 @@ PEOPLE = [{"Id": pid, "Name": n, "Type": "Actor", "Role": r, "PrimaryImageTag": 
 PEOPLE = [dict((k, v) for k, v in p.items() if v is not None) for p in PEOPLE] + [{"Id": "p2", "Name": "Rex Regie", "Type": "Director"}]
 
 # fake GitHub release for the update check (served under /gh/)
-GH_ASSET = "enigma2-plugin-extensions-jellyfine2_all.ipk"
+GH_ASSET = "enigma2-plugin-extensions-jellyfine-enigma2-openpli_all.ipk"
+GH_OLD_ASSET = "enigma2-plugin-extensions-jellyfine2_all.ipk"
 GH_IPK = b"!<arch>\n" + b"debian-binary   0           0     0     100644  4         `\n2.0\n"
 
 
 def gh_release(base, version="9.9.9"):
 	return {"tag_name": "v" + version, "draft": False, "prerelease": False, "html_url": base + "/gh/page",
 		"body": "## Änderungen\n\n- Neue Startseite mit **Titelbild**\n- Suche mit [Kategorien](https://x)\n\nInstallation: wget ...",
-		"assets": [{"name": GH_ASSET, "browser_download_url": base + "/gh/dl/" + GH_ASSET},
+		# the old stable name comes first (as in real releases, sorted by name): the update must pick the new one
+		"assets": [{"name": GH_OLD_ASSET, "browser_download_url": base + "/gh/dl/" + GH_OLD_ASSET},
+			{"name": GH_ASSET, "browser_download_url": base + "/gh/dl/" + GH_ASSET},
 			{"name": "SHA256SUMS", "browser_download_url": base + "/gh/dl/SHA256SUMS"}]}
 
 

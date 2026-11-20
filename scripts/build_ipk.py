@@ -9,10 +9,13 @@ import tarfile
 import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "src", "JellyfinE2")
+SRC = os.path.join(ROOT, "src", "JellyfinOpenPLi")
 OUTDIR = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "dist"))
-DEST = "usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2"
-PKG = "enigma2-plugin-extensions-jellyfine2"
+DEST = "usr/lib/enigma2/python/Plugins/Extensions/JellyfinOpenPLi"
+PKG = "enigma2-plugin-extensions-jellyfine-enigma2-openpli"
+# package name and plugin folder up to 1.3.1; the new package replaces it on install
+OLD_PKG = "enigma2-plugin-extensions-jellyfine2"
+OLD_DEST = "/usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2"
 VERSION = re.search(r'CLIENT_VERSION = "([^"]+)"', open(os.path.join(SRC, "jfapi.py")).read()).group(1)
 MTIME = int(os.environ.get("SOURCE_DATE_EPOCH") or time.time())
 
@@ -28,35 +31,43 @@ Priority: optional
 Maintainer: {maint}
 License: GPL-2.0-or-later
 Architecture: all
-OE: enigma2-plugin-extensions-jellyfine2
+OE: {pkg}
 Homepage: {home}
 Depends: enigma2
+Provides: {old}
+Replaces: {old}
+Conflicts: {old}
 Source: local
-""".format(pkg=PKG, ver=VERSION, maint=os.environ.get("IPK_MAINTAINER", "xionix <https://github.com/xionix3>"),
-	home=os.environ.get("IPK_HOMEPAGE", "https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "xionix3/jellyfine2")))
+""".format(pkg=PKG, old=OLD_PKG, ver=VERSION, maint=os.environ.get("IPK_MAINTAINER", "xionix <https://github.com/xionix3>"),
+	home=os.environ.get("IPK_HOMEPAGE", "https://github.com/" + os.environ.get("GITHUB_REPOSITORY", "xionix3/jellyfine_enigma2_openpli")))
 
 POSTINST = """#!/bin/sh
+# Umstieg vom alten Paketnamen: Reste des alten Plugin-Ordners entfernen, sobald
+# das alte Paket nicht mehr installiert ist (sonst erscheint das Plugin doppelt).
+if [ ! -f /var/lib/opkg/info/{old}.control ] && [ ! -f /usr/lib/opkg/info/{old}.control ]; then
+	rm -rf {old_dest} >/dev/null 2>&1
+fi
 echo ""
 echo "Jellyfin-Plugin {ver} (von xionix) installiert."
 echo "Bitte Enigma2 neu starten (Menü > Standby/Neustart > GUI neu starten)."
 echo ""
 exit 0
-""".format(ver=VERSION)
+""".format(ver=VERSION, old=OLD_PKG, old_dest=OLD_DEST)
 
 POSTRM = """#!/bin/sh
 if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
-	rm -rf /usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2 >/dev/null 2>&1
+	rm -rf /{dest} >/dev/null 2>&1
 	rm -rf /tmp/jellyfine2 >/dev/null 2>&1
 	echo "Jellyfin-Plugin entfernt. Bitte Enigma2 neu starten."
 fi
 exit 0
-"""
+""".format(dest=DEST)
 
 PREINST = """#!/bin/sh
 # remove stale bytecode of a previous version
-rm -rf /usr/lib/enigma2/python/Plugins/Extensions/JellyfinE2/__pycache__ >/dev/null 2>&1
+rm -rf /{dest}/__pycache__ >/dev/null 2>&1
 exit 0
-"""
+""".format(dest=DEST)
 
 
 def add_dir(tar, name):

@@ -3,7 +3,7 @@
 ## Sicherheitslücke melden
 
 Bitte **kein öffentliches Issue** anlegen. Melde die Lücke vertraulich über
-[„Report a vulnerability“](https://github.com/xionix3/jellyfine2/security/advisories/new)
+[„Report a vulnerability“](https://github.com/xionix3/jellyfine_enigma2_openpli/security/advisories/new)
 (Reiter *Security* im Repository). Beschreibe, was passiert und wie man es nachvollziehen kann.
 Ich melde mich so schnell wie möglich und veröffentliche die Korrektur als neue Version.
 
@@ -27,7 +27,7 @@ Sicherheitskorrekturen gibt es für die jeweils neueste Version (siehe Releases)
 ## Reporting a vulnerability
 
 Please **do not open a public issue**. Report it privately via
-[“Report a vulnerability”](https://github.com/xionix3/jellyfine2/security/advisories/new)
+[“Report a vulnerability”](https://github.com/xionix3/jellyfine_enigma2_openpli/security/advisories/new)
 (*Security* tab of the repository) with a description and steps to reproduce.
 Fixes are published as a new release.
 

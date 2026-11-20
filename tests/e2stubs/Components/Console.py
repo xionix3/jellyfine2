@@ -1,6 +1,6 @@
 # Stub of Components.Console: records commands and answers like a successful opkg run
 COMMANDS = []
-RESULT = [0, "Installing enigma2-plugin-extensions-jellyfine2 (9.9.9) on root.\nConfiguring enigma2-plugin-extensions-jellyfine2.\n"]
+RESULT = [0, "Installing enigma2-plugin-extensions-jellyfine-enigma2-openpli (9.9.9) on root.\nConfiguring enigma2-plugin-extensions-jellyfine-enigma2-openpli.\n"]
 
 
 class Console(object):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # SPDX-License-Identifier: GPL-2.0-or-later
 # Copyright (C) 2026 xionix
-# Jellyfin for Enigma2 - update check against the GitHub releases of xionix3/jellyfine2
+# Jellyfin for Enigma2 - update check against the GitHub releases of xionix3/jellyfine_enigma2_openpli
 from __future__ import absolute_import
 
 import json
@@ -12,13 +12,13 @@ import time
 from .jfapi import CLIENT_VERSION
 from .jflog import log
 
-REPO = "xionix3/jellyfine2"
+REPO = "xionix3/jellyfine_enigma2_openpli"
 API_URL = "https://api.github.com/repos/%s/releases/latest" % REPO
-ASSET = "enigma2-plugin-extensions-jellyfine2_all.ipk"
+ASSET = "enigma2-plugin-extensions-jellyfine-enigma2-openpli_all.ipk"
 SUMS = "SHA256SUMS"
 TARGET = "/tmp/jellyfine2_update.ipk"
 CHECK_INTERVAL = 12 * 3600
-USER_AGENT = "JellyfinE2/%s (Enigma2; +https://github.com/%s)" % (CLIENT_VERSION, REPO)
+USER_AGENT = "JellyfinOpenPLi/%s (Enigma2; +https://github.com/%s)" % (CLIENT_VERSION, REPO)
 
 
 class UpdateError(Exception):

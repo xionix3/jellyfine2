@@ -7,7 +7,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 errors = 0
-for path in sorted(glob.glob(os.path.join(ROOT, "src", "JellyfinE2", "*.py"))):
+for path in sorted(glob.glob(os.path.join(ROOT, "src", "JellyfinOpenPLi", "*.py"))):
 	src = open(path, encoding="utf-8").read()
 	try:
 		ast.parse(src, filename=path, feature_version=(3, 6))
@@ -18,5 +18,5 @@ for path in sorted(glob.glob(os.path.join(ROOT, "src", "JellyfinE2", "*.py"))):
 	if "\r" in src:
 		print("ERROR %s: CRLF line endings" % path)
 		errors += 1
-print("%d files checked, %d errors" % (len(glob.glob(os.path.join(ROOT, "src", "JellyfinE2", "*.py"))), errors))
+print("%d files checked, %d errors" % (len(glob.glob(os.path.join(ROOT, "src", "JellyfinOpenPLi", "*.py"))), errors))
 sys.exit(1 if errors else 0)

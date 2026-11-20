@@ -15,7 +15,7 @@ from .jfskin import C_ACCENT, list_skin
 
 ROW_W = 1200
 AUTHOR = "xionix"
-HOMEPAGE = "https://github.com/xionix3/jellyfine2"
+HOMEPAGE = "https://github.com/xionix3/jellyfine_enigma2_openpli"
 
 
 def about_text(cl=None):

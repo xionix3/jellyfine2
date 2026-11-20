@@ -12,9 +12,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/xionix3/jellyfine2/actions/workflows/ci.yml"><img src="https://github.com/xionix3/jellyfine2/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://github.com/xionix3/jellyfine2/releases/latest"><img src="https://img.shields.io/github/v/release/xionix3/jellyfine2?label=Release&color=00a4dc" alt="Release"></a>
-  <a href="https://github.com/xionix3/jellyfine2/releases"><img src="https://img.shields.io/github/downloads/xionix3/jellyfine2/total?label=Downloads&color=aa5cc3" alt="Downloads"></a>
+  <a href="https://github.com/xionix3/jellyfine_enigma2_openpli/actions/workflows/ci.yml"><img src="https://github.com/xionix3/jellyfine_enigma2_openpli/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/xionix3/jellyfine_enigma2_openpli/releases/latest"><img src="https://img.shields.io/github/v/release/xionix3/jellyfine_enigma2_openpli?label=Release&color=00a4dc" alt="Release"></a>
+  <a href="https://github.com/xionix3/jellyfine_enigma2_openpli/releases"><img src="https://img.shields.io/github/downloads/xionix3/jellyfine_enigma2_openpli/total?label=Downloads&color=aa5cc3" alt="Downloads"></a>
   <img src="https://img.shields.io/badge/OpenPLi-9.x-1e88e5" alt="OpenPLi 9.x">
   <img src="https://img.shields.io/badge/Jellyfin-10.8%20%E2%80%93%2010.11-aa5cc3" alt="Jellyfin 10.8 – 10.11">
   <a href="LICENSE"><img src="https://img.shields.io/badge/Licentie-GPL--2.0-43a047" alt="GPL-2.0"></a>
@@ -84,19 +84,19 @@
 **Snel** – via telnet/SSH op de box:
 
 ```sh
-wget -O /tmp/jellyfin.ipk https://github.com/xionix3/jellyfine2/releases/latest/download/enigma2-plugin-extensions-jellyfine2_all.ipk \
+wget -O /tmp/jellyfin.ipk https://github.com/xionix3/jellyfine_enigma2_openpli/releases/latest/download/enigma2-plugin-extensions-jellyfine-enigma2-openpli_all.ipk \
   && opkg install /tmp/jellyfin.ipk && init 4 && sleep 2 && init 3
 ```
 
-**Handmatig:** download de `.ipk` uit de [nieuwste release](https://github.com/xionix3/jellyfine2/releases/latest), kopieer hem via FTP naar `/tmp` op de box en installeer:
+**Handmatig:** download de `.ipk` uit de [nieuwste release](https://github.com/xionix3/jellyfine_enigma2_openpli/releases/latest), kopieer hem via FTP naar `/tmp` op de box en installeer:
 
 ```sh
-opkg install /tmp/enigma2-plugin-extensions-jellyfine2_*_all.ipk
+opkg install /tmp/enigma2-plugin-extensions-jellyfine-enigma2-openpli_*_all.ipk
 init 4 && sleep 2 && init 3      # GUI herstarten
 ```
 
-**Bijwerken:** gaat automatisch – de plugin meldt zich zodra er een nieuwe versie is (uit te zetten onder *Instellingen → Automatisch naar updates zoeken*, handmatig via *MENU → Naar updates zoeken*). Installeren zoals hierboven kan ook; instellingen en lijsten blijven behouden.
-**Verwijderen:** `opkg remove enigma2-plugin-extensions-jellyfine2`
+**Bijwerken:** gaat automatisch – de plugin meldt zich zodra er een nieuwe versie is (uit te zetten onder *Instellingen → Automatisch naar updates zoeken*, handmatig via *MENU → Naar updates zoeken*). Installeren zoals hierboven kan ook; instellingen en lijsten blijven behouden. Tot versie 1.3.1 heette het pakket `enigma2-plugin-extensions-jellyfine2` – de update vervangt het automatisch, oude installatiecommando's blijven werken.
+**Verwijderen:** `opkg remove enigma2-plugin-extensions-jellyfine-enigma2-openpli`
 
 ## 🚀 Aan de slag
 
@@ -186,7 +186,7 @@ Er wordt in de titel gezocht. Elke categorie wordt apart opgevraagd, plus titels
 <details>
 <summary><b>Fouten melden</b></summary>
 
-Maak een [issue](https://github.com/xionix3/jellyfine2/issues/new/choose) aan en voeg de regels met `[Jellyfin]` uit het Enigma2-debuglog toe (*Menu → Instellingen → Systeem → Logs*), samen met je box, imageversie en Jellyfin-versie. Maak eerst alles na `api_key=`, `ApiKey=` of `Token=` onleesbaar – Enigma2 schrijft het streamadres zelf in het log. **Beveiligingsproblemen** graag niet openbaar, maar zoals in [SECURITY.md](SECURITY.md) beschreven melden.
+Maak een [issue](https://github.com/xionix3/jellyfine_enigma2_openpli/issues/new/choose) aan en voeg de regels met `[Jellyfin]` uit het Enigma2-debuglog toe (*Menu → Instellingen → Systeem → Logs*), samen met je box, imageversie en Jellyfin-versie. Maak eerst alles na `api_key=`, `ApiKey=` of `Token=` onleesbaar – Enigma2 schrijft het streamadres zelf in het log. **Beveiligingsproblemen** graag niet openbaar, maar zoals in [SECURITY.md](SECURITY.md) beschreven melden.
 </details>
 
 ## 🧩 Compatibiliteit
@@ -207,7 +207,7 @@ make lint test ipk      # de .ipk staat daarna in dist/
 make screenshots        # maakt docs/screenshots/ opnieuw
 ```
 
-De CI (GitHub Actions) controleert lint en Python 3.6-syntaxis, test in een matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 × Jellyfin 10.8/10.10/10.11 × HD/FHD), bouwt de `.ipk` en maakt de screenshots. **Releases gaan automatisch:** wordt `CLIENT_VERSION` in `src/JellyfinE2/jfapi.py` verhoogd en naar `main` gepusht, dan maakt de CI de tag `vX.Y.Z` en de release met `.ipk`, `SHA256SUMS` en het stuk uit de [CHANGELOG](CHANGELOG.md) – daar haalt de automatische update zijn versie vandaan. Meer over de opbouw staat in de [Engelse versie](README.en.md#development).
+De CI (GitHub Actions) controleert lint en Python 3.6-syntaxis, test in een matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 × Jellyfin 10.8/10.10/10.11 × HD/FHD), bouwt de `.ipk` en maakt de screenshots. **Releases gaan automatisch:** wordt `CLIENT_VERSION` in `src/JellyfinOpenPLi/jfapi.py` verhoogd en naar `main` gepusht, dan maakt de CI de tag `vX.Y.Z` en de release met `.ipk`, `SHA256SUMS` en het stuk uit de [CHANGELOG](CHANGELOG.md) – daar haalt de automatische update zijn versie vandaan. Meer over de opbouw staat in de [Engelse versie](README.en.md#development).
 
 Bijdragen zijn welkom – issues en pull requests in het Engels of Duits.
 

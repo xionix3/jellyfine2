@@ -26,7 +26,7 @@ except ImportError:  # pragma: no cover - python 2 fallback
 	from urlparse import urljoin, urlsplit
 
 CLIENT_NAME = "Jellyfin Enigma2"
-CLIENT_VERSION = "1.3.1"
+CLIENT_VERSION = "1.3.2"
 
 SEARCH_TYPES = "Movie,Series,Episode,BoxSet,MusicAlbum,MusicVideo,Video,MusicArtist,Audio"
 LIST_FIELDS = "Overview,Genres,PrimaryImageAspectRatio,ChildCount,DateCreated,DateLastMediaAdded,MediaSourceCount,SeriesPrimaryImage"

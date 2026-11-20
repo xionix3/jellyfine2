@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generates the PNG skin assets in src/JellyfinE2/images (original artwork).
+"""Generates the PNG skin assets in src/JellyfinOpenPLi/images (original artwork).
 
 Enigma2 fills (eLabel backgroundColor) overwrite pixels instead of blending, so every
 translucent layer (gradients, glass panels, rounded frames, badges) is an alpha PNG
@@ -12,7 +12,7 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "src", "JellyfinE2", "images")
+OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "src", "JellyfinOpenPLi", "images")
 FB = os.environ.get("ASSET_FONT_BOLD", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
 BG = (11, 11, 16)
 ACCENT = (0, 164, 220)

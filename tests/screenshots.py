@@ -241,7 +241,7 @@ def main():
 	enigma.DESKTOP[:] = [1920, 1080]
 	srv, state, url = start_server("10.10.7", demo=True)
 	shutil.rmtree("/tmp/jellyfine2", ignore_errors=True)
-	from JellyfinE2 import plugin, jfconfig
+	from JellyfinOpenPLi import plugin, jfconfig
 	jfconfig.set_value("update_check", "0")
 	s = Session()
 	plugin.main(s)
@@ -317,7 +317,7 @@ def main():
 	lib.close()
 	# series detail -> episodes
 	tv = [v for v in hero.views if v.get("CollectionType") == "tvshows"]
-	from JellyfinE2.jfrows import LibraryRowsScreen
+	from JellyfinOpenPLi.jfrows import LibraryRowsScreen
 	s.open(LibraryRowsScreen, tv, "tvshows")
 	tvl = s.top
 	goto(tvl, "Alle Serien A-Z")

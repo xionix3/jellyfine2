@@ -61,7 +61,7 @@ SETTINGS = [
 	("cache_dir", "Bild-Cache", [], "tmp", "RAM ist schnell, wird aber beim Neustart geleert. Auf HDD/USB bleiben Poster erhalten."),
 	("verify_ssl", "SSL-Zertifikat prüfen", [("1", "Ja"), ("0", "Nein")], "1", "Für Server mit selbstsigniertem Zertifikat auf 'Nein' stellen."),
 	("update_check", "Automatisch nach Updates suchen", [("1", "Ja (beim Start, höchstens 2x täglich)"), ("0", "Nein")], "1",
-		"Prüft auf GitHub (xionix3/jellyfine2), ob eine neue Version erschienen ist, und bietet die Installation an. Manuell: MENU > Nach Updates suchen."),
+		"Prüft auf GitHub (xionix3/jellyfine_enigma2_openpli), ob eine neue Version erschienen ist, und bietet die Installation an. Manuell: MENU > Nach Updates suchen."),
 	("mainmenu", "Im Hauptmenü anzeigen", [("1", "Ja"), ("0", "Nein")], "1", "Änderung wird nach einem GUI-Neustart wirksam."),
 	("extmenu", "Im Erweiterungsmenü (blau) anzeigen", [("1", "Ja"), ("0", "Nein")], "0", "Änderung wird nach einem GUI-Neustart wirksam."),
 ]

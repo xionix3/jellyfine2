@@ -2,8 +2,8 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "e2stubs"))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 from mockjf import start_server
-from JellyfinE2.jfapi import JellyfinClient
-from JellyfinE2.jfrules import run_rule, TEMPLATE, DEFAULT_RULES, load_rules, dump_rules, rule_summary
+from JellyfinOpenPLi.jfapi import JellyfinClient
+from JellyfinOpenPLi.jfrules import run_rule, TEMPLATE, DEFAULT_RULES, load_rules, dump_rules, rule_summary
 srv, st, url = start_server("10.10.3")
 cl = JellyfinClient(url, "dev", "test")
 cl.public_info(); cl.authenticate("demo", "geheim")
@@ -32,13 +32,13 @@ check(load_rules("") == DEFAULT_RULES and load_rules("kaputt") == DEFAULT_RULES,
 check(load_rules(dump_rules(DEFAULT_RULES)) == DEFAULT_RULES, "roundtrip")
 print(rule_summary(DEFAULT_RULES[1]))
 # secrets never reach the log
-from JellyfinE2.jflog import redact
+from JellyfinOpenPLi.jflog import redact
 check(redact("m.m3u8?DeviceId=d&ApiKey=abc123") == "m.m3u8?DeviceId=d&ApiKey=***" and redact('Token="abc"') == 'Token="***"'
     and redact("x?api_key=abc&static=true") == "x?api_key=***&static=true" and redact('"Pw": "geheim"') == '"Pw": "***"', "redaction")
-from JellyfinE2.jfapi import JellyfinError
+from JellyfinOpenPLi.jfapi import JellyfinError
 check("abc123" not in str(JellyfinError("Nicht gefunden (404): /x?api_key=abc123")), "error messages redacted")
 # search ranking: exact/prefix title matches first, fuzzy server results last (the "bluey" report)
-from JellyfinE2.jfutil import rank_search, norm_text
+from JellyfinOpenPLi.jfutil import rank_search, norm_text
 fuzzy = [{"Id": "1", "Name": "Blue Planet", "Type": "Movie"}, {"Id": "2", "Name": "Die wilden Kerle", "Type": "Movie"},
     {"Id": "3", "Name": "Bluey - Die Folge", "Type": "Episode"}, {"Id": "4", "Name": "Bluey", "Type": "Series"},
     {"Id": "5", "Name": "Mein Freund Bluey", "Type": "Movie"}, {"Id": "6", "Name": "BLUEY: Der Film", "Type": "Movie"},

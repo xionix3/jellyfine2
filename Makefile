@@ -10,7 +10,7 @@ tests/keymap.xml:
 	curl -fsSL https://raw.githubusercontent.com/OpenPLi/enigma2/$(OPENPLI_BRANCH)/data/keymap.xml -o $@
 
 lint:
-	python3 -m pyflakes src/JellyfinE2 scripts tests/*.py
+	python3 -m pyflakes src/JellyfinOpenPLi scripts tests/*.py
 	python3 scripts/check_syntax.py
 
 test: tests/keymap.xml

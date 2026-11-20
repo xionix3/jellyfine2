@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "e2stubs"))
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 from PIL import Image, ImageDraw, ImageFont  # noqa: E402
-from JellyfinE2 import jfskin  # noqa: E402
+from JellyfinOpenPLi import jfskin  # noqa: E402
 
 FONT = os.environ.get("PREVIEW_FONT", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
 OUT = sys.argv[1] if len(sys.argv) > 1 else "skin-previews"

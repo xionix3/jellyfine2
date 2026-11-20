@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.3.2] - 2026-11-20
+
+- New name: the project lives at [xionix3/jellyfine_enigma2_openpli](https://github.com/xionix3/jellyfine_enigma2_openpli), the package is now `enigma2-plugin-extensions-jellyfine-enigma2-openpli` (opkg allows no underscores in package names) and the plugin folder `Extensions/JellyfinOpenPLi`
+- The new package replaces `enigma2-plugin-extensions-jellyfine2` on install (Replaces/Conflicts), leftovers of the old folder are removed; settings, server login and lists are kept
+- Releases carry the package under the new and the old stable name, so the auto-update of 1.2.x/1.3.x and old install commands keep working
+
 ## [1.3.1] - 2026-11-18
 
 - Security: access tokens and passwords no longer appear in the plugin's log lines or error messages (the play line printed the `ApiKey` of transcoded streams - users post these lines in bug reports)

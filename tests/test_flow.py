@@ -17,9 +17,9 @@ from mockjf import start_server  # noqa: E402
 srv, state, URL = start_server(VERSION)
 shutil.rmtree("/tmp/jellyfine2", ignore_errors=True)
 
-from JellyfinE2 import plugin  # noqa: E402
-from JellyfinE2 import jfconfig, jfupdate  # noqa: E402
-from JellyfinE2.jfimages import image_ref  # noqa: E402
+from JellyfinOpenPLi import plugin  # noqa: E402
+from JellyfinOpenPLi import jfconfig, jfupdate  # noqa: E402
+from JellyfinOpenPLi.jfimages import image_ref  # noqa: E402
 from Components import Console as console_stub  # noqa: E402
 from Screens import Standby as standby_stub  # noqa: E402
 
@@ -44,7 +44,7 @@ sys.stdout = LOG
 jfconfig.set_value("home_layout", "classic")
 jfconfig.set_value("update_check", "0")
 jfupdate.API_URL = URL + "/gh/releases/latest"
-from JellyfinE2.jfapi import parse_version  # noqa: E402
+from JellyfinOpenPLi.jfapi import parse_version  # noqa: E402
 from Components.ActionMap import WARNINGS  # noqa: E402
 from Plugins.Plugin import PluginDescriptor  # noqa: E402
 
