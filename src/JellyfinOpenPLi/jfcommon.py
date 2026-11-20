@@ -4,6 +4,8 @@
 # Jellyfin for Enigma2 - shared screen helpers
 from __future__ import absolute_import
 
+from .jfi18n import _, ngettext
+
 from enigma import ePoint
 
 from Components.Label import Label
@@ -17,7 +19,7 @@ from . import jfconfig
 from .jfasync import runner
 from .jfimages import image_ref, loader
 from .jfskin import S
-from .jfutil import display_title, is_new, is_played, played_percentage, unplayed_count
+from .jfutil import child_count_text, display_title, is_new, is_played, played_percentage, unplayed_count
 from .jflog import log
 
 
@@ -116,8 +118,9 @@ class JFScreen(Screen):
 		self._jf_timers.append(t)
 		t.start(ms, True)
 
-	def set_busy(self, busy, text="Lade ..."):
+	def set_busy(self, busy, text=None):
 		self.busy = max(0, self.busy + (1 if busy else -1))
+		text = _("Lade ...") if text is None else text
 		if "status" not in self:
 			return
 		if self.busy:
@@ -135,10 +138,11 @@ class JFScreen(Screen):
 		else:
 			self["status"].hide()
 
-	def show_error(self, err, title="Fehler"):
+	def show_error(self, err, title=None):
+		title = _("Fehler") if title is None else title
 		msg = str(err) or err.__class__.__name__
 		if getattr(err, "status", None) == 401:
-			msg += "\n\nBitte im Hauptmenü des Plugins neu anmelden (rote Taste)."
+			msg += _("\n\nBitte im Hauptmenü des Plugins neu anmelden (rote Taste).")
 		self.session.open(MessageBox, "%s:\n%s" % (title, msg), MessageBox.TYPE_ERROR, timeout=10)
 
 	def info(self, text, timeout=3):
@@ -412,7 +416,7 @@ def hero_meta(item):
 	fresh = item.get("_jf_new_count")
 	new = bool(fresh) or is_new(item, jfconfig.get_int("new_days", 7))
 	if fresh:
-		parts.append("%d neue Folge%s" % (fresh, "n" if fresh > 1 else ""))
+		parts.append(ngettext("%d neue Folge", "%d neue Folgen", fresh) % fresh)
 	if t == "Episode":
 		code = episode_code(item)
 		name = item.get("Name") or ""
@@ -426,17 +430,14 @@ def hero_meta(item):
 		parts.append(item["OfficialRating"])
 	r = fmt_rating(item.get("CommunityRating"))
 	if r:
-		parts.append("Bewertung %s" % r)
-	if t == "Series" and item.get("ChildCount"):
-		n = item["ChildCount"]
-		parts.append("%d Staffel%s" % (n, "n" if n != 1 else ""))
-	elif t in ("Season", "BoxSet", "MusicAlbum", "Folder") and item.get("ChildCount"):
-		parts.append("%s %s" % (item["ChildCount"], {"Season": "Episoden", "MusicAlbum": "Titel"}.get(t, "Titel")))
+		parts.append(_("Bewertung %s") % r)
+	if t in ("Series", "Season", "BoxSet", "MusicAlbum", "Folder") and item.get("ChildCount"):
+		parts.append(child_count_text(t, item["ChildCount"]))
 	pos = resume_ticks(item)
 	if pos and not is_played(item):
-		parts.append("fortsetzen bei %s" % fmt_clock(ticks_to_seconds(pos)))
+		parts.append(_("fortsetzen bei %s") % fmt_clock(ticks_to_seconds(pos)))
 	elif is_played(item) and t not in ("Series", "Season", "BoxSet"):
-		parts.append("gesehen")
+		parts.append(_("gesehen"))
 	return SEP.join(p for p in parts if p), new
 
 
@@ -445,10 +446,10 @@ def play_label(item):
 	from .jfutil import resume_ticks
 	t = item.get("Type")
 	if t in ("BoxSet", "Folder", "CollectionFolder", "Playlist", "Person", "MusicArtist"):
-		return "Öffnen"
+		return _("Öffnen")
 	focus = item.get("_jf_focus")
 	if focus:
-		return "Neue Folge"
+		return _("Neue Folge")
 	if resume_ticks(item) and not is_played(item):
-		return "Fortsetzen"
-	return "Abspielen"
+		return _("Fortsetzen")
+	return _("Abspielen")

@@ -4,6 +4,8 @@
 # Jellyfin for Enigma2 - settings
 from __future__ import absolute_import
 
+from .jfi18n import _, set_language
+
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Screens.MessageBox import MessageBox
@@ -19,11 +21,11 @@ HOMEPAGE = "https://github.com/xionix3/jellyfine_enigma2_openpli"
 
 
 def about_text(cl=None):
-	lines = ["Jellyfin für Enigma2  -  Version %s" % CLIENT_VERSION, "", "Entwickelt von %s" % AUTHOR, HOMEPAGE, "",
-		"Freie Software (GPL-2.0-or-later). Kein offizielles Jellyfin-Projekt.", "Box: %s" % jfconfig.box_name()]
+	lines = [_("Jellyfin für Enigma2  -  Version %s") % CLIENT_VERSION, "", _("Entwickelt von %s") % AUTHOR, HOMEPAGE, "",
+		_("Freie Software (GPL-2.0-or-later). Kein offizielles Jellyfin-Projekt."), _("Box: %s") % jfconfig.box_name()]
 	if cl is not None and cl.server:
 		ver = ".".join(str(x) for x in cl.server_version) if cl.server_version != (0, 0, 0) else "?"
-		lines.append("Server: %s (Jellyfin %s)" % (cl.server_name or cl.server, ver))
+		lines.append(_("Server: %s (Jellyfin %s)") % (cl.server_name or cl.server, ver))
 	return "\n".join(lines)
 
 
@@ -34,12 +36,12 @@ class SettingsScreen(JFScreen):
 		self.skinName = "JellyfinE2Settings"
 		self.vals = dict((s[0], getattr(jfconfig.config.plugins.jellyfine2, s[0]).value) for s in jfconfig.SETTINGS)
 		cl = self.cl
-		self["title"] = Label("Jellyfin - Einstellungen")
-		self["subtitle"] = Label("Plugin %s von %s  |  %s @ %s" % (CLIENT_VERSION, AUTHOR, cl.user_name or "-", cl.server or "-"))
+		self["title"] = Label(_("Jellyfin - Einstellungen"))
+		self["subtitle"] = Label(_("Plugin %s von %s  |  %s @ %s") % (CLIENT_VERSION, AUTHOR, cl.user_name or "-", cl.server or "-"))
 		self["list"] = make_list(fonts=((28,), (28,)), item_height=62)
 		self["description"] = Label("")
 		self["status"] = Label("")
-		self.add_keys(red="Abbrechen", green="Speichern", yellow="Bild-Cache leeren", blue="Abmelden")
+		self.add_keys(red=_("Abbrechen"), green=_("Speichern"), yellow=_("Bild-Cache leeren"), blue=_("Abmelden"))
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions", "ChannelSelectBaseActions", "MenuActions"], {
 			"menu": self.key_menu,
 			"ok": lambda: self.change(1),
@@ -63,9 +65,9 @@ class SettingsScreen(JFScreen):
 		for sid, label, _choices, _default, _help in jfconfig.SETTINGS:
 			value = self.vals[sid]
 			text = jfconfig.label_for(sid, value)
-			if sid == "player" and value not in [v for v, _ in jfconfig.player_choices()]:
+			if sid == "player" and value not in [v for v, _lbl in jfconfig.player_choices()]:
 				text = jfconfig.label_for(sid, "4097")
-			rows.append(text_row(sid, label, ROW_W, 62, value="<  %s  >" % text, value_width=560, value_color=C_ACCENT))
+			rows.append(text_row(sid, _(label), ROW_W, 62, value="<  %s  >" % text, value_width=560, value_color=C_ACCENT))
 		idx = self["list"].getSelectedIndex() if self["list"].list else 0
 		self["list"].setList(rows)
 		self["list"].moveToIndex(idx)
@@ -79,10 +81,10 @@ class SettingsScreen(JFScreen):
 			if s[0] == cur[0]:
 				extra = ""
 				if s[0] == "max_width" and self.vals["max_width"] == "auto":
-					extra = " Erkannt: %s." % ("UHD-Box" if jfconfig.is_uhd_box() else "HD-Box")
+					extra = _(" Erkannt: %s.") % (_("UHD-Box") if jfconfig.is_uhd_box() else _("HD-Box"))
 				if s[0] == "player" and not jfconfig.serviceapp_installed():
-					extra = " ServiceApp ist nicht installiert."
-				self["description"].setText((s[4] or "") + extra)
+					extra = _(" ServiceApp ist nicht installiert.")
+				self["description"].setText(_(s[4]) + extra)
 				return
 
 	def change(self, step):
@@ -90,7 +92,7 @@ class SettingsScreen(JFScreen):
 		if not cur:
 			return
 		sid = cur[0]
-		choices = [v for v, _ in jfconfig.choices_for(sid)]
+		choices = [v for v, _lbl in jfconfig.choices_for(sid)]
 		if not choices:
 			return
 		value = self.vals[sid]
@@ -105,19 +107,20 @@ class SettingsScreen(JFScreen):
 				jfconfig.set_value(sid, value)
 				changed = True
 		self.cl.verify_ssl = jfconfig.get_bool("verify_ssl")
+		set_language(jfconfig.get("language"))
 		self.close("changed" if changed else None)
 
 	def clear_cache(self):
 		from .jfimages import clear
 		clear()
-		self["status"].setText("Bild-Cache geleert.")
+		self["status"].setText(_("Bild-Cache geleert."))
 
 	def logout(self):
-		self.session.openWithCallback(lambda yes=False: yes and self.close("logout"), MessageBox, "Abmelden und Anmeldedaten löschen?", MessageBox.TYPE_YESNO, default=False)
+		self.session.openWithCallback(lambda yes=False: yes and self.close("logout"), MessageBox, _("Abmelden und Anmeldedaten löschen?"), MessageBox.TYPE_YESNO, default=False)
 
 	def key_menu(self):
 		from Screens.ChoiceBox import ChoiceBox
-		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title="Jellyfin", list=[("Nach Updates suchen", "update"), ("Über dieses Plugin", "about")])
+		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title="Jellyfin", list=[(_("Nach Updates suchen"), "update"), (_("Über dieses Plugin"), "about")])
 
 	def menu_chosen(self, choice=None):
 		if choice is None:

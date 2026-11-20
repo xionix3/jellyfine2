@@ -4,6 +4,8 @@
 # Jellyfin for Enigma2 - where to go when an item is selected
 from __future__ import absolute_import
 
+from .jfi18n import _
+
 FOLDER_TYPES = ("BoxSet", "Folder", "CollectionFolder", "UserView", "Playlist", "PhotoAlbum", "ManualPlaylistsFolder", "Channel", "ChannelFolderItem")
 DETAIL_TYPES = ("Movie", "Episode", "Video", "MusicVideo", "Series", "Trailer", "Program", "Recording", "TvChannel")
 
@@ -65,7 +67,7 @@ def open_search(screen, text="", done=None):
 			return
 		from .jfrows import SearchRowsScreen
 		screen.session.openWithCallback(lambda result=None, *a: done and done(term, result), SearchRowsScreen, term)
-	screen.session.openWithCallback(entered, VirtualKeyBoard, title="Jellyfin durchsuchen (Filme, Serien, Episoden, Musik, Personen)", text=text or "")
+	screen.session.openWithCallback(entered, VirtualKeyBoard, title=_("Jellyfin durchsuchen (Filme, Serien, Episoden, Musik, Personen)"), text=text or "")
 
 
 def views_of_kind(views, kind):

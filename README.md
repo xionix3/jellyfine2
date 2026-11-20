@@ -71,6 +71,7 @@
 - **Details**: das Bild bleibt sichtbar, die Beschreibung ist ganz lesbar; Aktions-Buttons, Audiospur- und Untertitelauswahl, Versionen, ähnliche Titel; die **Besetzung mit Fotos** erscheint mit ▼ (OK zeigt die Filme der Person)
 - **Suche**: nur Titel, die den Suchbegriff wirklich enthalten – jede Kategorie wird einzeln gesucht und als eigene Reihe gezeigt (Filme, Serien, Episoden, Sammlungen, Musik, Personen)
 - **Staffeln & Episoden**, **Musikalben**
+- **Deutsch, Englisch, Niederländisch**: richtet sich nach der Menüsprache der Box oder wird von Hand gewählt (*Einstellungen → Sprache*)
 - **Auto-Update**: prüft beim Start (höchstens zweimal täglich) die GitHub-Releases, installiert auf Wunsch die neue Version (mit Prüfsumme) und startet Enigma2 neu
 - **Wiedergabe** über den Enigma2-Movieplayer (GStreamer oder ServiceApp):
   direkt in Originalqualität (auf UHD-Boxen auch 4K/HEVC) oder vom Server umgewandelt (HLS), z. B. bei DTS-Ton oder Bild-Untertiteln
@@ -137,6 +138,7 @@ Vorbelegt sind **Neue Filme** und **Neue Episoden meiner Serien**. **Serien mit 
 
 | Einstellung | Bedeutung |
 |---|---|
+| Sprache | Automatisch (Menüsprache der Box) · Deutsch · English · Nederlands |
 | Wiedergabe-Modus | Automatisch (Server entscheidet) · immer direkt · immer umwandeln |
 | Max. Bitrate / Auflösung | für Fernzugriff oder HD-Boxen; *Automatisch* erkennt UHD-Boxen |
 | HEVC / DTS / TrueHD / VC-1 / VP9 | was die Box direkt abspielen darf (DTS/TrueHD standardmäßig → AC3) |
@@ -202,12 +204,14 @@ Alles läuft ohne Box: ein nachgebauter Jellyfin-Server und Nachbildungen der En
 ```sh
 pip install -r requirements-dev.txt
 make lint test ipk      # .ipk liegt danach in dist/
-make screenshots        # erzeugt docs/screenshots/ neu
+make screenshots        # erzeugt docs/screenshots/ neu (de, en/, nl/)
 ```
 
 Die CI (GitHub Actions) prüft Lint und Python-3.6-Syntax, testet in einer Matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 × Jellyfin 10.8/10.10/10.11 × HD/FHD), baut die `.ipk` und erzeugt die Screenshots. **Releases entstehen automatisch:** Wird `CLIENT_VERSION` in `src/JellyfinOpenPLi/jfapi.py` erhöht und nach `main` gepusht, legt die CI den Tag `vX.Y.Z` und das Release mit `.ipk`, `SHA256SUMS` und dem Abschnitt aus dem [CHANGELOG](CHANGELOG.md) an – darauf greift das Auto-Update zu. Details zum Aufbau stehen in der [englischen Version](README.en.md#development).
 
-Beiträge sind willkommen – Issues und Pull Requests gerne auf Deutsch oder Englisch.
+**Übersetzungen:** Die deutschen Texte im Code sind die Vorlage, Englisch und Niederländisch liegen in `src/JellyfinOpenPLi/locale/en.po` und `nl.po` (mit Poedit bearbeitbar). Nach Textänderungen `make i18n` ausführen; `scripts/i18n.py check` (auch in der CI) prüft, dass alles übersetzt ist.
+
+Beiträge sind willkommen – Issues und Pull Requests gerne auf Deutsch oder Englisch, auch bessere Übersetzungen.
 
 ## 📄 Lizenz
 

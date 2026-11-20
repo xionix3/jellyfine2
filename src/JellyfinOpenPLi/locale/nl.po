@@ -1,0 +1,1896 @@
+# Jellyfin for Enigma2 - translation: nl
+# The msgids are the German texts of the plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: JellyfinOpenPLi\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: jfapi.py
+msgid "Kein Server konfiguriert"
+msgstr "Geen server ingesteld"
+
+#: jfapi.py
+msgid "Zeitüberschreitung bei der Verbindung zum Server"
+msgstr "Time-out bij verbinden met de server"
+
+#: jfapi.py
+msgid "SSL-Fehler: %s (SSL-Prüfung in den Einstellungen deaktivierbar)"
+msgstr "SSL-fout: %s (de SSL-controle kan in de instellingen worden uitgeschakeld)"
+
+#: jfapi.py
+msgid "Server nicht erreichbar: %s"
+msgstr "Server niet bereikbaar: %s"
+
+#: jfapi.py
+msgid "Nicht autorisiert (401) - bitte erneut anmelden"
+msgstr "Niet geautoriseerd (401) - meld je opnieuw aan"
+
+#: jfapi.py
+msgid "Zugriff verweigert (403)"
+msgstr "Toegang geweigerd (403)"
+
+#: jfapi.py
+msgid "Nicht gefunden (404): %s"
+msgstr "Niet gevonden (404): %s"
+
+#: jfapi.py
+msgid "HTTP %s: %s"
+msgstr "HTTP %s: %s"
+
+#: jfapi.py
+msgid "Unter dieser Adresse antwortet kein Jellyfin-Server"
+msgstr "Op dit adres antwoordt geen Jellyfin-server"
+
+#: jfapi.py
+msgid "Anmeldung fehlgeschlagen"
+msgstr "Aanmelden mislukt"
+
+#: jfapi.py
+msgid "Benutzername oder Passwort falsch"
+msgstr "Onjuiste gebruikersnaam of wachtwoord"
+
+#: jfapi.py
+msgid "Quick Connect ist auf dem Server deaktiviert"
+msgstr "Quick Connect is uitgeschakeld op de server"
+
+#: jfapi.py
+msgid "Quick Connect konnte nicht gestartet werden"
+msgstr "Quick Connect kon niet worden gestart"
+
+#: jfapi.py
+msgid "Bild nicht geladen (HTTP %s)"
+msgstr "Afbeelding niet geladen (HTTP %s)"
+
+#: jfapi.py
+msgid "Keine Wiedergabeinformationen erhalten"
+msgstr "Geen afspeelinformatie ontvangen"
+
+#: jfapi.py
+msgid "Wiedergabe für diesen Benutzer nicht erlaubt"
+msgstr "Afspelen is niet toegestaan voor deze gebruiker"
+
+#: jfapi.py
+msgid "Kein kompatibler Stream verfügbar"
+msgstr "Geen compatibele stream beschikbaar"
+
+#: jfapi.py
+msgid "Zu viele gleichzeitige Streams"
+msgstr "Te veel gelijktijdige streams"
+
+#: jfapi.py
+msgid "Wiedergabefehler: %s"
+msgstr "Afspeelfout: %s"
+
+#: jfapi.py
+msgid "Das Element hat keine abspielbare Quelle"
+msgstr "Dit item heeft geen afspeelbare bron"
+
+#: jfapi.py
+msgid "Der Server kann dieses Element nicht für die Box aufbereiten (Transcoding für den Benutzer deaktiviert?)"
+msgstr "De server kan dit item niet voor de box voorbereiden (transcoderen uitgeschakeld voor de gebruiker?)"
+
+#: jfcommon.py jfdetail.py jfgrid.py jfhome.py jfplayer.py jfrows.py
+msgid "Lade ..."
+msgstr "Laden ..."
+
+#: jfcommon.py
+msgid "Fehler"
+msgstr "Fout"
+
+#: jfcommon.py
+msgid ""
+"\n"
+"\n"
+"Bitte im Hauptmenü des Plugins neu anmelden (rote Taste)."
+msgstr ""
+"\n"
+"\n"
+"Meld je opnieuw aan in het hoofdmenu van de plugin (rode knop)."
+
+#: jfcommon.py jfgrid.py
+msgid "%d neue Folge"
+msgid_plural "%d neue Folgen"
+msgstr[0] "%d nieuwe aflevering"
+msgstr[1] "%d nieuwe afleveringen"
+
+#: jfcommon.py jfepisodes.py jfgrid.py
+msgid "Bewertung %s"
+msgstr "Waardering %s"
+
+#: jfcommon.py jfepisodes.py jfgrid.py
+msgid "fortsetzen bei %s"
+msgstr "hervatten bij %s"
+
+#: jfcommon.py jfepisodes.py jfgrid.py
+msgid "gesehen"
+msgstr "bekeken"
+
+#: jfcommon.py jfgrid.py jfrows.py
+msgid "Öffnen"
+msgstr "Openen"
+
+#: jfcommon.py
+msgid "Neue Folge"
+msgstr "Nieuwe afl."
+
+#: jfcommon.py jfconfig.py jfdetail.py
+msgid "Fortsetzen"
+msgstr "Hervatten"
+
+#: jfcommon.py jfdetail.py jfepisodes.py jfgrid.py
+msgid "Abspielen"
+msgstr "Afspelen"
+
+#: jfconfig.py
+msgid "Sprache"
+msgstr "Taal"
+
+#: jfconfig.py
+msgid "Automatisch (Menüsprache der Box)"
+msgstr "Automatisch (menutaal van de box)"
+
+#: jfconfig.py
+msgid "Automatisch: Deutsch, Englisch oder Niederländisch je nach Menüsprache der Box, sonst Englisch."
+msgstr "Automatisch: Duits, Engels of Nederlands afhankelijk van de menutaal van de box, anders Engels."
+
+#: jfconfig.py
+msgid "Wiedergabe-Modus"
+msgstr "Afspeelmodus"
+
+#: jfconfig.py
+msgid "Automatisch (Direkt wenn möglich)"
+msgstr "Automatisch (direct indien mogelijk)"
+
+#: jfconfig.py
+msgid "Immer direkt (Originaldatei)"
+msgstr "Altijd direct (origineel bestand)"
+
+#: jfconfig.py
+msgid "Immer transkodieren"
+msgstr "Altijd transcoderen"
+
+#: jfconfig.py
+msgid "Automatisch: Der Server entscheidet anhand der Box-Fähigkeiten, ob direkt abgespielt oder umgewandelt wird."
+msgstr "Automatisch: de server beslist op basis van de mogelijkheden van de box of er direct wordt afgespeeld of omgezet."
+
+#: jfconfig.py
+msgid "Max. Streaming-Bitrate"
+msgstr "Max. streaming-bitrate"
+
+#: jfconfig.py jfrules.py
+msgid "Unbegrenzt"
+msgstr "Onbeperkt"
+
+#: jfconfig.py
+msgid "Dateien mit höherer Bitrate werden vom Server heruntergerechnet (z.B. für Fernzugriff)."
+msgstr "Bestanden met een hogere bitrate worden door de server verlaagd (bijv. voor toegang op afstand)."
+
+#: jfconfig.py
+msgid "Max. Auflösung"
+msgstr "Max. resolutie"
+
+#: jfconfig.py
+msgid "Automatisch (nach Box)"
+msgstr "Automatisch (volgens box)"
+
+#: jfconfig.py
+msgid "4K nur auf UHD-Boxen (z.B. SF8008). Höher aufgelöste Videos werden sonst transkodiert."
+msgstr "4K alleen op UHD-boxen (bijv. SF8008). Video's met een hogere resolutie worden anders getranscodeerd."
+
+#: jfconfig.py
+msgid "H.265/HEVC direkt abspielen"
+msgstr "H.265/HEVC direct afspelen"
+
+#: jfconfig.py
+msgid "Die SF8008 und die meisten UHD-Boxen dekodieren HEVC in Hardware."
+msgstr "De SF8008 en de meeste UHD-boxen decoderen HEVC in hardware."
+
+#: jfconfig.py jfrules.py
+msgid "Ja"
+msgstr "Ja"
+
+#: jfconfig.py jfrules.py
+msgid "Nein"
+msgstr "Nee"
+
+#: jfconfig.py
+msgid "DTS direkt abspielen"
+msgstr "DTS direct afspelen"
+
+#: jfconfig.py
+msgid "Nur aktivieren, wenn Box oder AV-Receiver DTS unterstützen."
+msgstr "Alleen inschakelen als de box of de AV-receiver DTS ondersteunt."
+
+#: jfconfig.py
+msgid "Nein (Server wandelt in AC3)"
+msgstr "Nee (server zet om naar AC3)"
+
+#: jfconfig.py
+msgid "TrueHD direkt abspielen"
+msgstr "TrueHD direct afspelen"
+
+#: jfconfig.py
+msgid "VC-1 direkt abspielen"
+msgstr "VC-1 direct afspelen"
+
+#: jfconfig.py
+msgid "VP9 direkt abspielen"
+msgstr "VP9 direct afspelen"
+
+#: jfconfig.py
+msgid "Max. Audiokanäle (Transkodierung)"
+msgstr "Max. audiokanalen (transcoderen)"
+
+#: jfconfig.py
+msgid "Stereo"
+msgstr "Stereo"
+
+#: jfconfig.py
+msgid "Transkodier-Protokoll"
+msgstr "Transcodeerprotocol"
+
+#: jfconfig.py
+msgid "HLS erlaubt Spulen in transkodierten Streams."
+msgstr "HLS maakt spoelen in getranscodeerde streams mogelijk."
+
+#: jfconfig.py
+msgid "HLS (empfohlen)"
+msgstr "HLS (aanbevolen)"
+
+#: jfconfig.py
+msgid "HTTP-Stream (TS)"
+msgstr "HTTP-stream (TS)"
+
+#: jfconfig.py
+msgid "Player"
+msgstr "Speler"
+
+#: jfconfig.py
+msgid "4097 = Enigma2 GStreamer. 5001/5002 benötigen das ServiceApp-Plugin."
+msgstr "4097 = Enigma2 GStreamer. 5001/5002 hebben de ServiceApp-plugin nodig."
+
+#: jfconfig.py
+msgid "Nächste Episode automatisch"
+msgstr "Volgende aflevering automatisch"
+
+#: jfconfig.py
+msgid "Spielt nach einer Episode die nächste ab."
+msgstr "Speelt na een aflevering de volgende af."
+
+#: jfconfig.py
+msgid "Verhalten bei Titeln mit gespeicherter Position (PLAY-Taste im Raster)."
+msgstr "Gedrag bij titels met een opgeslagen positie (PLAY-knop in het raster)."
+
+#: jfconfig.py
+msgid "Nachfragen"
+msgstr "Vragen"
+
+#: jfconfig.py
+msgid "Immer fortsetzen"
+msgstr "Altijd hervatten"
+
+#: jfconfig.py
+msgid "Immer von vorne"
+msgstr "Altijd vanaf het begin"
+
+#: jfconfig.py
+msgid "Links/Rechts im Player"
+msgstr "Links/rechts in de speler"
+
+#: jfconfig.py
+msgid "Springen (-10 s / +30 s)"
+msgstr "Springen (-10 s / +30 s)"
+
+#: jfconfig.py
+msgid "Enigma2-Standard (Spulen)"
+msgstr "Enigma2-standaard (spoelen)"
+
+#: jfconfig.py
+msgid "Gesehen-Markierung im Raster"
+msgstr "Bekeken-markering in het raster"
+
+#: jfconfig.py
+msgid "NEU-Markierung"
+msgstr "NIEUW-label"
+
+#: jfconfig.py jfrules.py
+msgid "7 Tage"
+msgstr "7 dagen"
+
+#: jfconfig.py jfrules.py
+msgid "3 Tage"
+msgstr "3 dagen"
+
+#: jfconfig.py jfrules.py
+msgid "14 Tage"
+msgstr "14 dagen"
+
+#: jfconfig.py jfrules.py
+msgid "30 Tage"
+msgstr "30 dagen"
+
+#: jfconfig.py jfdetail.py
+msgid "Aus"
+msgstr "Uit"
+
+#: jfconfig.py
+msgid "Titel, die in diesem Zeitraum zum Server hinzugefügt wurden (Serien: neue Folgen), bekommen ein NEU-Schild."
+msgstr "Titels die in deze periode aan de server zijn toegevoegd (series: nieuwe afleveringen) krijgen een NIEUW-label."
+
+#: jfconfig.py jfrulesui.py
+msgid "Startseite"
+msgstr "Startscherm"
+
+#: jfconfig.py
+msgid "Modern (großes Titelbild, Kartenreihen)"
+msgstr "Modern (achtergrond, kaartrijen)"
+
+#: jfconfig.py
+msgid "Klassisch (Menü links, Poster rechts)"
+msgstr "Klassiek (menu links, posters rechts)"
+
+#: jfconfig.py
+msgid "Modern: Titelbild des gewählten Films oben, darunter Reihen mit Karten (hoch/runter: Reihe, links/rechts: Titel)."
+msgstr "Modern: achtergrond van de gekozen titel bovenaan, daaronder rijen met kaarten (omhoog/omlaag: rij, links/rechts: titel)."
+
+#: jfconfig.py
+msgid "Hintergrundbilder"
+msgstr "Achtergronden"
+
+#: jfconfig.py
+msgid "Zeigt das Hintergrundbild des gewählten Titels auf Startseite, Raster und Detailseite."
+msgstr "Toont de achtergrond van de gekozen titel op het startscherm, in het raster en op de detailpagina."
+
+#: jfconfig.py
+msgid "Nein (schneller)"
+msgstr "Nee (sneller)"
+
+#: jfconfig.py
+msgid "Eigene Listen auf der Startseite"
+msgstr "Eigen lijsten op het startscherm"
+
+#: jfconfig.py
+msgid "Ganz oben"
+msgstr "Helemaal bovenaan"
+
+#: jfconfig.py
+msgid "Nach 'Weiterschauen'"
+msgstr "Na 'Verder kijken'"
+
+#: jfconfig.py
+msgid "Nach den Bibliotheken"
+msgstr "Na de bibliotheken"
+
+#: jfconfig.py
+msgid "Position der eigenen Listen (z.B. 'Neue Filme') auf der Startseite. Verwalten unter 'Meine Listen'."
+msgstr "Positie van de eigen lijsten (bijv. 'Nieuwe films') op het startscherm. Beheren onder 'Mijn lijsten'."
+
+#: jfconfig.py
+msgid "Bild-Cache"
+msgstr "Afbeeldingscache"
+
+#: jfconfig.py
+msgid "RAM ist schnell, wird aber beim Neustart geleert. Auf HDD/USB bleiben Poster erhalten."
+msgstr "RAM is snel, maar wordt bij een herstart geleegd. Op HDD/USB blijven posters bewaard."
+
+#: jfconfig.py
+msgid "SSL-Zertifikat prüfen"
+msgstr "SSL-certificaat controleren"
+
+#: jfconfig.py
+msgid "Für Server mit selbstsigniertem Zertifikat auf 'Nein' stellen."
+msgstr "Op 'Nee' zetten voor servers met een zelfondertekend certificaat."
+
+#: jfconfig.py
+msgid "Automatisch nach Updates suchen"
+msgstr "Automatisch naar updates zoeken"
+
+#: jfconfig.py
+msgid "Ja (beim Start, höchstens 2x täglich)"
+msgstr "Ja (bij het starten, hooguit 2x per dag)"
+
+#: jfconfig.py
+msgid "Prüft auf GitHub (xionix3/jellyfine_enigma2_openpli), ob eine neue Version erschienen ist, und bietet die Installation an. Manuell: MENU > Nach Updates suchen."
+msgstr "Controleert op GitHub (xionix3/jellyfine_enigma2_openpli) of er een nieuwe versie is en biedt de installatie aan. Handmatig: MENU > Naar updates zoeken."
+
+#: jfconfig.py
+msgid "Im Hauptmenü anzeigen"
+msgstr "In het hoofdmenu tonen"
+
+#: jfconfig.py
+msgid "Änderung wird nach einem GUI-Neustart wirksam."
+msgstr "Wordt actief na een herstart van de GUI."
+
+#: jfconfig.py
+msgid "Im Erweiterungsmenü (blau) anzeigen"
+msgstr "In het extensiemenu (blauw) tonen"
+
+#: jfdetail.py
+msgid "Darsteller"
+msgstr "Acteur"
+
+#: jfdetail.py
+msgid "Regie"
+msgstr "Regie"
+
+#: jfdetail.py
+msgid "Drehbuch"
+msgstr "Scenario"
+
+#: jfdetail.py
+msgid "Produktion"
+msgstr "Producent"
+
+#: jfdetail.py
+msgid "Gaststar"
+msgstr "Gastrol"
+
+#: jfdetail.py jfgrid.py jfhome.py jfrows.py
+msgid "Musik"
+msgstr "Muziek"
+
+#: jfdetail.py
+msgid "Von Anfang"
+msgstr "Vanaf begin"
+
+#: jfdetail.py
+msgid "Audio & Untertitel"
+msgstr "Audio & ondertitels"
+
+#: jfdetail.py
+msgid "Version"
+msgstr "Versie"
+
+#: jfdetail.py
+msgid "Alle Episoden"
+msgstr "Alle afleveringen"
+
+#: jfdetail.py jfgrid.py
+msgid "Zur Serie"
+msgstr "Naar serie"
+
+#: jfdetail.py jfhome.py jfrows.py
+msgid "Weiterschauen"
+msgstr "Verder kijken"
+
+#: jfdetail.py
+msgid "Staffeln & Episoden"
+msgstr "Seizoenen & afleveringen"
+
+#: jfdetail.py jfgrid.py
+msgid "Gesehen"
+msgstr "Bekeken"
+
+#: jfdetail.py jfgrid.py
+msgid "Ungesehen"
+msgstr "Niet bekeken"
+
+#: jfdetail.py jfepisodes.py jfgrid.py
+msgid "Favorit"
+msgstr "Favoriet"
+
+#: jfdetail.py
+msgid "Kein Favorit"
+msgstr "Geen favoriet"
+
+#: jfdetail.py jfgrid.py
+msgid "Ähnliche Titel"
+msgstr "Vergelijkbare titels"
+
+#: jfdetail.py
+msgid "Besetzung"
+msgstr "Cast"
+
+#: jfdetail.py
+msgid "Gesamte Besetzung"
+msgstr "Volledige cast"
+
+#: jfdetail.py
+msgid "Mehr ..."
+msgstr "Meer ..."
+
+#: jfdetail.py jfepisodes.py jfgrid.py
+msgid "Gesehen +/-"
+msgstr "Bekeken +/-"
+
+#: jfdetail.py
+msgid "Audio / Untertitel"
+msgstr "Audio / ondertitels"
+
+#: jfdetail.py jfepisodes.py jfgrid.py
+msgid "Favorit +/-"
+msgstr "Favoriet +/-"
+
+#: jfdetail.py
+msgid "CH+/- Text blättern   MENU Optionen"
+msgstr "CH+/- tekst bladeren   MENU opties"
+
+#: jfdetail.py
+msgid "Lade Details ..."
+msgstr "Details laden ..."
+
+#: jfdetail.py
+msgid "laufend"
+msgstr "lopend"
+
+#: jfdetail.py
+msgid "beendet"
+msgstr "beëindigd"
+
+#: jfdetail.py
+msgid "Kritiker %s%%"
+msgstr "Critici %s%%"
+
+#: jfdetail.py jfepisodes.py
+msgid "Keine Beschreibung vorhanden."
+msgstr "Geen beschrijving beschikbaar."
+
+#: jfdetail.py
+msgid "Serie"
+msgstr "Serie"
+
+#: jfdetail.py
+msgid "Film"
+msgstr "Film"
+
+#: jfdetail.py
+msgid "Musikvideo"
+msgstr "Muziekvideo"
+
+#: jfdetail.py
+msgid "Video"
+msgstr "Video"
+
+#: jfdetail.py
+msgid "Trailer"
+msgstr "Trailer"
+
+#: jfdetail.py
+msgid "Regie: %s"
+msgstr "Regie: %s"
+
+#: jfdetail.py
+msgid "Version: %s"
+msgstr "Versie: %s"
+
+#: jfdetail.py
+msgid "Audio: %s%s"
+msgstr "Audio: %s%s"
+
+#: jfdetail.py
+msgid "UT: %s (%d)"
+msgstr "OT: %s (%d)"
+
+#: jfdetail.py
+msgid "aus"
+msgstr "uit"
+
+#: jfdetail.py
+msgid "%s ansehen"
+msgstr "%s bekijken"
+
+#: jfdetail.py
+msgid "Besetzung  (%d)"
+msgstr "Cast  (%d)"
+
+#: jfdetail.py
+msgid "▼  Besetzung (%d): %s"
+msgstr "▼  Cast (%d): %s"
+
+#: jfdetail.py jfgrid.py
+msgid "Ähnlich wie %s"
+msgstr "Vergelijkbaar met %s"
+
+#: jfdetail.py
+msgid "Besetzung: %s"
+msgstr "Cast: %s"
+
+#: jfdetail.py
+msgid "Audiospur"
+msgstr "Audiospoor"
+
+#: jfdetail.py
+msgid "Untertitel (externe/Bild-Untertitel werden eingebrannt)"
+msgstr "Ondertitels (externe/beeldondertitels worden ingebrand)"
+
+#: jfdetail.py
+msgid "Audiospur wählen"
+msgstr "Audiospoor kiezen"
+
+#: jfdetail.py
+msgid "Untertitel wählen"
+msgstr "Ondertitels kiezen"
+
+#: jfdetail.py
+msgid "Keine Audio-/Untertitelspuren bekannt"
+msgstr "Geen audio-/ondertitelsporen bekend"
+
+#: jfdetail.py jfgrid.py
+msgid "Neu laden"
+msgstr "Opnieuw laden"
+
+#: jfepisodes.py
+msgid "Album abspielen"
+msgstr "Album afspelen"
+
+#: jfepisodes.py
+msgid "OK: ab diesem Titel"
+msgstr "OK: vanaf dit nummer"
+
+#: jfepisodes.py jfgrid.py jfrows.py
+msgid "Details"
+msgstr "Details"
+
+#: jfepisodes.py
+msgid "</> Staffel  |  CH+/- Seite"
+msgstr "</> seizoen  |  CH+/- pagina"
+
+#: jfepisodes.py jfplayer.py
+msgid "Lade Titel ..."
+msgstr "Nummers laden ..."
+
+#: jfepisodes.py
+msgid "Keine Staffeln gefunden"
+msgstr "Geen seizoenen gevonden"
+
+#: jfepisodes.py
+msgid "Lade Staffeln ..."
+msgstr "Seizoenen laden ..."
+
+#: jfepisodes.py jfplayer.py
+msgid "Lade Episoden ..."
+msgstr "Afleveringen laden ..."
+
+#: jfepisodes.py
+msgid "Staffel %s"
+msgstr "Seizoen %s"
+
+#: jfepisodes.py
+msgid "%s     (%d von %d)     %s Episoden"
+msgstr "%s     (%d van %d)     %s afleveringen"
+
+#: jfepisodes.py jfhome.py jfrows.py
+msgid "Keine Einträge"
+msgstr "Geen items"
+
+#: jfepisodes.py jfgrid.py
+msgid "NEU"
+msgstr "NIEUW"
+
+#: jfepisodes.py jfgrid.py jfplayer.py
+msgid "Von Anfang abspielen"
+msgstr "Vanaf het begin afspelen"
+
+#: jfepisodes.py jfgrid.py
+msgid "Als ungesehen markieren"
+msgstr "Markeren als niet bekeken"
+
+#: jfepisodes.py jfgrid.py
+msgid "Als gesehen markieren"
+msgstr "Markeren als bekeken"
+
+#: jfepisodes.py
+msgid "Ganze Staffel als gesehen markieren"
+msgstr "Heel seizoen markeren als bekeken"
+
+#: jfepisodes.py
+msgid "Ganze Staffel als ungesehen markieren"
+msgstr "Heel seizoen markeren als niet bekeken"
+
+#: jfepisodes.py
+msgid "Staffel wählen ..."
+msgstr "Seizoen kiezen ..."
+
+#: jfepisodes.py jfgrid.py
+msgid "Aus Favoriten entfernen"
+msgstr "Uit favorieten verwijderen"
+
+#: jfepisodes.py jfgrid.py
+msgid "Zu Favoriten hinzufügen"
+msgstr "Aan favorieten toevoegen"
+
+#: jfepisodes.py
+msgid "Speichere ..."
+msgstr "Opslaan ..."
+
+#: jfepisodes.py
+msgid "Staffel"
+msgstr "Seizoen"
+
+#: jfgrid.py
+msgid "Name (A-Z)"
+msgstr "Naam (A-Z)"
+
+#: jfgrid.py
+msgid "Name (Z-A)"
+msgstr "Naam (Z-A)"
+
+#: jfgrid.py
+msgid "Zuletzt hinzugefügt"
+msgstr "Recent toegevoegd"
+
+#: jfgrid.py
+msgid "Erscheinungsdatum"
+msgstr "Verschijningsdatum"
+
+#: jfgrid.py
+msgid "Bewertung"
+msgstr "Waardering"
+
+#: jfgrid.py
+msgid "Zuletzt gesehen"
+msgstr "Recent bekeken"
+
+#: jfgrid.py
+msgid "Laufzeit"
+msgstr "Speelduur"
+
+#: jfgrid.py jfrules.py
+msgid "Zufällig"
+msgstr "Willekeurig"
+
+#: jfgrid.py
+msgid "Alle"
+msgstr "Alle"
+
+#: jfgrid.py jfhome.py jfrows.py
+msgid "Favoriten"
+msgstr "Favorieten"
+
+#: jfgrid.py
+msgid "Begonnen"
+msgstr "Begonnen"
+
+#: jfgrid.py jfhome.py jfrows.py jfrules.py jfskin.py
+msgid "Filme"
+msgstr "Films"
+
+#: jfgrid.py jfhome.py jfrows.py jfskin.py
+msgid "Serien"
+msgstr "Series"
+
+#: jfgrid.py jfrows.py jfrules.py
+msgid "Episoden"
+msgstr "Afleveringen"
+
+#: jfgrid.py jfhome.py jfrows.py
+msgid "Sammlungen"
+msgstr "Collecties"
+
+#: jfgrid.py jfhome.py jfrows.py
+msgid "Videos"
+msgstr "Video's"
+
+#: jfgrid.py jfrows.py
+msgid "Personen"
+msgstr "Personen"
+
+#: jfgrid.py
+msgid "NEU (%s)"
+msgstr "NIEUW (%s)"
+
+#: jfgrid.py
+msgid "Filter"
+msgstr "Filter"
+
+#: jfgrid.py
+msgid "Kategorie"
+msgstr "Categorie"
+
+#: jfgrid.py
+msgid "MENU Optionen  |  CH+/- Seite  |  PLAY"
+msgstr "MENU opties  |  CH+/- pagina  |  PLAY"
+
+#: jfgrid.py
+msgid "Keine Einträge gefunden"
+msgstr "Niets gevonden"
+
+#: jfgrid.py
+msgid ""
+"\n"
+"(Kategorie: %s - GRÜN wechselt)"
+msgstr ""
+"\n"
+"(categorie: %s - GROEN wisselt)"
+
+#: jfgrid.py
+msgid "%d Titel"
+msgid_plural "%d Titel"
+msgstr[0] "%d titel"
+msgstr[1] "%d titels"
+
+#: jfgrid.py
+msgid "Kategorie: %s"
+msgstr "Categorie: %s"
+
+#: jfgrid.py
+msgid "Sortierung: %s"
+msgstr "Sortering: %s"
+
+#: jfgrid.py
+msgid "Filter: %s"
+msgstr "Filter: %s"
+
+#: jfgrid.py
+msgid "Genre: %s"
+msgstr "Genre: %s"
+
+#: jfgrid.py
+msgid "Seite %d / %d"
+msgstr "Pagina %d / %d"
+
+#: jfgrid.py jfrules.py
+msgid "Sortierung"
+msgstr "Sortering"
+
+#: jfgrid.py
+msgid "Diese Liste enthält nur eine Kategorie"
+msgstr "Deze lijst bevat maar één categorie"
+
+#: jfgrid.py
+msgid "Genre wählen ..."
+msgstr "Genre kiezen ..."
+
+#: jfgrid.py
+msgid "Genre-Filter entfernen"
+msgstr "Genrefilter verwijderen"
+
+#: jfgrid.py
+msgid "Keine Genres gefunden"
+msgstr "Geen genres gevonden"
+
+#: jfgrid.py jfrules.py jfrulesui.py
+msgid "Genre"
+msgstr "Genre"
+
+#: jfgrid.py
+msgid "Lade Genres ..."
+msgstr "Genres laden ..."
+
+#: jfgrid.py
+msgid "Alle Episoden der Staffel"
+msgstr "Alle afleveringen van het seizoen"
+
+#: jfgrid.py
+msgid "Sortierung ..."
+msgstr "Sortering ..."
+
+#: jfgrid.py
+msgid "Filter ..."
+msgstr "Filter ..."
+
+#: jfgrid.py
+msgid "Kategorie ..."
+msgstr "Categorie ..."
+
+#: jfgrid.py
+msgid "Liste bearbeiten ..."
+msgstr "Lijst bewerken ..."
+
+#: jfgrid.py
+msgid "Optionen"
+msgstr "Opties"
+
+#: jfhome.py
+msgid "Wiedergabelisten"
+msgstr "Afspeellijsten"
+
+#: jfhome.py jfrows.py
+msgid "Musikvideos"
+msgstr "Muziekvideo's"
+
+#: jfhome.py jfrows.py
+msgid "Gemischt"
+msgstr "Gemengd"
+
+#: jfhome.py jfrows.py
+msgid "Als Nächstes"
+msgstr "Volgende"
+
+#: jfhome.py jfrows.py
+msgid "Neu hinzugefügt"
+msgstr "Recent toegevoegd"
+
+#: jfhome.py jfrows.py jfrulesui.py jfskin.py
+msgid "Meine Listen"
+msgstr "Mijn lijsten"
+
+#: jfhome.py jfrows.py jfskin.py
+msgid "Suche"
+msgstr "Zoeken"
+
+#: jfhome.py jfskin.py
+msgid "Einstellungen"
+msgstr "Instellingen"
+
+#: jfhome.py
+msgid "  (Jellyfin %s)"
+msgstr "  (Jellyfin %s)"
+
+#: jfhome.py
+msgid ""
+"Die Anmeldung ist abgelaufen oder wurde widerrufen.\n"
+"Neu anmelden?"
+msgstr ""
+"De aanmelding is verlopen of ingetrokken.\n"
+"Opnieuw aanmelden?"
+
+#: jfhome.py
+msgid "Server nicht erreichbar"
+msgstr "Server niet bereikbaar"
+
+#: jfhome.py
+msgid "Verbinde mit Server ..."
+msgstr "Verbinden met server ..."
+
+#: jfhome.py
+msgid "Keine Film-Bibliothek auf dem Server"
+msgstr "Geen filmbibliotheek op de server"
+
+#: jfhome.py
+msgid "Keine Serien-Bibliothek auf dem Server"
+msgstr "Geen seriebibliotheek op de server"
+
+#: jfhome.py
+msgid "Von %s abmelden?"
+msgstr "Afmelden bij %s?"
+
+#: jfhome.py
+msgid "Klassische Startseite"
+msgstr "Klassiek startscherm"
+
+#: jfhome.py
+msgid "Moderne Startseite"
+msgstr "Modern startscherm"
+
+#: jfhome.py
+msgid "Meine Listen verwalten"
+msgstr "Mijn lijsten beheren"
+
+#: jfhome.py jfrows.py
+msgid "Aktualisieren"
+msgstr "Vernieuwen"
+
+#: jfhome.py
+msgid "Ansicht: %s"
+msgstr "Weergave: %s"
+
+#: jfhome.py jfsettings.py
+msgid "Bild-Cache leeren"
+msgstr "Afbeeldingscache legen"
+
+#: jfhome.py
+msgid "Abmelden / Benutzer wechseln"
+msgstr "Afmelden / gebruiker wisselen"
+
+#: jfhome.py jfsettings.py
+msgid "Nach Updates suchen"
+msgstr "Naar updates zoeken"
+
+#: jfhome.py jfsettings.py
+msgid "Über dieses Plugin"
+msgstr "Over deze plugin"
+
+#: jfhome.py
+msgid "Bild-Cache geleert"
+msgstr "Afbeeldingscache geleegd"
+
+#: jfhome.py jfsettings.py
+msgid "Abmelden"
+msgstr "Afmelden"
+
+#: jfhome.py
+msgid "MENU Optionen"
+msgstr "MENU opties"
+
+#: jfhome.py jflogin.py jfrows.py
+msgid "Fehler: %s"
+msgstr "Fout: %s"
+
+#: jfhome.py
+msgid "OK: Suchbegriff eingeben - Treffer nach Kategorien"
+msgstr "OK: zoekterm invoeren - resultaten per categorie"
+
+#: jfhome.py
+msgid "OK: Wiedergabe, Qualität, Player und Anzeige einstellen"
+msgstr "OK: afspelen, kwaliteit, speler en weergave instellen"
+
+#: jfhome.py
+msgid "OK: eigene Listen anlegen, z.B. 'Neue Filme' oder 'Neue Episoden meiner Serien'"
+msgstr "OK: eigen lijsten maken, bijv. 'Nieuwe films' of 'Nieuwe afleveringen van mijn series'"
+
+#: jfhome.py
+msgid "OK: alle anzeigen"
+msgstr "OK: alles tonen"
+
+#: jflogin.py
+msgid "Jellyfin - Anmeldung"
+msgstr "Jellyfin - Aanmelden"
+
+#: jflogin.py
+msgid "Mit deinem Jellyfin-Server verbinden"
+msgstr "Verbinden met je Jellyfin-server"
+
+#: jflogin.py
+msgid "Anmelden"
+msgstr "Aanmelden"
+
+#: jflogin.py
+msgid "Server suchen"
+msgstr "Server zoeken"
+
+#: jflogin.py
+msgid "Adresse des Jellyfin-Servers, z.B. http://192.168.1.10:8096 oder https://jellyfin.example.de. OK öffnet die Tastatur."
+msgstr "Adres van de Jellyfin-server, bijv. http://192.168.1.10:8096 of https://jellyfin.example.nl. OK opent het toetsenbord."
+
+#: jflogin.py
+msgid "Dein Jellyfin-Benutzername."
+msgstr "Je Jellyfin-gebruikersnaam."
+
+#: jflogin.py
+msgid "Dein Passwort (leer lassen, falls keines gesetzt ist)."
+msgstr "Je wachtwoord (leeg laten als er geen is ingesteld)."
+
+#: jflogin.py
+msgid "Mit Benutzername und Passwort anmelden."
+msgstr "Aanmelden met gebruikersnaam en wachtwoord."
+
+#: jflogin.py
+msgid "Anmeldung ohne Passwort-Eingabe: Code in der Jellyfin-App/Web unter Benutzer > Quick Connect bestätigen."
+msgstr "Aanmelden zonder wachtwoord: bevestig de code in de Jellyfin-app/web onder Gebruiker > Quick Connect."
+
+#: jflogin.py
+msgid "Sucht Jellyfin-Server im lokalen Netzwerk."
+msgstr "Zoekt Jellyfin-servers in het lokale netwerk."
+
+#: jflogin.py
+msgid "(leer)"
+msgstr "(leeg)"
+
+#: jflogin.py
+msgid "Server"
+msgstr "Server"
+
+#: jflogin.py
+msgid "(nicht gesetzt)"
+msgstr "(niet ingesteld)"
+
+#: jflogin.py
+msgid "Benutzer"
+msgstr "Gebruiker"
+
+#: jflogin.py
+msgid "Passwort"
+msgstr "Wachtwoord"
+
+#: jflogin.py
+msgid ">  Anmelden"
+msgstr ">  Aanmelden"
+
+#: jflogin.py
+msgid ">  Mit Quick Connect anmelden"
+msgstr ">  Aanmelden met Quick Connect"
+
+#: jflogin.py
+msgid ">  Server im Netzwerk suchen"
+msgstr ">  Server in het netwerk zoeken"
+
+#: jflogin.py
+msgid "Server-Adresse"
+msgstr "Serveradres"
+
+#: jflogin.py
+msgid "Benutzername"
+msgstr "Gebruikersnaam"
+
+#: jflogin.py
+msgid "Bitte zuerst die Server-Adresse eingeben (oder blaue Taste: Server suchen)."
+msgstr "Voer eerst het serveradres in (of blauwe knop: server zoeken)."
+
+#: jflogin.py
+msgid "Bitte einen Benutzernamen eingeben."
+msgstr "Voer een gebruikersnaam in."
+
+#: jflogin.py
+msgid "Melde an ..."
+msgstr "Aanmelden ..."
+
+#: jflogin.py
+msgid "Starte Quick Connect ..."
+msgstr "Quick Connect starten ..."
+
+#: jflogin.py
+msgid "Kein Server gefunden. Adresse bitte manuell eingeben."
+msgstr "Geen server gevonden. Voer het adres handmatig in."
+
+#: jflogin.py
+msgid "Gefundene Jellyfin-Server"
+msgstr "Gevonden Jellyfin-servers"
+
+#: jflogin.py
+msgid "Suche Server im Netzwerk ..."
+msgstr "Servers in het netwerk zoeken ..."
+
+#: jflogin.py
+msgid "Quick Connect"
+msgstr "Quick Connect"
+
+#: jflogin.py
+msgid "Öffne Jellyfin am Handy oder PC, gehe zu Benutzer > Quick Connect und gib diesen Code ein:"
+msgstr "Open Jellyfin op je telefoon of pc, ga naar Gebruiker > Quick Connect en voer deze code in:"
+
+#: jflogin.py
+msgid "Warte auf Bestätigung ..."
+msgstr "Wachten op bevestiging ..."
+
+#: jflogin.py jfrulesui.py jfsettings.py
+msgid "Abbrechen"
+msgstr "Annuleren"
+
+#: jflogin.py
+msgid "Quick Connect abgelaufen - bitte erneut versuchen."
+msgstr "Quick Connect verlopen - probeer het opnieuw."
+
+#: jfnav.py
+msgid "Jellyfin durchsuchen (Filme, Serien, Episoden, Musik, Personen)"
+msgstr "Jellyfin doorzoeken (films, series, afleveringen, muziek, personen)"
+
+#: jfplayer.py
+msgid "Nichts abspielbar gefunden"
+msgstr "Niets afspeelbaars gevonden"
+
+#: jfplayer.py
+msgid "Suche nächste Episode ..."
+msgstr "Volgende aflevering zoeken ..."
+
+#: jfplayer.py
+msgid "Fortsetzen ab %s"
+msgstr "Hervatten vanaf %s"
+
+#: jfplayer.py
+msgid "Starte Wiedergabe ..."
+msgstr "Afspelen starten ..."
+
+#: jfplayer.py
+msgid "Wiedergabe nicht möglich"
+msgstr "Afspelen niet mogelijk"
+
+#: jfplayer.py
+msgid ""
+"Nächster Titel kann nicht abgespielt werden:\n"
+"%s"
+msgstr ""
+"De volgende titel kan niet worden afgespeeld:\n"
+"%s"
+
+#: jfplayer.py
+msgid "Video: %s"
+msgstr "Video: %s"
+
+#: jfplayer.py
+msgid "Audio: %s"
+msgstr "Audio: %s"
+
+#: jfplayer.py
+msgid "Direkt"
+msgstr "Direct"
+
+#: jfplayer.py
+msgid "Transkodiert (Server)"
+msgstr "Getranscodeerd (server)"
+
+#: jfplayer.py
+msgid "Wiedergabe: %s%s"
+msgstr "Afspelen: %s%s"
+
+#: jfplayer.py
+msgid "Als Nächstes: %s"
+msgstr "Volgende: %s"
+
+#: jfrows.py
+msgid "Alle anzeigen"
+msgstr "Alles tonen"
+
+#: jfrows.py
+msgid "OK Details   ▶ Abspielen   MENU Optionen"
+msgstr "OK details   ▶ afspelen   MENU opties"
+
+#: jfrows.py
+msgid "OK: alle Titel von '%s' anzeigen (hier die ersten %d)."
+msgstr "OK: alle titels van '%s' tonen (hier de eerste %d)."
+
+#: jfrows.py
+msgid "Person"
+msgstr "Persoon"
+
+#: jfrows.py
+msgid "Alle Titel dieser Reihe"
+msgstr "Alle titels van deze rij"
+
+#: jfrows.py
+msgid "Zur Startseite"
+msgstr "Naar het startscherm"
+
+#: jfrows.py jfrules.py
+msgid "Neu erschienen"
+msgstr "Nieuw verschenen"
+
+#: jfrows.py
+msgid "Ungesehen - am besten bewertet"
+msgstr "Niet bekeken - best gewaardeerd"
+
+#: jfrows.py
+msgid "Neue Folgen"
+msgstr "Nieuwe afleveringen"
+
+#: jfrows.py
+msgid "Zuletzt aktualisiert"
+msgstr "Recent bijgewerkt"
+
+#: jfrows.py
+msgid "Neue Serien"
+msgstr "Nieuwe series"
+
+#: jfrows.py
+msgid "JELLYFIN  ·  %s"
+msgstr "JELLYFIN  ·  %s"
+
+#: jfrows.py
+msgid "▲▼ Kategorie   ◀▶ Titel"
+msgstr "▲▼ categorie   ◀▶ titel"
+
+#: jfrows.py
+msgid "Alle Titel A-Z"
+msgstr "Alle titels A-Z"
+
+#: jfrows.py
+msgid "Alle Filme A-Z"
+msgstr "Alle films A-Z"
+
+#: jfrows.py
+msgid "Alle Serien A-Z"
+msgstr "Alle series A-Z"
+
+#: jfrows.py
+msgid "SUCHE  ·  „%s“"
+msgstr "ZOEKEN  ·  ‘%s’"
+
+#: jfrows.py
+msgid "Suche ..."
+msgstr "Zoeken ..."
+
+#: jfrows.py
+msgid "Keine Treffer für „%s“."
+msgstr "Geen resultaten voor ‘%s’."
+
+#: jfrows.py
+msgid "%s: „%s“"
+msgstr "%s: ‘%s’"
+
+#: jfrules.py
+msgid "Name"
+msgstr "Naam"
+
+#: jfrules.py
+msgid "OK öffnet die Tastatur."
+msgstr "OK opent het toetsenbord."
+
+#: jfrules.py
+msgid "Inhalt"
+msgstr "Inhoud"
+
+#: jfrules.py
+msgid "Serien (mit neuen Folgen)"
+msgstr "Series (met nieuwe afleveringen)"
+
+#: jfrules.py
+msgid "Filme & Serien"
+msgstr "Films & series"
+
+#: jfrules.py
+msgid "Serien werden nach dem Datum der zuletzt hinzugefügten Folge sortiert."
+msgstr "Series worden gesorteerd op de datum van de laatst toegevoegde aflevering."
+
+#: jfrules.py jfrulesui.py
+msgid "Bibliothek"
+msgstr "Bibliotheek"
+
+#: jfrules.py
+msgid "OK wählt eine Bibliothek (oder alle)."
+msgstr "OK kiest een bibliotheek (of alle)."
+
+#: jfrules.py
+msgid "Was ist 'neu'?"
+msgstr "Wat is 'nieuw'?"
+
+#: jfrules.py
+msgid "Neu auf dem Server"
+msgstr "Nieuw op de server"
+
+#: jfrules.py
+msgid "Neu erschienen (Premiere)"
+msgstr "Nieuw verschenen (première)"
+
+#: jfrules.py
+msgid "'Neu auf dem Server' = Hinzufügedatum, 'Neu erschienen' = Erscheinungs-/Ausstrahlungsdatum."
+msgstr "'Nieuw op de server' = toevoegdatum, 'Nieuw verschenen' = verschijnings-/uitzenddatum."
+
+#: jfrules.py
+msgid "Zeitraum"
+msgstr "Periode"
+
+#: jfrules.py
+msgid "60 Tage"
+msgstr "60 dagen"
+
+#: jfrules.py
+msgid "Nur Titel, die in diesem Zeitraum neu sind."
+msgstr "Alleen titels die in deze periode nieuw zijn."
+
+#: jfrules.py
+msgid "90 Tage"
+msgstr "90 dagen"
+
+#: jfrules.py
+msgid "6 Monate"
+msgstr "6 maanden"
+
+#: jfrules.py
+msgid "1 Jahr"
+msgstr "1 jaar"
+
+#: jfrules.py
+msgid "2 Jahre"
+msgstr "2 jaar"
+
+#: jfrules.py
+msgid "Nur ungesehene"
+msgstr "Alleen niet bekeken"
+
+#: jfrules.py
+msgid "Nur Serien, die ich schaue"
+msgstr "Alleen series die ik kijk"
+
+#: jfrules.py
+msgid "Serien mit Fortschritt ('Als Nächstes') und Favoriten."
+msgstr "Series met voortgang ('Volgende') en favorieten."
+
+#: jfrules.py
+msgid "Pro Serie zusammenfassen"
+msgstr "Per serie samenvoegen"
+
+#: jfrules.py
+msgid "Eine Kachel pro Serie mit Anzahl neuer Folgen."
+msgstr "Eén tegel per serie met het aantal nieuwe afleveringen."
+
+#: jfrules.py
+msgid "Mindestbewertung"
+msgstr "Minimale waardering"
+
+#: jfrules.py
+msgid "Egal"
+msgstr "Maakt niet uit"
+
+#: jfrules.py
+msgid "ab 5"
+msgstr "vanaf 5"
+
+#: jfrules.py
+msgid "ab 6"
+msgstr "vanaf 6"
+
+#: jfrules.py
+msgid "ab 6,5"
+msgstr "vanaf 6,5"
+
+#: jfrules.py
+msgid "ab 7"
+msgstr "vanaf 7"
+
+#: jfrules.py
+msgid "ab 7,5"
+msgstr "vanaf 7,5"
+
+#: jfrules.py
+msgid "ab 8"
+msgstr "vanaf 8"
+
+#: jfrules.py
+msgid "OK wählt ein Genre (oder alle)."
+msgstr "OK kiest een genre (of alle)."
+
+#: jfrules.py
+msgid "Neueste zuerst"
+msgstr "Nieuwste eerst"
+
+#: jfrules.py
+msgid "Älteste zuerst"
+msgstr "Oudste eerst"
+
+#: jfrules.py
+msgid "Beste Bewertung"
+msgstr "Beste waardering"
+
+#: jfrules.py
+msgid "Name A-Z"
+msgstr "Naam A-Z"
+
+#: jfrules.py
+msgid "Max. Einträge"
+msgstr "Max. items"
+
+#: jfrules.py
+msgid "Auf der Startseite"
+msgstr "Op het startscherm"
+
+#: jfrules.py
+msgid "Liste als eigener Bereich auf der Startseite."
+msgstr "De lijst als eigen rij op het startscherm."
+
+#: jfrules.py jfrulesui.py
+msgid "Neue Liste"
+msgstr "Nieuwe lijst"
+
+#: jfrules.py
+msgid "Neue Filme"
+msgstr "Nieuwe films"
+
+#: jfrules.py
+msgid "Neue Episoden meiner Serien"
+msgstr "Nieuwe afleveringen van mijn series"
+
+#: jfrules.py
+msgid "Serien mit neuen Folgen"
+msgstr "Series met nieuwe afleveringen"
+
+#: jfrules.py
+msgid "neu erschienen"
+msgstr "nieuw verschenen"
+
+#: jfrules.py
+msgid "neu"
+msgstr "nieuw"
+
+#: jfrules.py
+msgid "ungesehen"
+msgstr "niet bekeken"
+
+#: jfrules.py
+msgid "meine Serien"
+msgstr "mijn series"
+
+#: jfrules.py
+msgid "ab %s"
+msgstr "vanaf %s"
+
+#: jfrules.py
+msgid "%s (%d neu)"
+msgstr "%s (%d nieuw)"
+
+#: jfrulesui.py
+msgid "Eigene Filterregeln, z.B. neueste Filme oder neue Episoden deiner Serien"
+msgstr "Eigen filterregels, bijv. nieuwste films of nieuwe afleveringen van je series"
+
+#: jfrulesui.py
+msgid "Löschen"
+msgstr "Verwijderen"
+
+#: jfrulesui.py
+msgid "Bearbeiten"
+msgstr "Bewerken"
+
+#: jfrulesui.py
+msgid "Nach oben"
+msgstr "Omhoog"
+
+#: jfrulesui.py
+msgid "Noch keine Listen. Grün legt eine neue an, MENU stellt die Standardlisten wieder her."
+msgstr "Nog geen lijsten. Groen maakt een nieuwe aan, MENU herstelt de standaardlijsten."
+
+#: jfrulesui.py
+msgid "OK: Liste anzeigen   |   Gelb: Regeln bearbeiten   |   MENU: Startseite an/aus"
+msgstr "OK: lijst tonen   |   Geel: regels bewerken   |   MENU: startscherm aan/uit"
+
+#: jfrulesui.py
+msgid "Liste '%s' löschen?"
+msgstr "Lijst '%s' verwijderen?"
+
+#: jfrulesui.py
+msgid "Von der Startseite nehmen"
+msgstr "Van het startscherm halen"
+
+#: jfrulesui.py
+msgid "Auf der Startseite zeigen"
+msgstr "Op het startscherm tonen"
+
+#: jfrulesui.py
+msgid "Nach unten verschieben"
+msgstr "Omlaag verplaatsen"
+
+#: jfrulesui.py
+msgid "Liste duplizieren"
+msgstr "Lijst dupliceren"
+
+#: jfrulesui.py
+msgid "Standardlisten hinzufügen"
+msgstr "Standaardlijsten toevoegen"
+
+#: jfrulesui.py
+msgid " (Kopie)"
+msgstr " (kopie)"
+
+#: jfrulesui.py
+msgid "Alle Standardlisten sind schon vorhanden."
+msgstr "Alle standaardlijsten zijn al aanwezig."
+
+#: jfrulesui.py
+msgid "%d Standardliste hinzugefügt."
+msgid_plural "%d Standardlisten hinzugefügt."
+msgstr[0] "%d standaardlijst toegevoegd."
+msgstr[1] "%d standaardlijsten toegevoegd."
+
+#: jfrulesui.py
+msgid "Liste bearbeiten"
+msgstr "Lijst bewerken"
+
+#: jfrulesui.py jfsettings.py
+msgid "Speichern"
+msgstr "Opslaan"
+
+#: jfrulesui.py
+msgid "Vorschau"
+msgstr "Voorbeeld"
+
+#: jfrulesui.py
+msgid "Name ändern"
+msgstr "Naam wijzigen"
+
+#: jfrulesui.py
+msgid "Name der Liste"
+msgstr "Naam van de lijst"
+
+#: jfrulesui.py
+msgid "(ohne Namen)"
+msgstr "(zonder naam)"
+
+#: jfrulesui.py
+msgid "Alle Bibliotheken"
+msgstr "Alle bibliotheken"
+
+#: jfrulesui.py
+msgid "Alle Genres"
+msgstr "Alle genres"
+
+#: jfrulesui.py
+msgid "Links/Rechts ändert den Wert."
+msgstr "Links/rechts wijzigt de waarde."
+
+#: jfrulesui.py
+msgid "Lade Bibliotheken ..."
+msgstr "Bibliotheken laden ..."
+
+#: jfrulesui.py
+msgid "Bitte einen Namen vergeben."
+msgstr "Geef een naam op."
+
+#: jfrulesui.py
+msgid "Vorschau: %s"
+msgstr "Voorbeeld: %s"
+
+#: jfsettings.py
+msgid "Jellyfin für Enigma2  -  Version %s"
+msgstr "Jellyfin voor Enigma2  -  versie %s"
+
+#: jfsettings.py
+msgid "Entwickelt von %s"
+msgstr "Ontwikkeld door %s"
+
+#: jfsettings.py
+msgid "Freie Software (GPL-2.0-or-later). Kein offizielles Jellyfin-Projekt."
+msgstr "Vrije software (GPL-2.0-or-later). Geen officieel Jellyfin-project."
+
+#: jfsettings.py
+msgid "Box: %s"
+msgstr "Box: %s"
+
+#: jfsettings.py
+msgid "Server: %s (Jellyfin %s)"
+msgstr "Server: %s (Jellyfin %s)"
+
+#: jfsettings.py
+msgid "Jellyfin - Einstellungen"
+msgstr "Jellyfin - Instellingen"
+
+#: jfsettings.py
+msgid "Plugin %s von %s  |  %s @ %s"
+msgstr "Plugin %s door %s  |  %s @ %s"
+
+#: jfsettings.py
+msgid " Erkannt: %s."
+msgstr " Herkend: %s."
+
+#: jfsettings.py
+msgid "UHD-Box"
+msgstr "UHD-box"
+
+#: jfsettings.py
+msgid "HD-Box"
+msgstr "HD-box"
+
+#: jfsettings.py
+msgid " ServiceApp ist nicht installiert."
+msgstr " ServiceApp is niet geïnstalleerd."
+
+#: jfsettings.py
+msgid "Bild-Cache geleert."
+msgstr "Afbeeldingscache geleegd."
+
+#: jfsettings.py
+msgid "Abmelden und Anmeldedaten löschen?"
+msgstr "Afmelden en aanmeldgegevens verwijderen?"
+
+#: jfskin.py
+msgid "Start"
+msgstr "Start"
+
+#: jfupdate.py
+msgid "Download zu groß"
+msgstr "Download te groot"
+
+#: jfupdate.py
+msgid "Ungültige Antwort von GitHub"
+msgstr "Ongeldig antwoord van GitHub"
+
+#: jfupdate.py
+msgid "Die heruntergeladene Datei ist kein IPK-Paket"
+msgstr "Het gedownloade bestand is geen IPK-pakket"
+
+#: jfupdate.py
+msgid "Prüfsumme kann nicht geprüft werden (hashlib fehlt) - bitte manuell aktualisieren"
+msgstr "De checksum kan niet worden gecontroleerd (hashlib ontbreekt) - werk handmatig bij"
+
+#: jfupdate.py
+msgid "Prüfsumme stimmt nicht - Update abgebrochen"
+msgstr "Checksum klopt niet - update afgebroken"
+
+#: jfupdate.py
+msgid "Das Plugin ist aktuell (Version %s)."
+msgstr "De plugin is up-to-date (versie %s)."
+
+#: jfupdate.py
+msgid "Update-Prüfung fehlgeschlagen"
+msgstr "Updatecontrole mislukt"
+
+#: jfupdate.py
+msgid "Suche nach Updates ..."
+msgstr "Zoeken naar updates ..."
+
+#: jfupdate.py
+msgid ""
+"Jellyfin für Enigma2 %s ist verfügbar (installiert: %s).\n"
+"\n"
+"%s\n"
+"\n"
+"Jetzt installieren?"
+msgstr ""
+"Jellyfin voor Enigma2 %s is beschikbaar (geïnstalleerd: %s).\n"
+"\n"
+"%s\n"
+"\n"
+"Nu installeren?"
+
+#: jfupdate.py
+msgid "Installiere Update ..."
+msgstr "Update installeren ..."
+
+#: jfupdate.py
+msgid "Lade Update %s ..."
+msgstr "Update %s downloaden ..."
+
+#: jfupdate.py
+msgid "Update fehlgeschlagen"
+msgstr "Update mislukt"
+
+#: jfupdate.py
+msgid "opkg Fehler %s"
+msgstr "opkg-fout %s"
+
+#: jfupdate.py
+msgid ""
+"Version %s wurde installiert.\n"
+"Enigma2 jetzt neu starten, damit das Update aktiv wird?"
+msgstr ""
+"Versie %s is geïnstalleerd.\n"
+"Enigma2 nu herstarten om de update te activeren?"
+
+#: jfutil.py
+msgid "%d Std. %d Min."
+msgstr "%d u %d min"
+
+#: jfutil.py
+msgid "%d Std."
+msgstr "%d u"
+
+#: jfutil.py
+msgid "%d Min."
+msgstr "%d min"
+
+#: jfutil.py
+msgid "%d Staffel"
+msgid_plural "%d Staffeln"
+msgstr[0] "%d seizoen"
+msgstr[1] "%d seizoenen"
+
+#: jfutil.py
+msgid "%d Episode"
+msgid_plural "%d Episoden"
+msgstr[0] "%d aflevering"
+msgstr[1] "%d afleveringen"
+
+#: jfutil.py
+msgid "%d Song"
+msgid_plural "%d Songs"
+msgstr[0] "%d nummer"
+msgstr[1] "%d nummers"
+
+#: jfutil.py
+msgid "%d Eintrag"
+msgid_plural "%d Einträge"
+msgstr[0] "%d item"
+msgstr[1] "%d items"
+
+#: jfutil.py
+msgid "endet um %s"
+msgstr "eindigt om %s"
+
+#: jfutil.py
+msgid "%s - heute"
+msgstr "%s - heden"
+
+#: jfutil.py
+msgid "Deutsch"
+msgstr "Duits"
+
+#: jfutil.py
+msgid "Englisch"
+msgstr "Engels"
+
+#: jfutil.py
+msgid "Französisch"
+msgstr "Frans"
+
+#: jfutil.py
+msgid "Spanisch"
+msgstr "Spaans"
+
+#: jfutil.py
+msgid "Italienisch"
+msgstr "Italiaans"
+
+#: jfutil.py
+msgid "Japanisch"
+msgstr "Japans"
+
+#: jfutil.py
+msgid "Koreanisch"
+msgstr "Koreaans"
+
+#: jfutil.py
+msgid "Türkisch"
+msgstr "Turks"
+
+#: jfutil.py
+msgid "Russisch"
+msgstr "Russisch"
+
+#: jfutil.py
+msgid "Polnisch"
+msgstr "Pools"
+
+#: jfutil.py
+msgid "Niederländisch"
+msgstr "Nederlands"
+
+#: jfutil.py
+msgid "Portugiesisch"
+msgstr "Portugees"
+
+#: jfutil.py
+msgid "Chinesisch"
+msgstr "Chinees"
+
+#: jfutil.py
+msgid "Hindi"
+msgstr "Hindi"
+
+#: jfutil.py
+msgid "Arabisch"
+msgstr "Arabisch"
+
+#: jfutil.py
+msgid "Schwedisch"
+msgstr "Zweeds"
+
+#: jfutil.py
+msgid "Dänisch"
+msgstr "Deens"
+
+#: jfutil.py
+msgid "Norwegisch"
+msgstr "Noors"
+
+#: jfutil.py
+msgid "Finnisch"
+msgstr "Fins"
+
+#: jfutil.py
+msgid "Tschechisch"
+msgstr "Tsjechisch"
+
+#: jfutil.py
+msgid "Ungarisch"
+msgstr "Hongaars"
+
+#: jfutil.py
+msgid "Griechisch"
+msgstr "Grieks"
+
+#: jfutil.py
+msgid "Kroatisch"
+msgstr "Kroatisch"
+
+#: jfutil.py
+msgid "Serbisch"
+msgstr "Servisch"
+
+#: jfutil.py
+msgid "Bosnisch"
+msgstr "Bosnisch"
+
+#: jfutil.py
+msgid "Unbekannt"
+msgstr "Onbekend"
+
+#: jfutil.py
+msgid "Spur %s"
+msgstr "Spoor %s"
+
+#: jfutil.py
+msgid "Standard"
+msgstr "Standaard"
+
+#: jfutil.py
+msgid "Erzwungen"
+msgstr "Geforceerd"
+
+#: jfutil.py
+msgid "Extern"
+msgstr "Extern"
+
+#: plugin.py
+msgid "Jellyfin-Client: Filme, Serien und Musik vom eigenen Server - von xionix"
+msgstr "Jellyfin-client: films, series en muziek van je eigen server - door xionix"

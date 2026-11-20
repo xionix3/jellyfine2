@@ -5,6 +5,8 @@
 # one row of 16:9 cards, up/down jumps between the rows ("folders"/categories), sidebar on the left.
 from __future__ import absolute_import
 
+from .jfi18n import _, N_, badge
+
 import time
 
 from enigma import eTimer
@@ -70,9 +72,9 @@ class RowsScreen(JFScreen):
 			self[name] = Pixmap()
 		self.static_layers.update(overlay="hero_overlay.png", rail_shade="rail_overlay.png")
 		for i, (_key, title) in enumerate(HERO_RAIL):
-			self["rail_name%d" % i] = Label(title)
+			self["rail_name%d" % i] = Label(_(title))
 		self.cells = CoverCells(self, "c", CARD_COUNT, CARD_W, CARD_H, kind="card")
-		self.add_keys(red="Alle anzeigen", green="Suche", yellow="Aktualisieren", blue="Meine Listen", hint="OK Details   ▶ Abspielen   MENU Optionen")
+		self.add_keys(red=_("Alle anzeigen"), green=_("Suche"), yellow=_("Aktualisieren"), blue=_("Meine Listen"), hint=_("OK Details   ▶ Abspielen   MENU Optionen"))
 		self.bd_timer = eTimer()
 		self.bd_timer.callback.append(self.load_backdrop)
 		self.load_timer = eTimer()
@@ -108,13 +110,13 @@ class RowsScreen(JFScreen):
 	def rows_layout(self):
 		self["status"].hide()
 		self["backdrop"].hide()
-		self["hero_pill2"].setText("Details")
+		self["hero_pill2"].setText(_("Details"))
 		self.cells.clear_all()
 		self["frame"].hide()
 		self.show_rail(False)
 		self["brand"].setText(self.brand_text())
 		self["server"].setText(self.info_text())
-		self.clear_hero("Lade ...")
+		self.clear_hero(_("Lade ..."))
 		self.rows_start()
 
 	def rows_start(self):
@@ -192,7 +194,7 @@ class RowsScreen(JFScreen):
 			self.loading.discard(row.key)
 			cur = self.current()
 			if cur is not None and cur.key == row.key and self.cached(row) is None:
-				self.clear_hero("Fehler: %s" % err)
+				self.clear_hero(_("Fehler: %s") % err)
 		self.run(row.fetch, self.cl, limit, callback=ok, errback=fail)
 
 	def row_loaded(self, row, items, old):
@@ -257,12 +259,12 @@ class RowsScreen(JFScreen):
 			self.cells.clear_all()
 			self["frame"].hide()
 			self.shown = None
-			self.clear_hero("Lade ...")
+			self.clear_hero(_("Lade ..."))
 			self.update_row_labels()
 			return
 		items = list(c[1])
 		if items and row.more is not None:
-			items.append({"_jf_more": True, "Name": "Alle anzeigen", "Id": None})
+			items.append({"_jf_more": True, "Name": _("Alle anzeigen"), "Id": None})
 		signature = (row.key, tuple(sig(i) for i in items))
 		self.row_items = items
 		if signature == self.shown:
@@ -273,7 +275,7 @@ class RowsScreen(JFScreen):
 		prefetch_posters(self, [i for i in c[1]], CARD_W, CARD_H, kind="card")
 
 	def empty_text(self):
-		return "Keine Einträge"
+		return _("Keine Einträge")
 
 	def draw_cards(self):
 		n = len(self.row_items)
@@ -321,7 +323,7 @@ class RowsScreen(JFScreen):
 		self["hero_meta"].setText("")
 		self["hero_genres"].setText("")
 		self["hero_overview"].setText(text)
-		self["hero_pill1"].setText("Öffnen")
+		self["hero_pill1"].setText(_("Öffnen"))
 		self["hero_new"].hide()
 		move_widget(self, "hero_meta", 160, 206)
 
@@ -342,18 +344,18 @@ class RowsScreen(JFScreen):
 			self["hero_new"].hide()
 			move_widget(self, "hero_meta", 160, 206)
 			self["hero_genres"].setText("")
-			self["hero_overview"].setText("OK: alle Titel von '%s' anzeigen (hier die ersten %d)." % (row.title if row else "", real))
-			self["hero_pill1"].setText("Alle anzeigen")
+			self["hero_overview"].setText(_("OK: alle Titel von '%s' anzeigen (hier die ersten %d).") % (row.title if row else "", real))
+			self["hero_pill1"].setText(_("Alle anzeigen"))
 			return
 		t = it.get("Type")
 		title = it.get("SeriesName") if t == "Episode" and it.get("SeriesName") else it.get("Name", "")
 		focus = it.get("_jf_focus")
 		meta, new = hero_meta(it)
 		self["hero_title"].setText(title or "")
-		self["hero_meta"].setText(meta if t != "Person" else "Person")
+		self["hero_meta"].setText(meta if t != "Person" else _("Person"))
 		if new and self.mode == "rows":
 			self["hero_new"].show()
-			move_widget(self, "hero_meta", 236, 206)
+			move_widget(self, "hero_meta", 160 + badge("new")[1] + 12, 206)
 		else:
 			self["hero_new"].hide()
 			move_widget(self, "hero_meta", 160, 206)
@@ -517,7 +519,7 @@ class RowsScreen(JFScreen):
 
 	def key_play(self):
 		it = self.focused()
-		if it is None or it.get("_jf_more") or play_label(it) == "Öffnen":
+		if it is None or it.get("_jf_more") or play_label(it) == _("Öffnen"):
 			self.key_ok()
 			return
 		from .jfplayer import play_item
@@ -542,7 +544,7 @@ class RowsScreen(JFScreen):
 		self.rail_action("settings")
 
 	def key_menu(self):
-		lst = [("Alle Titel dieser Reihe", "all"), ("Aktualisieren", "refresh"), ("Suche", "search"), ("Zur Startseite", "home")]
+		lst = [(_("Alle Titel dieser Reihe"), "all"), (_("Aktualisieren"), "refresh"), (_("Suche"), "search"), (_("Zur Startseite"), "home")]
 		self.session.openWithCallback(self.rows_menu_chosen, ChoiceBox, title=self.brand_text().title(), list=lst)
 
 	def rows_menu_chosen(self, choice=None):
@@ -560,8 +562,8 @@ class RowsScreen(JFScreen):
 
 
 # ------------------------------------------------------------------ libraries
-TYPE_NAMES = {"movies": "Filme", "tvshows": "Serien", "music": "Musik", "boxsets": "Sammlungen", "homevideos": "Videos",
-	"musicvideos": "Musikvideos", "mixed": "Gemischt"}
+TYPE_NAMES = {"movies": N_("Filme"), "tvshows": N_("Serien"), "music": N_("Musik"), "boxsets": N_("Sammlungen"), "homevideos": N_("Videos"),
+	"musicvideos": N_("Musikvideos"), "mixed": N_("Gemischt")}
 
 
 def _items(cl, n, **params):
@@ -586,40 +588,40 @@ def library_rows(views, kind):
 	rows = []
 	if kind == "movies":
 		t = "Movie"
-		rows.append(Row("resume", "Weiterschauen", lambda cl, n: cl.resume(limit=n, includeItemTypes=t, **pp)))
+		rows.append(Row("resume", _("Weiterschauen"), lambda cl, n: cl.resume(limit=n, includeItemTypes=t, **pp)))
 		if len(views) > 1:
 			for v in views:
 				rows.append(Row(("lib", v["Id"]), v.get("Name", "?"), lambda cl, n, v=v: cl.latest(v["Id"], limit=n),
 					more=lambda scr, cb, v=v: open_library(scr, [v], cb)))
 		else:
-			rows.append(Row("latest", "Neu hinzugefügt", lambda cl, n: cl.latest(parent, limit=n) if parent else
+			rows.append(Row("latest", _("Neu hinzugefügt"), lambda cl, n: cl.latest(parent, limit=n) if parent else
 				_items(cl, n, includeItemTypes=t, sortBy="DateCreated", sortOrder="Descending"),
-				more=_grid("Neu hinzugefügt", dict(pp, includeItemTypes=t), "DateCreated")))
-		rows.append(Row("released", "Neu erschienen", lambda cl, n: _items(cl, n, includeItemTypes=t, sortBy="PremiereDate,SortName",
-			sortOrder="Descending", **pp), more=_grid("Neu erschienen", dict(pp, includeItemTypes=t), "PremiereDate")))
-		rows.append(Row("top", "Ungesehen - am besten bewertet", lambda cl, n: _items(cl, n, includeItemTypes=t, filters="IsUnplayed",
+				more=_grid(_("Neu hinzugefügt"), dict(pp, includeItemTypes=t), "DateCreated")))
+		rows.append(Row("released", _("Neu erschienen"), lambda cl, n: _items(cl, n, includeItemTypes=t, sortBy="PremiereDate,SortName",
+			sortOrder="Descending", **pp), more=_grid(_("Neu erschienen"), dict(pp, includeItemTypes=t), "PremiereDate")))
+		rows.append(Row("top", _("Ungesehen - am besten bewertet"), lambda cl, n: _items(cl, n, includeItemTypes=t, filters="IsUnplayed",
 			sortBy="CommunityRating,SortName", sortOrder="Descending", minCommunityRating=6, **pp)))
-		rows.append(Row("fav", "Favoriten", lambda cl, n: _items(cl, n, includeItemTypes=t, filters="IsFavorite", sortBy="DateCreated",
-			sortOrder="Descending", **pp), more=_grid("Favoriten", dict(pp, includeItemTypes=t, filters="IsFavorite"))))
+		rows.append(Row("fav", _("Favoriten"), lambda cl, n: _items(cl, n, includeItemTypes=t, filters="IsFavorite", sortBy="DateCreated",
+			sortOrder="Descending", **pp), more=_grid(_("Favoriten"), dict(pp, includeItemTypes=t, filters="IsFavorite"))))
 	elif kind == "tvshows":
 		t = "Series"
-		rows.append(Row("nextup", "Als Nächstes", lambda cl, n: cl.next_up(limit=n, **pp)))
+		rows.append(Row("nextup", _("Als Nächstes"), lambda cl, n: cl.next_up(limit=n, **pp)))
 		if len(views) > 1:
 			for v in views:
 				rows.append(Row(("lib", v["Id"]), v.get("Name", "?"), lambda cl, n, v=v: cl.latest(v["Id"], limit=n),
 					more=lambda scr, cb, v=v: open_library(scr, [v], cb)))
 		else:
-			rows.append(Row("latest", "Neue Folgen", lambda cl, n: cl.latest(parent, limit=n) if parent else
+			rows.append(Row("latest", _("Neue Folgen"), lambda cl, n: cl.latest(parent, limit=n) if parent else
 				_items(cl, n, includeItemTypes=t, sortBy="DateLastContentAdded", sortOrder="Descending")))
-		rows.append(Row("updated", "Zuletzt aktualisiert", lambda cl, n: _items(cl, n, includeItemTypes=t, sortBy="DateLastContentAdded,SortName",
-			sortOrder="Descending", **pp), more=_grid("Zuletzt aktualisiert", dict(pp, includeItemTypes=t), "DateLastContentAdded")))
-		rows.append(Row("newseries", "Neue Serien", lambda cl, n: _items(cl, n, includeItemTypes=t, sortBy="DateCreated,SortName",
-			sortOrder="Descending", **pp), more=_grid("Neue Serien", dict(pp, includeItemTypes=t), "DateCreated")))
-		rows.append(Row("fav", "Favoriten", lambda cl, n: _items(cl, n, includeItemTypes=t, filters="IsFavorite", sortBy="SortName", **pp),
-			more=_grid("Favoriten", dict(pp, includeItemTypes=t, filters="IsFavorite"))))
+		rows.append(Row("updated", _("Zuletzt aktualisiert"), lambda cl, n: _items(cl, n, includeItemTypes=t, sortBy="DateLastContentAdded,SortName",
+			sortOrder="Descending", **pp), more=_grid(_("Zuletzt aktualisiert"), dict(pp, includeItemTypes=t), "DateLastContentAdded")))
+		rows.append(Row("newseries", _("Neue Serien"), lambda cl, n: _items(cl, n, includeItemTypes=t, sortBy="DateCreated,SortName",
+			sortOrder="Descending", **pp), more=_grid(_("Neue Serien"), dict(pp, includeItemTypes=t), "DateCreated")))
+		rows.append(Row("fav", _("Favoriten"), lambda cl, n: _items(cl, n, includeItemTypes=t, filters="IsFavorite", sortBy="SortName", **pp),
+			more=_grid(_("Favoriten"), dict(pp, includeItemTypes=t, filters="IsFavorite"))))
 	else:
 		# other libraries: newest + one row per folder
-		rows.append(Row("latest", "Neu hinzugefügt", lambda cl, n: cl.latest(parent, limit=n) if parent else []))
+		rows.append(Row("latest", _("Neu hinzugefügt"), lambda cl, n: cl.latest(parent, limit=n) if parent else []))
 	return rows
 
 
@@ -661,11 +663,11 @@ class LibraryRowsScreen(RowsScreen):
 
 	def brand_text(self):
 		if len(self.views) == 1:
-			return "JELLYFIN  ·  %s" % (self.views[0].get("Name") or "").upper()
-		return "JELLYFIN  ·  %s" % TYPE_NAMES.get(self.kind, "").upper()
+			return _("JELLYFIN  ·  %s") % (self.views[0].get("Name") or "").upper()
+		return _("JELLYFIN  ·  %s") % _(TYPE_NAMES.get(self.kind, "")).upper()
 
 	def info_text(self):
-		return "▲▼ Kategorie   ◀▶ Titel"
+		return _("▲▼ Kategorie   ◀▶ Titel")
 
 	def build_rows(self):
 		return library_rows(self.views, self.kind)
@@ -685,7 +687,7 @@ class LibraryRowsScreen(RowsScreen):
 				out += folder_rows([f for f in res if f.get("IsFolder")][:15])
 			if kind in ("movies", "tvshows", "music"):
 				out += genre_rows(cl.genres(parent, types), kind, views)
-			title = {"movies": "Alle Filme A-Z", "tvshows": "Alle Serien A-Z"}.get(kind, "Alle Titel A-Z")
+			title = {"movies": _("Alle Filme A-Z"), "tvshows": _("Alle Serien A-Z")}.get(kind) or _("Alle Titel A-Z")
 			params = {"parentId": parent} if parent else {}
 			if types:
 				params["includeItemTypes"] = types
@@ -706,8 +708,8 @@ def open_library(screen, views, callback=None, kind=None):
 
 
 # ------------------------------------------------------------------ search
-SEARCH_GROUPS = [("Movie", "Filme"), ("Series", "Serien"), ("Episode", "Episoden"), ("BoxSet", "Sammlungen"),
-	("MusicAlbum,MusicArtist,Audio,MusicVideo", "Musik"), ("Video", "Videos"), ("Person", "Personen")]
+SEARCH_GROUPS = [("Movie", N_("Filme")), ("Series", N_("Serien")), ("Episode", N_("Episoden")), ("BoxSet", N_("Sammlungen")),
+	("MusicAlbum,MusicArtist,Audio,MusicVideo", N_("Musik")), ("Video", N_("Videos")), ("Person", N_("Personen"))]
 
 
 class SearchRowsScreen(RowsScreen):
@@ -721,18 +723,19 @@ class SearchRowsScreen(RowsScreen):
 		RowsScreen.__init__(self, session)
 
 	def brand_text(self):
-		return "SUCHE  ·  „%s“" % self.term
+		return _("SUCHE  ·  „%s“") % self.term
 
 	def info_text(self):
-		return "▲▼ Kategorie   ◀▶ Titel"
+		return _("▲▼ Kategorie   ◀▶ Titel")
 
 	def empty_text(self):
-		return "Keine Treffer für „%s“." % self.term if not self.loading else "Suche ..."
+		return _("Keine Treffer für „%s“.") % self.term if not self.loading else _("Suche ...")
 
 	def build_rows(self):
 		term = self.term
 		rows = []
 		for types, title in SEARCH_GROUPS:
+			title = _(title)
 			rows.append(Row(("search", types), title, lambda cl, n, t=types: cl.search(term, types=t), count=True,
 				more=lambda scr, cb, t=types, title=title: scr.open_results(t, title, cb)))
 		return rows
@@ -740,7 +743,7 @@ class SearchRowsScreen(RowsScreen):
 	def open_results(self, types, title, callback):
 		c = self.cache.get(("search", types))
 		items = c[1] if c else []
-		jfnav.open_grid(self, {"title": "%s: „%s“" % (title, self.term), "source": "static", "items": items, "sortable": False},
+		jfnav.open_grid(self, {"title": _("%s: „%s“") % (title, self.term), "source": "static", "items": items, "sortable": False},
 			callback=callback)
 
 	def row_loaded(self, row, items, old):

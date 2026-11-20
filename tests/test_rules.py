@@ -47,4 +47,45 @@ ranked = [i["Id"] for i in rank_search("bluey", fuzzy)]
 check(ranked == ["4", "6", "3", "5", "1", "2", "7"], "bluey ranking %s" % ranked)
 check(norm_text("Amélie: Die fabelhafte Welt!") == "amelie die fabelhafte welt" and [i["Id"] for i in rank_search("amelie", [{"Id": "a", "Name": "x"}, {"Id": "b", "Name": "Amélie"}])] == ["b", "a"],
     "accents ignored")
+# translations: .po reader (continuation lines, escapes, plurals, fuzzy entries), language choice
+from JellyfinOpenPLi import jfi18n
+po = """msgid ""
+msgstr "Language: en\\n"
+
+#: x.py:1
+msgid "Filme"
+msgstr "Movies"
+
+msgid ""
+"Zeile 1\\n"
+"Zeile 2 \\"x\\""
+msgstr "Line 1\\nLine 2 \\"x\\""
+
+#, fuzzy
+msgid "Ungeprüft"
+msgstr "Unchecked"
+
+msgid "%d Staffel"
+msgid_plural "%d Staffeln"
+msgstr[0] "%d season"
+msgstr[1] "%d seasons"
+"""
+cat = jfi18n.parse_po(po)
+check(cat == {"Filme": "Movies", 'Zeile 1\nZeile 2 "x"': 'Line 1\nLine 2 "x"', "%d Staffel": ["%d season", "%d seasons"]}, "po reader %r" % cat)
+for lang in ("en", "nl"):
+    check(len(jfi18n.load_catalog(lang)) > 400, "%s catalog loaded" % lang)
+check(jfi18n.resolve("en") == "en" and jfi18n.resolve("auto") == "de", "explicit language / auto without Enigma2 language")
+_sys = jfi18n.system_language
+for code, want in (("nl", "nl"), ("de", "de"), ("en", "en"), ("it", "en"), ("", "de")):
+    jfi18n.system_language = lambda c=code: c
+    check(jfi18n.resolve("auto") == want, "auto with box language %r -> %s" % (code, want))
+jfi18n.system_language = _sys
+jfi18n.set_language("en")
+check(jfi18n._("Filme") == "Movies" and jfi18n.ngettext("%d Staffel", "%d Staffeln", 1) % 1 == "1 season"
+    and jfi18n.ngettext("%d Staffel", "%d Staffeln", 3) % 3 == "3 seasons" and jfi18n._("unbekannter Text") == "unbekannter Text"
+    and jfi18n.decimal("7.5") == "7.5" and jfi18n.badge("new") == ("badge_new_en.png", 64), "English active")
+check(rule_summary(DEFAULT_RULES[0]).startswith("Movies  |  new: 30 days"), "rule summary in English: %s" % rule_summary(DEFAULT_RULES[0]))
+jfi18n.set_language("de")
+check(jfi18n._("Filme") == "Filme" and jfi18n.ngettext("%d Staffel", "%d Staffeln", 2) % 2 == "2 Staffeln" and jfi18n.decimal("7.5") == "7,5"
+    and jfi18n.badge("seen") == ("badge_seen.png", 104), "German is the source language")
 print("failures", fails); srv.shutdown(); os._exit(1 if fails else 0)

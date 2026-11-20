@@ -24,7 +24,7 @@
 
 <p align="center"><b>Made by <a href="https://github.com/xionix3">xionix</a></b></p>
 
-> The user interface is currently German.
+> 🌍 The user interface speaks **English, German and Dutch** – it follows the menu language of the box (other languages → English) and can be switched under *Settings → Language*.
 
 ---
 
@@ -32,15 +32,15 @@
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/02-startseite.jpg" alt="Start screen"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
+| <img src="docs/screenshots/en/02-startseite.jpg" alt="Start screen"> | <img src="docs/screenshots/en/05-details.jpg" alt="Details"> |
 | **Start screen** – backdrop of the focused title, rows of cards below | **Details** – the picture stays visible, full description |
-| <img src="docs/screenshots/04-filme.jpg" alt="Movies"> | <img src="docs/screenshots/04b-filme-genre.jpg" alt="Genres"> |
+| <img src="docs/screenshots/en/04-filme.jpg" alt="Movies"> | <img src="docs/screenshots/en/04b-filme-genre.jpg" alt="Genres"> |
 | **Movies/shows** like the start screen – ▲▼ jumps through the categories | **Genres and folders** as rows of their own |
-| <img src="docs/screenshots/07-suche.jpg" alt="Search"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Cast"> |
+| <img src="docs/screenshots/en/07-suche.jpg" alt="Search"> | <img src="docs/screenshots/en/05b-besetzung.jpg" alt="Cast"> |
 | **Search** – real matches only, one row per category | **Cast** with photos – appears with ▼ |
-| <img src="docs/screenshots/03-neue-episoden.jpg" alt="New episodes"> | <img src="docs/screenshots/03b-navigation.jpg" alt="Sidebar"> |
+| <img src="docs/screenshots/en/03-neue-episoden.jpg" alt="New episodes"> | <img src="docs/screenshots/en/03b-navigation.jpg" alt="Sidebar"> |
 | **New episodes of my shows** – one card per show | **Sidebar** – search, start, movies, shows, lists, settings |
-| <img src="docs/screenshots/06-episoden.jpg" alt="Episodes"> | <img src="docs/screenshots/04c-raster.jpg" alt="Show all"> |
+| <img src="docs/screenshots/en/06-episoden.jpg" alt="Episodes"> | <img src="docs/screenshots/en/04c-raster.jpg" alt="Show all"> |
 | **Seasons & episodes** | **Show all** (red) – grid with sorting and filters |
 
 <details>
@@ -48,11 +48,11 @@
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/08-meine-listen.jpg" alt="My lists"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="List editor"> |
+| <img src="docs/screenshots/en/08-meine-listen.jpg" alt="My lists"> | <img src="docs/screenshots/en/09-listen-editor.jpg" alt="List editor"> |
 | **My lists** – your own filter rules | **List editor** |
-| <img src="docs/screenshots/10-einstellungen.jpg" alt="Settings"> | <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Classic start screen"> |
+| <img src="docs/screenshots/en/10-einstellungen.jpg" alt="Settings"> | <img src="docs/screenshots/en/11-startseite-klassisch.jpg" alt="Classic start screen"> |
 | **Settings** | **Classic start screen** (menu on the left) |
-| <img src="docs/screenshots/01-anmeldung.jpg" alt="Login"> | |
+| <img src="docs/screenshots/en/01-anmeldung.jpg" alt="Login"> | |
 | **Login** | |
 
 </details>
@@ -73,6 +73,7 @@
 - **Details**: the picture stays visible, the full description is readable; action buttons, audio/subtitle selection, versions, similar titles; the **cast with photos** appears with ▼ (OK lists the person's titles)
 - **Search**: only titles that really contain the term – every category is searched on its own and shown as a row (movies, shows, episodes, collections, music, people)
 - **Seasons & episodes**, **music albums**
+- **English, German, Dutch**: follows the menu language of the box or is set by hand (*Settings → Language*)
 - **Auto-update**: checks the GitHub releases on start (at most twice a day), installs the new version on request (checksum verified) and restarts Enigma2
 - **Playback** through the Enigma2 movie player (GStreamer or ServiceApp):
   direct play in original quality (4K/HEVC on UHD boxes) or transcoded by the server (HLS), e.g. for DTS audio or picture-based subtitles
@@ -139,6 +140,7 @@ Own lists appear as sections at the top of the start screen. Per list you can se
 
 | Setting | Meaning |
 |---|---|
+| Language | automatic (menu language of the box) · Deutsch · English · Nederlands |
 | Playback mode | automatic (server decides) · always direct · always transcode |
 | Max. bitrate / resolution | for remote access or HD boxes; *automatic* detects UHD boxes |
 | HEVC / DTS / TrueHD / VC-1 / VP9 | what the box may play directly (DTS/TrueHD default → AC3) |
@@ -206,7 +208,7 @@ Everything runs off-box: a fake Jellyfin server (`tests/mockjf.py`) and stubs of
 ```sh
 pip install -r requirements-dev.txt
 make lint test ipk      # the .ipk ends up in dist/
-make screenshots        # regenerates docs/screenshots/
+make screenshots        # regenerates docs/screenshots/ (de, en/, nl/)
 ```
 
 CI (GitHub Actions) runs lint and a Python 3.6 syntax check, the test matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 keymaps × Jellyfin 10.8/10.10/10.11 × HD/FHD), builds the `.ipk` and renders the screenshots.
@@ -221,13 +223,16 @@ src/JellyfinOpenPLi/      plugin (installed to /usr/lib/enigma2/python/Plugins/E
   jfskin.py          embedded skins, designed for 1920x1080 and scaled at runtime
   jfrows.py          row screens (start screen, libraries, search): hero + one row of cards, sidebar
   jfupdate.py        update check against the GitHub releases, download + opkg install
+  jfi18n.py, locale/ translations (German source texts, en.po, nl.po)
   images/            glass panels, gradients, frames, pills, icons; pixel exact for 1080p, images/hd/ for 720p
                      (generated by scripts/make_assets.py)
 tests/               fake server, demo data, Enigma2 stubs, end-to-end tests, screenshot renderer
 scripts/             ipk builder, syntax check, asset, icon and banner generators
 ```
 
-Contributions are welcome – issues and pull requests in English or German.
+**Translations:** the German texts in the code are the msgids, the translations live in `src/JellyfinOpenPLi/locale/en.po` and `nl.po` (editable with Poedit). After changing texts run `make i18n` – new texts appear with an empty `msgstr`; `scripts/i18n.py check` (also in CI) makes sure every text is translated. A new language is one more `.po` file plus an entry in `LANGUAGES` in `jfi18n.py`.
+
+Contributions are welcome – issues and pull requests in English or German, improved translations too.
 
 ## 📄 License
 

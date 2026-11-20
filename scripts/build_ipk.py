@@ -109,7 +109,7 @@ def build_data(tar):
 		if rel != ".":
 			add_dir(tar, "./%s/" % base)
 		for name in sorted(files):
-			if name.endswith((".pyc", ".pyo")) or name.startswith("."):
+			if name.endswith((".pyc", ".pyo", ".pot")) or name.startswith("."):
 				continue
 			with open(os.path.join(root, name), "rb") as f:
 				add_bytes(tar, "./%s/%s" % (base, name), f.read())

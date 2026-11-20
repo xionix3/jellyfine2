@@ -24,7 +24,7 @@
 
 <p align="center"><b>Gemaakt door <a href="https://github.com/xionix3">xionix</a></b></p>
 
-> De gebruikersinterface is op dit moment Duitstalig.
+> 🌍 De interface is beschikbaar in het **Nederlands, Engels en Duits** – hij volgt de menutaal van de box (andere talen → Engels) en is om te schakelen onder *Instellingen → Taal*.
 
 ---
 
@@ -32,15 +32,15 @@
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/02-startseite.jpg" alt="Startscherm"> | <img src="docs/screenshots/05-details.jpg" alt="Details"> |
+| <img src="docs/screenshots/nl/02-startseite.jpg" alt="Startscherm"> | <img src="docs/screenshots/nl/05-details.jpg" alt="Details"> |
 | **Startscherm** – achtergrond van de gekozen titel, daaronder rijen met kaarten | **Details** – het beeld blijft zichtbaar, volledige beschrijving |
-| <img src="docs/screenshots/04-filme.jpg" alt="Films"> | <img src="docs/screenshots/04b-filme-genre.jpg" alt="Genres"> |
+| <img src="docs/screenshots/nl/04-filme.jpg" alt="Films"> | <img src="docs/screenshots/nl/04b-filme-genre.jpg" alt="Genres"> |
 | **Films/series** zoals het startscherm – ▲▼ springt door de categorieën | **Genres en mappen** als eigen rijen |
-| <img src="docs/screenshots/07-suche.jpg" alt="Zoeken"> | <img src="docs/screenshots/05b-besetzung.jpg" alt="Cast"> |
+| <img src="docs/screenshots/nl/07-suche.jpg" alt="Zoeken"> | <img src="docs/screenshots/nl/05b-besetzung.jpg" alt="Cast"> |
 | **Zoeken** – alleen echte treffers, één rij per categorie | **Cast** met foto's – verschijnt met ▼ |
-| <img src="docs/screenshots/03-neue-episoden.jpg" alt="Nieuwe afleveringen"> | <img src="docs/screenshots/03b-navigation.jpg" alt="Zijbalk"> |
+| <img src="docs/screenshots/nl/03-neue-episoden.jpg" alt="Nieuwe afleveringen"> | <img src="docs/screenshots/nl/03b-navigation.jpg" alt="Zijbalk"> |
 | **Nieuwe afleveringen van mijn series** – één kaart per serie | **Zijbalk** – zoeken, start, films, series, lijsten, instellingen |
-| <img src="docs/screenshots/06-episoden.jpg" alt="Afleveringen"> | <img src="docs/screenshots/04c-raster.jpg" alt="Alles tonen"> |
+| <img src="docs/screenshots/nl/06-episoden.jpg" alt="Afleveringen"> | <img src="docs/screenshots/nl/04c-raster.jpg" alt="Alles tonen"> |
 | **Seizoenen & afleveringen** | **Alles tonen** (rood) – overzicht met sorteren en filters |
 
 <details>
@@ -48,11 +48,11 @@
 
 | | |
 |:---:|:---:|
-| <img src="docs/screenshots/08-meine-listen.jpg" alt="Mijn lijsten"> | <img src="docs/screenshots/09-listen-editor.jpg" alt="Lijsteditor"> |
+| <img src="docs/screenshots/nl/08-meine-listen.jpg" alt="Mijn lijsten"> | <img src="docs/screenshots/nl/09-listen-editor.jpg" alt="Lijsteditor"> |
 | **Mijn lijsten** – eigen filterregels | **Lijsteditor** |
-| <img src="docs/screenshots/10-einstellungen.jpg" alt="Instellingen"> | <img src="docs/screenshots/11-startseite-klassisch.jpg" alt="Klassiek startscherm"> |
+| <img src="docs/screenshots/nl/10-einstellungen.jpg" alt="Instellingen"> | <img src="docs/screenshots/nl/11-startseite-klassisch.jpg" alt="Klassiek startscherm"> |
 | **Instellingen** | **Klassiek startscherm** (menu links) |
-| <img src="docs/screenshots/01-anmeldung.jpg" alt="Inloggen"> | |
+| <img src="docs/screenshots/nl/01-anmeldung.jpg" alt="Inloggen"> | |
 | **Inloggen** | |
 
 </details>
@@ -73,6 +73,7 @@
 - **Details**: het beeld blijft zichtbaar, de volledige beschrijving is leesbaar; actieknoppen, audio- en ondertitelkeuze, versies, vergelijkbare titels; de **cast met foto's** verschijnt met ▼ (OK toont de titels van de persoon)
 - **Zoeken**: alleen titels die de zoekterm echt bevatten – elke categorie wordt apart gezocht en als eigen rij getoond (films, series, afleveringen, collecties, muziek, personen)
 - **Seizoenen & afleveringen**, **muziekalbums**
+- **Nederlands, Engels, Duits**: volgt de menutaal van de box of wordt handmatig gekozen (*Instellingen → Taal*)
 - **Automatische updates**: controleert bij het starten (hoogstens twee keer per dag) de GitHub-releases, installeert op verzoek de nieuwe versie (met controlesom) en herstart Enigma2
 - **Afspelen** via de Enigma2-moviespeler (GStreamer of ServiceApp):
   direct in originele kwaliteit (4K/HEVC op UHD-boxen) of omgezet door de server (HLS), bv. bij DTS-geluid of beeldondertitels
@@ -139,6 +140,7 @@ Eigen lijsten verschijnen als onderdelen bovenaan het startscherm. Per lijst in 
 
 | Instelling | Betekenis |
 |---|---|
+| Taal | automatisch (menutaal van de box) · Deutsch · English · Nederlands |
 | Afspeelmodus | automatisch (server beslist) · altijd direct · altijd omzetten |
 | Max. bitrate / resolutie | voor toegang via internet of HD-boxen; *automatisch* herkent UHD-boxen |
 | HEVC / DTS / TrueHD / VC-1 / VP9 | wat de box direct mag afspelen (DTS/TrueHD standaard → AC3) |
@@ -204,10 +206,12 @@ Alles draait zonder box: een nagebootste Jellyfin-server en stubs van de Enigma2
 ```sh
 pip install -r requirements-dev.txt
 make lint test ipk      # de .ipk staat daarna in dist/
-make screenshots        # maakt docs/screenshots/ opnieuw
+make screenshots        # maakt docs/screenshots/ opnieuw (de, en/, nl/)
 ```
 
 De CI (GitHub Actions) controleert lint en Python 3.6-syntaxis, test in een matrix (Python 3.9–3.13 × OpenPLi 9.0/9.2 × Jellyfin 10.8/10.10/10.11 × HD/FHD), bouwt de `.ipk` en maakt de screenshots. **Releases gaan automatisch:** wordt `CLIENT_VERSION` in `src/JellyfinOpenPLi/jfapi.py` verhoogd en naar `main` gepusht, dan maakt de CI de tag `vX.Y.Z` en de release met `.ipk`, `SHA256SUMS` en het stuk uit de [CHANGELOG](CHANGELOG.md) – daar haalt de automatische update zijn versie vandaan. Meer over de opbouw staat in de [Engelse versie](README.en.md#development).
+
+**Vertalingen:** de Nederlandse teksten staan in `src/JellyfinOpenPLi/locale/nl.po` (te bewerken met Poedit). Verbeteringen zijn van harte welkom.
 
 Bijdragen zijn welkom – issues en pull requests in het Engels of Duits.
 

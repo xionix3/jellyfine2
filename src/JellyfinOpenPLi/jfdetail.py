@@ -5,6 +5,8 @@
 # can be read completely, the cast (with photos) only appears when it is selected (down key or "Besetzung")
 from __future__ import absolute_import
 
+from .jfi18n import _, N_, badge
+
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.Pixmap import Pixmap
@@ -19,12 +21,12 @@ from .jfutil import (clean_text, episode_code, fmt_ends_at, is_favorite, is_play
 	stream_label, video_label)
 
 PLAYABLE = ("Movie", "Episode", "Video", "MusicVideo", "Trailer", "Recording", "Program", "TvChannel")
-ROLES = {"Actor": "Darsteller", "Director": "Regie", "Writer": "Drehbuch", "Producer": "Produktion", "GuestStar": "Gaststar",
-	"Composer": "Musik"}
-LABELS = {"resume": "Fortsetzen", "start": "Abspielen", "restart": "Von Anfang", "tracks": "Audio & Untertitel", "version": "Version",
-	"season": "Alle Episoden", "series": "Zur Serie", "nextup": "Weiterschauen", "episodes": "Staffeln & Episoden",
-	"playseries": "Abspielen", "played": "Gesehen", "unplayed": "Ungesehen", "fav": "Favorit", "unfav": "Kein Favorit",
-	"similar": "Ähnliche Titel", "cast": "Besetzung", "castgrid": "Gesamte Besetzung", "more": "Mehr ..."}
+ROLES = {"Actor": N_("Darsteller"), "Director": N_("Regie"), "Writer": N_("Drehbuch"), "Producer": N_("Produktion"), "GuestStar": N_("Gaststar"),
+	"Composer": N_("Musik")}
+LABELS = {"resume": N_("Fortsetzen"), "start": N_("Abspielen"), "restart": N_("Von Anfang"), "tracks": N_("Audio & Untertitel"), "version": N_("Version"),
+	"season": N_("Alle Episoden"), "series": N_("Zur Serie"), "nextup": N_("Weiterschauen"), "episodes": N_("Staffeln & Episoden"),
+	"playseries": N_("Abspielen"), "played": N_("Gesehen"), "unplayed": N_("Ungesehen"), "fav": N_("Favorit"), "unfav": N_("Kein Favorit"),
+	"similar": N_("Ähnliche Titel"), "cast": N_("Besetzung"), "castgrid": N_("Gesamte Besetzung"), "more": N_("Mehr ...")}
 
 
 def cast_list(item):
@@ -52,7 +54,7 @@ def person_item(p):
 	it = {"Id": p.get("Id"), "Name": p.get("Name", ""), "Type": "Person"}
 	if p.get("PrimaryImageTag"):
 		it["ImageTags"] = {"Primary": p["PrimaryImageTag"]}
-	role = p.get("Role") or ROLES.get(p.get("Type"), "")
+	role = p.get("Role") or _(ROLES.get(p.get("Type"), ""))
 	if role:
 		it["Overview"] = role
 	return it
@@ -93,7 +95,7 @@ class DetailScreen(JFScreen):
 			self["pphoto%d" % i] = Pixmap()
 			self["pname%d" % i] = Label("")
 			self["prole%d" % i] = Label("")
-		self.add_keys(red="Gesehen +/-", green="Abspielen", yellow="Audio / Untertitel", blue="Favorit +/-", hint="CH+/- Text blättern   MENU Optionen")
+		self.add_keys(red=_("Gesehen +/-"), green=_("Abspielen"), yellow=_("Audio / Untertitel"), blue=_("Favorit +/-"), hint=_("CH+/- Text blättern   MENU Optionen"))
 		self["key_actions"] = ActionMap(["OkCancelActions", "DirectionActions", "ColorActions", "MenuActions", "ChannelSelectBaseActions",
 			"EPGSelectActions", "InfobarSeekActions"], {
 			"ok": self.key_ok,
@@ -157,7 +159,7 @@ class DetailScreen(JFScreen):
 			self["status"].setText("")
 			self.show_error(err)
 		self.run(fetch, callback=ok, errback=fail)
-		self["status"].setText("Lade Details ...")
+		self["status"].setText(_("Lade Details ..."))
 
 	def media_source(self):
 		sources = self.item.get("MediaSources") or []
@@ -203,18 +205,18 @@ class DetailScreen(JFScreen):
 		meta, new = hero_meta(it)
 		extra = []
 		if t == "Series":
-			extra.append({"Continuing": "laufend", "Ended": "beendet"}.get(it.get("Status"), ""))
+			extra.append({"Continuing": _("laufend"), "Ended": _("beendet")}.get(it.get("Status"), ""))
 		if it.get("CriticRating"):
-			extra.append("Kritiker %s%%" % it["CriticRating"])
+			extra.append(_("Kritiker %s%%") % it["CriticRating"])
 		if t in PLAYABLE and it.get("RunTimeTicks"):
 			extra.append(fmt_ends_at(it["RunTimeTicks"], resume_ticks(it) if not is_played(it) else 0) or "")
 		if is_favorite(it):
-			extra.append("Favorit")
+			extra.append(_("Favorit"))
 		meta = SEP.join([m for m in [meta] + extra if m])
 		self["meta"].setText(meta)
 		if new:
 			self["badge"].show()
-			move_widget(self, "meta", 196, 184)
+			move_widget(self, "meta", 120 + badge("new")[1] + 12, 184)
 		else:
 			self["badge"].hide()
 			move_widget(self, "meta", 120, 184)
@@ -222,7 +224,7 @@ class DetailScreen(JFScreen):
 		overview = clean_text(it.get("Overview"))
 		if it.get("Taglines") and t != "Episode":
 			overview = ("%s\n\n%s" % (it["Taglines"][0], overview)).strip()
-		self["overview"].setText(overview or ("Lade ..." if not self.loaded else "Keine Beschreibung vorhanden."))
+		self["overview"].setText(overview or (_("Lade ...") if not self.loaded else _("Keine Beschreibung vorhanden.")))
 		self["tech"].setText(self.tech_text())
 		self.build_pills()
 		pct = played_percentage(it)
@@ -252,20 +254,20 @@ class DetailScreen(JFScreen):
 			return SEP.join(x for x in (it.get("SeriesName"), it.get("SeasonName")) if x)
 		if t == "Series":
 			studios = [s.get("Name") for s in (it.get("Studios") or [])][:2]
-			return SEP.join(["Serie"] + studios)
+			return SEP.join([_("Serie")] + studios)
 		if t == "Movie":
-			parts = ["Film"]
+			parts = [_("Film")]
 			if it.get("OriginalTitle") and it.get("OriginalTitle") != it.get("Name"):
 				parts.append(it["OriginalTitle"])
 			return SEP.join(parts)
-		return {"MusicVideo": "Musikvideo", "Video": "Video", "Trailer": "Trailer"}.get(t, t or "")
+		return {"MusicVideo": _("Musikvideo"), "Video": _("Video"), "Trailer": _("Trailer")}.get(t, t or "")
 
 	def tech_text(self):
 		it = self.item
 		if it.get("Type") not in PLAYABLE:
 			people = it.get("People") or []
 			directors = [p.get("Name") for p in people if p.get("Type") == "Director"]
-			return "Regie: %s" % ", ".join(directors[:3]) if directors else ""
+			return _("Regie: %s") % ", ".join(directors[:3]) if directors else ""
 		parts = []
 		video = self.streams("Video")
 		ms = self.media_source()
@@ -274,12 +276,12 @@ class DetailScreen(JFScreen):
 		if ms.get("Container"):
 			parts.append(ms["Container"].split(",")[0].upper())
 		if len(it.get("MediaSources") or []) > 1:
-			parts.append("Version: %s" % (ms.get("Name") or "?"))
+			parts.append(_("Version: %s") % (ms.get("Name") or "?"))
 		audio = self.streams("Audio")
 		if audio:
 			sel = self.selected_audio()
 			more = " (+%d)" % (len(audio) - 1) if len(audio) > 1 else ""
-			parts.append("Audio: %s%s" % (stream_label(sel) if sel else "?", more))
+			parts.append(_("Audio: %s%s") % (stream_label(sel) if sel else "?", more))
 		subs = self.streams("Subtitle")
 		if subs:
 			sel = self.selected_sub()
@@ -288,7 +290,7 @@ class DetailScreen(JFScreen):
 				name = lang_name(s.get("Language")) or s.get("DisplayTitle") or "?"
 				if name not in langs:
 					langs.append(name)
-			parts.append("UT: %s (%d)" % (stream_label(sel) if sel else "aus", len(langs)))
+			parts.append(_("UT: %s (%d)") % (stream_label(sel) if sel else _("aus"), len(langs)))
 		return SEP.join(parts)
 
 	def actions(self):
@@ -322,8 +324,8 @@ class DetailScreen(JFScreen):
 	def pill_label(self, key):
 		if key == "nextup" and self.next_up:
 			code = episode_code(self.next_up)
-			return "%s ansehen" % code if code else LABELS["nextup"]
-		return LABELS.get(key, key)
+			return _("%s ansehen") % code if code else _(LABELS["nextup"])
+		return _(LABELS.get(key, key))
 
 	def build_pills(self):
 		acts = self.actions()
@@ -343,7 +345,7 @@ class DetailScreen(JFScreen):
 
 	def draw_cast(self):
 		n = len(self.cast)
-		self["cast_title"].setText(("Besetzung  (%d)" % n) if n > CAST_COUNT else ("Besetzung" if n else ""))
+		self["cast_title"].setText((_("Besetzung  (%d)") % n) if n > CAST_COUNT else (_("Besetzung") if n else ""))
 		if self.cast_idx < self.cast_first:
 			self.cast_first = self.cast_idx
 		elif self.cast_idx >= self.cast_first + CAST_COUNT:
@@ -355,7 +357,7 @@ class DetailScreen(JFScreen):
 				p = self.cast[idx]
 				self[ph].setText(initials(p.get("Name")))
 				self[name].setText(p.get("Name") or "")
-				self[role].setText(p.get("Role") or ROLES.get(p.get("Type"), ""))
+				self[role].setText(p.get("Role") or _(ROLES.get(p.get("Type"), "")))
 				self.load_image(photo, p, "person", CAST_W, CAST_H, placeholder=ph)
 			else:
 				self[ph].hide()
@@ -381,7 +383,7 @@ class DetailScreen(JFScreen):
 				self[name].show() if (used and not on) else self[name].hide()
 		self["tech"].hide() if on else self["tech"].show()
 		n = len(self.cast)
-		self["cast_hint"].setText("\u25bc  Besetzung (%d): %s" % (n, ", ".join(p.get("Name", "") for p in self.cast[:4]) + (" ..." if n > 4 else "")) if n else "")
+		self["cast_hint"].setText(_("\u25bc  Besetzung (%d): %s") % (n, ", ".join(p.get("Name", "") for p in self.cast[:4]) + (" ..." if n > 4 else "")) if n else "")
 		self["cast_hint"].hide() if on or not n else self["cast_hint"].show()
 		if on:
 			self["progress"].hide()
@@ -461,7 +463,7 @@ class DetailScreen(JFScreen):
 			self.choose_subs()
 		elif action == "version":
 			lst = [(s.get("Name") or s.get("Id"), s.get("Id")) for s in it.get("MediaSources") or []]
-			self.session.openWithCallback(self.version_chosen, ChoiceBox, title="Version", list=lst)
+			self.session.openWithCallback(self.version_chosen, ChoiceBox, title=_("Version"), list=lst)
 		elif action == "season":
 			jfnav.open_season(self, it, callback=self.after_play)
 		elif action == "series":
@@ -481,13 +483,13 @@ class DetailScreen(JFScreen):
 		elif action in ("fav", "unfav"):
 			self.key_blue()
 		elif action == "similar":
-			jfnav.open_grid(self, {"title": "Ähnlich wie %s" % it.get("Name", ""), "source": "similar", "item_id": it["Id"], "categories": True},
+			jfnav.open_grid(self, {"title": _("Ähnlich wie %s") % it.get("Name", ""), "source": "similar", "item_id": it["Id"], "categories": True},
 				callback=self.after_play)
 		elif action == "cast":
 			self.set_focus("cast")
 		elif action == "castgrid":
 			people = [person_item(p) for p in cast_list(it)]
-			jfnav.open_grid(self, {"title": "Besetzung: %s" % it.get("Name", ""), "source": "static", "items": people, "sortable": False},
+			jfnav.open_grid(self, {"title": _("Besetzung: %s") % it.get("Name", ""), "source": "static", "items": people, "sortable": False},
 				callback=self.after_play)
 		elif action == "more":
 			self.key_menu()
@@ -506,7 +508,7 @@ class DetailScreen(JFScreen):
 		sel = self.selected_audio()
 		lst = [(stream_label(s), s.get("Index")) for s in audio]
 		pos = audio.index(sel) if sel in audio else 0
-		self.session.openWithCallback(self.audio_chosen, ChoiceBox, title="Audiospur", list=lst, selection=pos)
+		self.session.openWithCallback(self.audio_chosen, ChoiceBox, title=_("Audiospur"), list=lst, selection=pos)
 
 	def audio_chosen(self, choice=None):
 		if choice is not None:
@@ -515,10 +517,10 @@ class DetailScreen(JFScreen):
 
 	def choose_subs(self):
 		subs = self.streams("Subtitle")
-		lst = [("Aus", -1)] + [(stream_label(s), s.get("Index")) for s in subs]
+		lst = [(_("Aus"), -1)] + [(stream_label(s), s.get("Index")) for s in subs]
 		sel = self.selected_sub()
 		pos = subs.index(sel) + 1 if sel in subs else 0
-		self.session.openWithCallback(self.subs_chosen, ChoiceBox, title="Untertitel (externe/Bild-Untertitel werden eingebrannt)", list=lst, selection=pos)
+		self.session.openWithCallback(self.subs_chosen, ChoiceBox, title=_("Untertitel (externe/Bild-Untertitel werden eingebrannt)"), list=lst, selection=pos)
 
 	def subs_chosen(self, choice=None):
 		if choice is not None:
@@ -542,16 +544,16 @@ class DetailScreen(JFScreen):
 			return
 		lst = []
 		if self.streams("Audio"):
-			lst.append(("Audiospur wählen", "audio"))
+			lst.append((_("Audiospur wählen"), "audio"))
 		if self.streams("Subtitle"):
-			lst.append(("Untertitel wählen", "subs"))
+			lst.append((_("Untertitel wählen"), "subs"))
 		if not lst:
-			self.info("Keine Audio-/Untertitelspuren bekannt")
+			self.info(_("Keine Audio-/Untertitelspuren bekannt"))
 			return
 		if len(lst) == 1:
 			self.do(lst[0][1])
 			return
-		self.session.openWithCallback(lambda c=None: c and self.do(c[1]), ChoiceBox, title="Audio / Untertitel", list=lst)
+		self.session.openWithCallback(lambda c=None: c and self.do(c[1]), ChoiceBox, title=_("Audio / Untertitel"), list=lst)
 
 	def key_red(self):
 		self.toggle_played(self.item, callback=lambda it: self.render())
@@ -562,8 +564,8 @@ class DetailScreen(JFScreen):
 	def key_menu(self):
 		lst = [(self.pill_label(a), a) for a in self.actions()]
 		if self.item.get("People"):
-			lst.append((LABELS["castgrid"], "castgrid"))
-		lst.append(("Neu laden", "reload"))
+			lst.append((_(LABELS["castgrid"]), "castgrid"))
+		lst.append((_("Neu laden"), "reload"))
 		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title=self.item.get("Name", ""), list=lst)
 
 	def menu_chosen(self, choice=None):

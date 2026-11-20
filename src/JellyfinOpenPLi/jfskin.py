@@ -8,6 +8,8 @@
 # badges) is therefore an alpha PNG drawn with alphatest="blend".
 from __future__ import absolute_import, division
 
+from .jfi18n import N_, badge
+
 import os
 import re
 
@@ -173,6 +175,8 @@ def cell_pos(i, cols=GRID_COLS, x0=GRID_X0, y0=GRID_Y0, sx=GRID_STEP_X, sy=GRID_
 
 
 def cover_cells(prefix, count, cols, x0, y0, sx, sy, w=COVER_W, h=COVER_H, badges=True, label_h=CELL_LABEL_H, label_size=24):
+	new_png, new_w = badge("new")
+	seen_png, seen_w = badge("seen")
 	out = []
 	for i in range(count):
 		x, y = cell_pos(i, cols, x0, y0, sx, sy)
@@ -180,8 +184,8 @@ def cover_cells(prefix, count, cols, x0, y0, sx, sy, w=COVER_W, h=COVER_H, badge
 		out.append(pixmap_widget("%scover%d" % (prefix, i), x, y, w, h, z=1, blend=False))
 		out.append(progress("%sprog%d" % (prefix, i), x, y + h - 7, w, 7, z=2))
 		if badges:
-			out.append(pixmap_widget("%sseen%d" % (prefix, i), x + 8, y + 8, 104, 28, "badge_seen.png", z=3))
-			out.append(pixmap_widget("%snew%d" % (prefix, i), x + 8, y + 8, 64, 28, "badge_new.png", z=3))
+			out.append(pixmap_widget("%sseen%d" % (prefix, i), x + 8, y + 8, seen_w, 28, seen_png, z=3))
+			out.append(pixmap_widget("%snew%d" % (prefix, i), x + 8, y + 8, new_w, 28, new_png, z=3))
 			out.append(label("%scount%d" % (prefix, i), x + w - 66, y + 8, 58, 30, 21, TEXT, bg=ACCENT, halign="center", extra='zPosition="3"'))
 		out.append(label("%slabel%d" % (prefix, i), x - 10, y + h + 4, w + 20, label_h, label_size, TEXT, halign="center", extra='noWrap="1"'))
 	return "\n".join(out)
@@ -236,7 +240,7 @@ def home_skin():
 
 
 # hero start screen geometry
-HERO_RAIL = [("search", "Suche"), ("home", "Start"), ("movies", "Filme"), ("tv", "Serien"), ("lists", "Meine Listen"), ("settings", "Einstellungen")]
+HERO_RAIL = [("search", N_("Suche")), ("home", N_("Start")), ("movies", N_("Filme")), ("tv", N_("Serien")), ("lists", N_("Meine Listen")), ("settings", N_("Einstellungen"))]
 RAIL_X = 48
 RAIL_Y0 = 150
 RAIL_STEP = 78
@@ -250,6 +254,8 @@ CARD_H = 169
 
 def rows_skin():
 	"""Start screen, libraries and search: backdrop + info of the focused title, one row of cards, sidebar."""
+	new_png, new_w = badge("new")
+	seen_png, seen_w = badge("seen")
 	body = [
 		backdrop_layer(),
 		pixmap_widget("rail_shade", 0, 0, 1920, 1080, z=0),
@@ -264,8 +270,8 @@ def rows_skin():
 	body += [
 		pixmap_widget("rail_sel", RAIL_X - 14, RAIL_Y0 - 14, 72, 72, "rail_sel.png", z=1),
 		label("hero_title", 160, 104, 1400, 92, 64, TEXT, extra='noWrap="1"'),
-		pixmap_widget("hero_new", 160, 214, 64, 28, "badge_new.png", z=2),
-		label("hero_meta", 236, 206, 1400, 44, 28, "#00d0d0da", extra='noWrap="1"'),
+		pixmap_widget("hero_new", 160, 214, new_w, 28, new_png, z=2),
+		label("hero_meta", 160 + new_w + 12, 206, 1400, 44, 28, "#00d0d0da", extra='noWrap="1"'),
 		label("hero_genres", 160, 250, 1300, 36, 26, DIM, extra='noWrap="1"'),
 		label("hero_overview", 160, 296, 1020, 170, 29, "#00e0e0e8", valign="top"),
 		pixmap_widget("hero_pillbg1", 160, 482, 280, 64, "pill_primary.png", z=1),
@@ -283,8 +289,8 @@ def rows_skin():
 		body.append(label("cph%d" % i, x, CARD_Y, CARD_W, CARD_H, 26, DIM, bg=PLACEHOLDER, halign="center", extra='zPosition="0"'))
 		body.append(pixmap_widget("ccover%d" % i, x, CARD_Y, CARD_W, CARD_H, z=1, blend=False))
 		body.append(progress("cprog%d" % i, x, CARD_Y + CARD_H - 7, CARD_W, 7, z=2))
-		body.append(pixmap_widget("cseen%d" % i, x + 8, CARD_Y + 8, 104, 28, "badge_seen.png", z=3))
-		body.append(pixmap_widget("cnew%d" % i, x + 8, CARD_Y + 8, 64, 28, "badge_new.png", z=3))
+		body.append(pixmap_widget("cseen%d" % i, x + 8, CARD_Y + 8, seen_w, 28, seen_png, z=3))
+		body.append(pixmap_widget("cnew%d" % i, x + 8, CARD_Y + 8, new_w, 28, new_png, z=3))
 		body.append(label("ccount%d" % i, x + CARD_W - 66, CARD_Y + 8, 58, 30, 21, TEXT, bg=ACCENT, halign="center", extra='zPosition="3"'))
 		body.append(label("clabel%d" % i, x, CARD_Y + CARD_H + 10, CARD_W, 36, 25, TEXT, extra='noWrap="1"'))
 	body += [
@@ -314,13 +320,14 @@ CAST_H = 195
 
 
 def detail_skin():
+	new_png, new_w = badge("new")
 	body = [
 		backdrop_layer(),
 		label("crumb", 120, 40, 1300, 36, 24, DIM, extra='noWrap="1"'),
 		clock(),
 		label("title", 120, 84, 1300, 92, 62, TEXT, extra='noWrap="1"'),
-		pixmap_widget("badge", 120, 192, 64, 28, "badge_new.png", z=2),
-		label("meta", 196, 184, 1300, 44, 28, "#00d0d0da", extra='noWrap="1"'),
+		pixmap_widget("badge", 120, 192, new_w, 28, new_png, z=2),
+		label("meta", 120 + new_w + 12, 184, 1300, 44, 28, "#00d0d0da", extra='noWrap="1"'),
 		label("genres", 120, 230, 1100, 36, 26, DIM, extra='noWrap="1"'),
 		'<widget name="overview" position="120,284" size="1000,420" font="Regular;30" foregroundColor="#00ececf2" backgroundColor="%s" '
 		'transparent="1" zPosition="2" />' % BG,

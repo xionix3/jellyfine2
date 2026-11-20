@@ -3,6 +3,8 @@
 # Jellyfin for Enigma2 - season/episode browser and album track list
 from __future__ import absolute_import
 
+from .jfi18n import _
+
 from enigma import RT_HALIGN_CENTER, RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER, RT_VALIGN_TOP, RT_WRAP
 
 from Components.ActionMap import ActionMap
@@ -55,10 +57,10 @@ class EpisodesScreen(JFScreen):
 		self["status"] = Label("")
 		if album:
 			self["list"] = make_list(fonts=((30,), (26,)), item_height=TRACK_ROW_H)
-			self.add_keys(red="Gesehen +/-", green="Album abspielen", yellow="", blue="Favorit +/-", hint="OK: ab diesem Titel")
+			self.add_keys(red=_("Gesehen +/-"), green=_("Album abspielen"), yellow="", blue=_("Favorit +/-"), hint=_("OK: ab diesem Titel"))
 		else:
 			self["list"] = make_list(fonts=((32,), (25,)), item_height=EP_ROW_H)
-			self.add_keys(red="Gesehen +/-", green="Abspielen", yellow="Details", blue="Favorit +/-", hint="</> Staffel  |  CH+/- Seite")
+			self.add_keys(red=_("Gesehen +/-"), green=_("Abspielen"), yellow=_("Details"), blue=_("Favorit +/-"), hint=_("</> Staffel  |  CH+/- Seite"))
 		self["actions"] = ActionMap(["OkCancelActions", "DirectionActions", "ColorActions", "MenuActions", "ChannelSelectBaseActions",
 			"EPGSelectActions", "InfobarSeekActions"], {
 			"ok": self.key_ok,
@@ -102,7 +104,7 @@ class EpisodesScreen(JFScreen):
 		def ok(tracks):
 			self.entries = tracks
 			self.build_list()
-		self.run(self.cl.album_tracks, album["Id"], callback=ok, status="Lade Titel ...")
+		self.run(self.cl.album_tracks, album["Id"], callback=ok, status=_("Lade Titel ..."))
 
 	def load_seasons(self):
 		cl = self.cl
@@ -123,7 +125,7 @@ class EpisodesScreen(JFScreen):
 				self["title"].setText(series.get("Name", ""))
 				self.load_image("backdrop", series, "backdrop", 1920, 1080, keep=True)
 			if not seasons:
-				self.set_status("Keine Staffeln gefunden")
+				self.set_status(_("Keine Staffeln gefunden"))
 				return
 			pos = 0
 			if self.season_id:
@@ -139,7 +141,7 @@ class EpisodesScreen(JFScreen):
 						break
 			self.season_pos = pos
 			self.load_episodes()
-		self.run(fetch, callback=ok, status="Lade Staffeln ...")
+		self.run(fetch, callback=ok, status=_("Lade Staffeln ..."))
 
 	def load_episodes(self):
 		self.generation += 1
@@ -154,16 +156,16 @@ class EpisodesScreen(JFScreen):
 				return
 			self.entries = [e for e in eps if e.get("LocationType") != "Virtual"] or eps
 			self.build_list()
-		self.run(self.cl.episodes, self.series_id, season["Id"], callback=ok, status="Lade Episoden ...")
+		self.run(self.cl.episodes, self.series_id, season["Id"], callback=ok, status=_("Lade Episoden ..."))
 
 	def update_subtitle(self):
 		if self.album or not self.seasons:
 			return
 		season = self.seasons[self.season_pos]
-		name = season.get("Name") or "Staffel %s" % season.get("IndexNumber", "?")
+		name = season.get("Name") or _("Staffel %s") % season.get("IndexNumber", "?")
 		count = len(self.entries) if self.entries else season.get("ChildCount") or 0
 		nav = "<  %s  >" % name if len(self.seasons) > 1 else name
-		self["subtitle"].setText("%s     (%d von %d)     %s Episoden" % (nav, self.season_pos + 1, len(self.seasons), count))
+		self["subtitle"].setText(_("%s     (%d von %d)     %s Episoden") % (nav, self.season_pos + 1, len(self.seasons), count))
 
 	# ------------------------------------------------------------- list rendering
 	def build_list(self):
@@ -186,7 +188,7 @@ class EpisodesScreen(JFScreen):
 		self.update_subtitle()
 		self.selection_changed()
 		if not rows:
-			self.set_status("Keine Einträge")
+			self.set_status(_("Keine Einträge"))
 		if not self.album:
 			self.load_thumbs()
 
@@ -223,16 +225,16 @@ class EpisodesScreen(JFScreen):
 			meta.append(rt)
 		r = fmt_rating(it.get("CommunityRating"))
 		if r:
-			meta.append("Bewertung %s" % r)
+			meta.append(_("Bewertung %s") % r)
 		pos = resume_ticks(it)
 		if not is_played(it) and is_new(it, self.new_days):
-			meta.insert(0, "NEU")
+			meta.insert(0, _("NEU"))
 		if is_played(it):
-			meta.append("gesehen")
+			meta.append(_("gesehen"))
 		elif pos:
-			meta.append("fortsetzen bei %s" % fmt_clock(ticks_to_seconds(pos)))
+			meta.append(_("fortsetzen bei %s") % fmt_clock(ticks_to_seconds(pos)))
 		if is_favorite(it):
-			meta.append("Favorit")
+			meta.append(_("Favorit"))
 		overview = clean_text(it.get("Overview")).replace("\n", " ")
 		row = [it]
 		x_text = 16 + TH_W + 26
@@ -249,7 +251,7 @@ class EpisodesScreen(JFScreen):
 				foreColor=C_ACCENT, foreColorSelected=C_ACCENT, backColor=0x000000, backColorSelected=0x000000))
 		if is_played(it):
 			row.append(MultiContentEntryText(pos=(S(22), S(16)), size=(S(118), S(32)), font=1, flags=RT_HALIGN_CENTER | RT_VALIGN_CENTER,
-				text="gesehen", color=C_TEXT, color_sel=C_TEXT, backcolor=C_GREEN, backcolor_sel=C_GREEN))
+				text=_("gesehen"), color=C_TEXT, color_sel=C_TEXT, backcolor=C_GREEN, backcolor_sel=C_GREEN))
 		row.append(MultiContentEntryText(pos=(S(x_text), S(8)), size=(S(w_text), S(42)), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER, text=title))
 		row.append(MultiContentEntryText(pos=(S(x_text), S(50)), size=(S(w_text), S(34)), font=1, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER,
 			text="   |   ".join(meta), color=C_ACCENT, color_sel=C_TEXT))
@@ -297,7 +299,7 @@ class EpisodesScreen(JFScreen):
 		if self.album:
 			self["info"].setText(clean_text(self.album.get("Overview"))[:500])
 			return
-		text = clean_text(it.get("Overview")) or "Keine Beschreibung vorhanden."
+		text = clean_text(it.get("Overview")) or _("Keine Beschreibung vorhanden.")
 		self["info"].setText(text[:700])
 
 	def current(self):
@@ -369,18 +371,18 @@ class EpisodesScreen(JFScreen):
 		it = self.current()
 		if not it:
 			return
-		lst = [("Abspielen", "play")]
+		lst = [(_("Abspielen"), "play")]
 		if resume_ticks(it) and not is_played(it):
-			lst.append(("Von Anfang abspielen", "start"))
+			lst.append((_("Von Anfang abspielen"), "start"))
 		if not self.album:
-			lst.append(("Details", "detail"))
-		lst.append(("Als ungesehen markieren" if is_played(it) else "Als gesehen markieren", "played"))
+			lst.append((_("Details"), "detail"))
+		lst.append((_("Als ungesehen markieren") if is_played(it) else _("Als gesehen markieren"), "played"))
 		if not self.album and self.seasons:
-			lst.append(("Ganze Staffel als gesehen markieren", "season_played"))
-			lst.append(("Ganze Staffel als ungesehen markieren", "season_unplayed"))
+			lst.append((_("Ganze Staffel als gesehen markieren"), "season_played"))
+			lst.append((_("Ganze Staffel als ungesehen markieren"), "season_unplayed"))
 			if len(self.seasons) > 1:
-				lst.append(("Staffel wählen ...", "pick_season"))
-		lst.append(("Aus Favoriten entfernen" if is_favorite(it) else "Zu Favoriten hinzufügen", "fav"))
+				lst.append((_("Staffel wählen ..."), "pick_season"))
+		lst.append((_("Aus Favoriten entfernen") if is_favorite(it) else _("Zu Favoriten hinzufügen"), "fav"))
 		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title=it.get("Name", ""), list=lst)
 
 	def menu_chosen(self, choice):
@@ -401,10 +403,10 @@ class EpisodesScreen(JFScreen):
 			self.key_blue()
 		elif a in ("season_played", "season_unplayed"):
 			season = self.seasons[self.season_pos]
-			self.run(self.cl.set_played, season["Id"], a == "season_played", callback=lambda r: self.load_episodes(), status="Speichere ...")
+			self.run(self.cl.set_played, season["Id"], a == "season_played", callback=lambda r: self.load_episodes(), status=_("Speichere ..."))
 		elif a == "pick_season":
-			lst = [(s.get("Name") or "Staffel %s" % s.get("IndexNumber"), i) for i, s in enumerate(self.seasons)]
-			self.session.openWithCallback(self.season_picked, ChoiceBox, title="Staffel", list=lst, selection=self.season_pos)
+			lst = [(s.get("Name") or _("Staffel %s") % s.get("IndexNumber"), i) for i, s in enumerate(self.seasons)]
+			self.session.openWithCallback(self.season_picked, ChoiceBox, title=_("Staffel"), list=lst, selection=self.season_pos)
 
 	def season_picked(self, choice):
 		if choice is not None:

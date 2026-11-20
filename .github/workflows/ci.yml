@@ -30,6 +30,8 @@ jobs:
         run: python -m pyflakes src/JellyfinOpenPLi scripts tests/*.py
       - name: Python 3.6+ syntax / compile check
         run: python scripts/check_syntax.py
+      - name: Translations complete (English, Dutch)
+        run: python scripts/i18n.py check
       - name: Tabs only (Enigma2 code style)
         run: |
           if grep -nP '^\t* +\S' src/JellyfinOpenPLi/*.py; then
@@ -94,6 +96,7 @@ jobs:
           dpkg-deb -c "$ipk" | grep -q './usr/lib/enigma2/python/Plugins/Extensions/JellyfinOpenPLi/plugin.py'
           mkdir -p /tmp/root && dpkg-deb -x "$ipk" /tmp/root
           python -m py_compile /tmp/root/usr/lib/enigma2/python/Plugins/Extensions/JellyfinOpenPLi/*.py
+          for l in en nl; do test -s /tmp/root/usr/lib/enigma2/python/Plugins/Extensions/JellyfinOpenPLi/locale/$l.po || { echo "::error::locale/$l.po missing"; exit 1; }; done
           dpkg-deb -f "$ipk" Replaces | grep -qx 'enigma2-plugin-extensions-jellyfine2' || { echo "::error::missing Replaces of the old package name"; exit 1; }
           # stable name for ".../releases/latest/download/..." one-line installs
           cp "$ipk" dist/enigma2-plugin-extensions-jellyfine-enigma2-openpli_all.ipk

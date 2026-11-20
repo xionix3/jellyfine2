@@ -3,6 +3,8 @@
 # Jellyfin for Enigma2 - "Meine Listen": list overview and rule editor
 from __future__ import absolute_import
 
+from .jfi18n import _, ngettext
+
 import copy
 
 from enigma import RT_HALIGN_LEFT, RT_HALIGN_RIGHT, RT_VALIGN_CENTER
@@ -16,7 +18,7 @@ from Screens.VirtualKeyBoard import VirtualKeyBoard
 
 from . import jfconfig
 from .jfcommon import JFScreen, make_list, text_row
-from .jfrules import DEFAULT_RULES, RULE_FIELDS, choice_label, field_applies, new_rule, rule_summary
+from .jfrules import DEFAULT_RULES, RULE_FIELDS, choice_label, field_applies, new_rule, rule_name, rule_summary
 from .jfskin import C_ACCENT, C_DIM, S, list_skin
 
 ROW_W = 1200
@@ -30,12 +32,12 @@ class RulesScreen(JFScreen):
 		self.skinName = "JellyfinE2Rules"
 		self.views = views or []
 		self.rules = jfconfig.load_rules()
-		self["title"] = Label("Meine Listen")
-		self["subtitle"] = Label("Eigene Filterregeln, z.B. neueste Filme oder neue Episoden deiner Serien")
+		self["title"] = Label(_("Meine Listen"))
+		self["subtitle"] = Label(_("Eigene Filterregeln, z.B. neueste Filme oder neue Episoden deiner Serien"))
 		self["list"] = make_list(fonts=((32,), (24,)), item_height=RULE_ROW_H)
 		self["description"] = Label("")
 		self["status"] = Label("")
-		self.add_keys(red="Löschen", green="Neue Liste", yellow="Bearbeiten", blue="Nach oben")
+		self.add_keys(red=_("Löschen"), green=_("Neue Liste"), yellow=_("Bearbeiten"), blue=_("Nach oben"))
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions", "MenuActions"], {
 			"ok": self.key_ok,
 			"cancel": self.close,
@@ -51,9 +53,9 @@ class RulesScreen(JFScreen):
 		self.onLayoutFinish.append(self.build)
 
 	def row(self, i, rule):
-		home = "Startseite" if rule.get("home") else ""
+		home = _("Startseite") if rule.get("home") else ""
 		return [i,
-			MultiContentEntryText(pos=(S(18), S(6)), size=(S(ROW_W - 220), S(42)), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER, text=rule.get("name", "?")),
+			MultiContentEntryText(pos=(S(18), S(6)), size=(S(ROW_W - 220), S(42)), font=0, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER, text=rule_name(rule)),
 			MultiContentEntryText(pos=(S(ROW_W - 200), S(6)), size=(S(182), S(42)), font=1, flags=RT_HALIGN_RIGHT | RT_VALIGN_CENTER, text=home, color=C_ACCENT),
 			MultiContentEntryText(pos=(S(18), S(46)), size=(S(ROW_W - 36), S(34)), font=1, flags=RT_HALIGN_LEFT | RT_VALIGN_CENTER, text=rule_summary(rule), color=C_DIM),
 		]
@@ -77,9 +79,9 @@ class RulesScreen(JFScreen):
 	def update_description(self):
 		i = self.current_index()
 		if i is None:
-			self["description"].setText("Noch keine Listen. Grün legt eine neue an, MENU stellt die Standardlisten wieder her.")
+			self["description"].setText(_("Noch keine Listen. Grün legt eine neue an, MENU stellt die Standardlisten wieder her."))
 		else:
-			self["description"].setText("OK: Liste anzeigen   |   Gelb: Regeln bearbeiten   |   MENU: Startseite an/aus")
+			self["description"].setText(_("OK: Liste anzeigen   |   Gelb: Regeln bearbeiten   |   MENU: Startseite an/aus"))
 
 	def key_ok(self):
 		i = self.current_index()
@@ -87,7 +89,7 @@ class RulesScreen(JFScreen):
 			return
 		from .jfnav import open_grid
 		rule = self.rules[i]
-		open_grid(self, {"title": rule.get("name", ""), "source": "rule", "rule": copy.deepcopy(rule), "sortable": False})
+		open_grid(self, {"title": rule_name(rule), "source": "rule", "rule": copy.deepcopy(rule), "sortable": False})
 
 	def key_new(self):
 		self.session.openWithCallback(self.new_saved, RuleEditScreen, new_rule(), self.views)
@@ -113,8 +115,8 @@ class RulesScreen(JFScreen):
 		i = self.current_index()
 		if i is None:
 			return
-		name = self.rules[i].get("name", "")
-		self.session.openWithCallback(lambda yes=False, i=i: yes and self.delete(i), MessageBox, "Liste '%s' löschen?" % name, MessageBox.TYPE_YESNO, default=False)
+		name = rule_name(self.rules[i])
+		self.session.openWithCallback(lambda yes=False, i=i: yes and self.delete(i), MessageBox, _("Liste '%s' löschen?") % name, MessageBox.TYPE_YESNO, default=False)
 
 	def delete(self, i):
 		del self.rules[i]
@@ -132,11 +134,11 @@ class RulesScreen(JFScreen):
 		lst = []
 		i = self.current_index()
 		if i is not None:
-			lst.append(("Von der Startseite nehmen" if self.rules[i].get("home") else "Auf der Startseite zeigen", "home"))
-			lst.append(("Nach unten verschieben", "down"))
-			lst.append(("Liste duplizieren", "dup"))
-		lst.append(("Standardlisten hinzufügen", "defaults"))
-		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title="Meine Listen", list=lst)
+			lst.append((_("Von der Startseite nehmen") if self.rules[i].get("home") else _("Auf der Startseite zeigen"), "home"))
+			lst.append((_("Nach unten verschieben"), "down"))
+			lst.append((_("Liste duplizieren"), "dup"))
+		lst.append((_("Standardlisten hinzufügen"), "defaults"))
+		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title=_("Meine Listen"), list=lst)
 
 	def menu_chosen(self, choice):
 		if choice is None:
@@ -154,7 +156,7 @@ class RulesScreen(JFScreen):
 		elif a == "dup" and i is not None:
 			dup = copy.deepcopy(self.rules[i])
 			dup["id"] = new_rule()["id"]
-			dup["name"] = dup.get("name", "") + " (Kopie)"
+			dup["name"] = rule_name(dup) + _(" (Kopie)")
 			self.rules.insert(i + 1, dup)
 			self.save()
 			self.build(select=i + 1)
@@ -164,7 +166,7 @@ class RulesScreen(JFScreen):
 			self.rules.extend(added)
 			self.save()
 			self.build()
-			self["status"].setText("%d Standardliste(n) hinzugefügt." % len(added) if added else "Alle Standardlisten sind schon vorhanden.")
+			self["status"].setText(ngettext("%d Standardliste hinzugefügt.", "%d Standardlisten hinzugefügt.", len(added)) % len(added) if added else _("Alle Standardlisten sind schon vorhanden."))
 
 
 class RuleEditScreen(JFScreen):
@@ -174,12 +176,12 @@ class RuleEditScreen(JFScreen):
 		self.skinName = "JellyfinE2RuleEdit"
 		self.rule = dict(rule)
 		self.views = views
-		self["title"] = Label("Liste bearbeiten")
+		self["title"] = Label(_("Liste bearbeiten"))
 		self["subtitle"] = Label("")
 		self["list"] = make_list(fonts=((28,), (28,)), item_height=62)
 		self["description"] = Label("")
 		self["status"] = Label("")
-		self.add_keys(red="Abbrechen", green="Speichern", yellow="Vorschau", blue="Name ändern")
+		self.add_keys(red=_("Abbrechen"), green=_("Speichern"), yellow=_("Vorschau"), blue=_("Name ändern"))
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions", "ChannelSelectBaseActions"], {
 			"ok": self.key_ok,
 			"cancel": self.close,
@@ -198,21 +200,22 @@ class RuleEditScreen(JFScreen):
 		self.onLayoutFinish.append(self.build)
 
 	def key_rename(self):
-		self.session.openWithCallback(self.name_entered, VirtualKeyBoard, title="Name der Liste", text=self.rule.get("name", ""))
+		self.session.openWithCallback(self.name_entered, VirtualKeyBoard, title=_("Name der Liste"), text=rule_name(self.rule) if self.rule.get("name") else "")
 
 	def value_text(self, fid):
 		v = self.rule.get(fid)
 		if fid == "name":
-			return v or "(ohne Namen)"
+			return _(v) if v else _("(ohne Namen)")
 		if fid == "library":
-			return self.rule.get("library_name") or "Alle Bibliotheken"
+			return self.rule.get("library_name") or _("Alle Bibliotheken")
 		if fid == "genre":
-			return v or "Alle Genres"
+			return v or _("Alle Genres")
 		return choice_label(fid, v)
 
 	def build(self):
 		rows = []
 		for fid, label, choices, _help, _only in RULE_FIELDS:
+			label = _(label)
 			if not field_applies(fid, self.rule):
 				continue
 			arrows = "<  %s  >" if choices else "%s  ..."
@@ -231,13 +234,13 @@ class RuleEditScreen(JFScreen):
 		fid = self.current_field()
 		for f in RULE_FIELDS:
 			if f[0] == fid:
-				self["description"].setText(f[3] or "Links/Rechts ändert den Wert.")
+				self["description"].setText(_(f[3]) or _("Links/Rechts ändert den Wert."))
 
 	def cycle(self, step):
 		fid = self.current_field()
 		for f in RULE_FIELDS:
 			if f[0] == fid and f[2]:
-				values = [v for v, _ in f[2]]
+				values = [v for v, _lbl in f[2]]
 				cur = self.rule.get(fid)
 				pos = values.index(cur) if cur in values else 0
 				self.rule[fid] = values[(pos + step) % len(values)]
@@ -247,7 +250,7 @@ class RuleEditScreen(JFScreen):
 	def key_ok(self):
 		fid = self.current_field()
 		if fid == "name":
-			self.session.openWithCallback(self.name_entered, VirtualKeyBoard, title="Name der Liste", text=self.rule.get("name", ""))
+			self.session.openWithCallback(self.name_entered, VirtualKeyBoard, title=_("Name der Liste"), text=rule_name(self.rule) if self.rule.get("name") else "")
 		elif fid == "library":
 			self.choose_library()
 		elif fid == "genre":
@@ -263,12 +266,12 @@ class RuleEditScreen(JFScreen):
 	def choose_library(self):
 		def show(views):
 			self.views = views
-			lst = [("Alle Bibliotheken", ("", ""))] + [(v.get("Name", "?"), (v.get("Id"), v.get("Name", ""))) for v in views]
-			self.session.openWithCallback(self.library_chosen, ChoiceBox, title="Bibliothek", list=lst)
+			lst = [(_("Alle Bibliotheken"), ("", ""))] + [(v.get("Name", "?"), (v.get("Id"), v.get("Name", ""))) for v in views]
+			self.session.openWithCallback(self.library_chosen, ChoiceBox, title=_("Bibliothek"), list=lst)
 		if self.views:
 			show(self.views)
 		else:
-			self.run(self.cl.views, callback=show, status="Lade Bibliotheken ...")
+			self.run(self.cl.views, callback=show, status=_("Lade Bibliotheken ..."))
 
 	def library_chosen(self, choice):
 		if choice is not None:
@@ -279,8 +282,8 @@ class RuleEditScreen(JFScreen):
 		types = "Movie,Series" if self.rule.get("type") == "Episode" else self.rule.get("type")
 
 		def show(genres):
-			lst = [("Alle Genres", "")] + [(g.get("Name", "?"), g.get("Name", "")) for g in genres]
-			self.session.openWithCallback(self.genre_chosen, ChoiceBox, title="Genre", list=lst)
+			lst = [(_("Alle Genres"), "")] + [(g.get("Name", "?"), g.get("Name", "")) for g in genres]
+			self.session.openWithCallback(self.genre_chosen, ChoiceBox, title=_("Genre"), list=lst)
 		self.run(self.cl.genres, self.rule.get("library") or None, types, callback=show)
 		self["status"].setText("")
 
@@ -291,7 +294,7 @@ class RuleEditScreen(JFScreen):
 
 	def key_save(self):
 		if not (self.rule.get("name") or "").strip():
-			self["status"].setText("Bitte einen Namen vergeben.")
+			self["status"].setText(_("Bitte einen Namen vergeben."))
 			return
 		if self.rule.get("type") != "Episode":
 			self.rule["my_series"] = False
@@ -300,4 +303,4 @@ class RuleEditScreen(JFScreen):
 
 	def key_preview(self):
 		from .jfnav import open_grid
-		open_grid(self, {"title": "Vorschau: %s" % self.rule.get("name", ""), "source": "rule", "rule": dict(self.rule), "sortable": False})
+		open_grid(self, {"title": _("Vorschau: %s") % rule_name(self.rule), "source": "rule", "rule": dict(self.rule), "sortable": False})

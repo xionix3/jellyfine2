@@ -4,13 +4,15 @@
 # Jellyfin for Enigma2 - plugin entry
 from __future__ import absolute_import
 
+from .jfi18n import _, N_, set_language
+
 from Plugins.Plugin import PluginDescriptor
 
 from . import jfconfig
 from .jfapi import CLIENT_VERSION
 
 NAME = "Jellyfin"
-DESCRIPTION = "Jellyfin-Client: Filme, Serien und Musik vom eigenen Server - von xionix"
+DESCRIPTION = N_("Jellyfin-Client: Filme, Serien und Musik vom eigenen Server - von xionix")
 
 
 class Launcher(object):
@@ -48,6 +50,7 @@ class Launcher(object):
 
 
 def main(session, **kwargs):
+	set_language(jfconfig.get("language"))  # follows a changed menu language of the box ("auto")
 	Launcher(session).start()
 
 
@@ -58,10 +61,11 @@ def menu_entry(menuid, **kwargs):
 
 
 def Plugins(**kwargs):
+	description = _(DESCRIPTION)
 	plugins = [
-		PluginDescriptor(name=NAME, description="%s (v%s)" % (DESCRIPTION, CLIENT_VERSION), where=PluginDescriptor.WHERE_PLUGINMENU, icon="plugin.png", fnc=main),
-		PluginDescriptor(name=NAME, description=DESCRIPTION, where=PluginDescriptor.WHERE_MENU, fnc=menu_entry),
+		PluginDescriptor(name=NAME, description="%s (v%s)" % (description, CLIENT_VERSION), where=PluginDescriptor.WHERE_PLUGINMENU, icon="plugin.png", fnc=main),
+		PluginDescriptor(name=NAME, description=description, where=PluginDescriptor.WHERE_MENU, fnc=menu_entry),
 	]
 	if jfconfig.get_bool("extmenu"):
-		plugins.append(PluginDescriptor(name=NAME, description=DESCRIPTION, where=PluginDescriptor.WHERE_EXTENSIONSMENU, fnc=main))
+		plugins.append(PluginDescriptor(name=NAME, description=description, where=PluginDescriptor.WHERE_EXTENSIONSMENU, fnc=main))
 	return plugins

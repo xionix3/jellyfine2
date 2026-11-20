@@ -3,6 +3,8 @@
 # Jellyfin for Enigma2 - user defined lists ("Meine Listen"), pure python
 from __future__ import absolute_import
 
+from .jfi18n import _, N_, decimal
+
 import copy
 import json
 import random
@@ -10,38 +12,38 @@ import time
 
 from .jfutil import parse_date
 
-YES_NO = [(True, "Ja"), (False, "Nein")]
+YES_NO = [(True, N_("Ja")), (False, N_("Nein"))]
 
 # id, label, choices (None = special editor), help, only_for_types
 RULE_FIELDS = [
-	("name", "Name", None, "OK öffnet die Tastatur.", None),
-	("type", "Inhalt", [("Movie", "Filme"), ("Series", "Serien (mit neuen Folgen)"), ("Episode", "Episoden"), ("Movie,Series", "Filme & Serien")],
-		"Serien werden nach dem Datum der zuletzt hinzugefügten Folge sortiert.", None),
-	("library", "Bibliothek", None, "OK wählt eine Bibliothek (oder alle).", None),
-	("date_field", "Was ist 'neu'?", [("added", "Neu auf dem Server"), ("released", "Neu erschienen (Premiere)")],
-		"'Neu auf dem Server' = Hinzufügedatum, 'Neu erschienen' = Erscheinungs-/Ausstrahlungsdatum.", None),
-	("days", "Zeitraum", [("0", "Unbegrenzt"), ("3", "3 Tage"), ("7", "7 Tage"), ("14", "14 Tage"), ("30", "30 Tage"), ("60", "60 Tage"),
-		("90", "90 Tage"), ("180", "6 Monate"), ("365", "1 Jahr"), ("730", "2 Jahre")], "Nur Titel, die in diesem Zeitraum neu sind.", None),
-	("unplayed", "Nur ungesehene", YES_NO, "", None),
-	("my_series", "Nur Serien, die ich schaue", YES_NO, "Serien mit Fortschritt ('Als Nächstes') und Favoriten.", ("Episode",)),
-	("group", "Pro Serie zusammenfassen", YES_NO, "Eine Kachel pro Serie mit Anzahl neuer Folgen.", ("Episode",)),
-	("min_rating", "Mindestbewertung", [("0", "Egal"), ("5", "ab 5"), ("6", "ab 6"), ("6.5", "ab 6,5"), ("7", "ab 7"), ("7.5", "ab 7,5"), ("8", "ab 8")], "", None),
-	("genre", "Genre", None, "OK wählt ein Genre (oder alle).", None),
-	("sort", "Sortierung", [("new", "Neueste zuerst"), ("old", "Älteste zuerst"), ("rating", "Beste Bewertung"), ("name", "Name A-Z"), ("random", "Zufällig")], "", None),
-	("limit", "Max. Einträge", [("50", "50"), ("100", "100"), ("200", "200"), ("500", "500")], "", None),
-	("home", "Auf der Startseite", YES_NO, "Liste als eigener Bereich auf der Startseite.", None),
+	("name", N_("Name"), None, N_("OK öffnet die Tastatur."), None),
+	("type", N_("Inhalt"), [("Movie", N_("Filme")), ("Series", N_("Serien (mit neuen Folgen)")), ("Episode", N_("Episoden")), ("Movie,Series", N_("Filme & Serien"))],
+		N_("Serien werden nach dem Datum der zuletzt hinzugefügten Folge sortiert."), None),
+	("library", N_("Bibliothek"), None, N_("OK wählt eine Bibliothek (oder alle)."), None),
+	("date_field", N_("Was ist 'neu'?"), [("added", N_("Neu auf dem Server")), ("released", N_("Neu erschienen (Premiere)"))],
+		N_("'Neu auf dem Server' = Hinzufügedatum, 'Neu erschienen' = Erscheinungs-/Ausstrahlungsdatum."), None),
+	("days", N_("Zeitraum"), [("0", N_("Unbegrenzt")), ("3", N_("3 Tage")), ("7", N_("7 Tage")), ("14", N_("14 Tage")), ("30", N_("30 Tage")), ("60", N_("60 Tage")),
+		("90", N_("90 Tage")), ("180", N_("6 Monate")), ("365", N_("1 Jahr")), ("730", N_("2 Jahre"))], N_("Nur Titel, die in diesem Zeitraum neu sind."), None),
+	("unplayed", N_("Nur ungesehene"), YES_NO, "", None),
+	("my_series", N_("Nur Serien, die ich schaue"), YES_NO, N_("Serien mit Fortschritt ('Als Nächstes') und Favoriten."), ("Episode",)),
+	("group", N_("Pro Serie zusammenfassen"), YES_NO, N_("Eine Kachel pro Serie mit Anzahl neuer Folgen."), ("Episode",)),
+	("min_rating", N_("Mindestbewertung"), [("0", N_("Egal")), ("5", N_("ab 5")), ("6", N_("ab 6")), ("6.5", N_("ab 6,5")), ("7", N_("ab 7")), ("7.5", N_("ab 7,5")), ("8", N_("ab 8"))], "", None),
+	("genre", N_("Genre"), None, N_("OK wählt ein Genre (oder alle)."), None),
+	("sort", N_("Sortierung"), [("new", N_("Neueste zuerst")), ("old", N_("Älteste zuerst")), ("rating", N_("Beste Bewertung")), ("name", N_("Name A-Z")), ("random", N_("Zufällig"))], "", None),
+	("limit", N_("Max. Einträge"), [("50", "50"), ("100", "100"), ("200", "200"), ("500", "500")], "", None),
+	("home", N_("Auf der Startseite"), YES_NO, N_("Liste als eigener Bereich auf der Startseite."), None),
 ]
 
 TEMPLATE = {
-	"id": "", "name": "Neue Liste", "type": "Movie", "library": "", "library_name": "", "date_field": "added", "days": "30",
+	"id": "", "name": N_("Neue Liste"), "type": "Movie", "library": "", "library_name": "", "date_field": "added", "days": "30",
 	"unplayed": True, "my_series": False, "group": False, "min_rating": "0", "genre": "", "sort": "new", "limit": "100", "home": True,
 }
 
 DEFAULT_RULES = [
-	dict(TEMPLATE, id="new-movies", name="Neue Filme", type="Movie", days="30"),
-	dict(TEMPLATE, id="new-episodes", name="Neue Episoden meiner Serien", type="Episode", days="30", my_series=True, group=True),
-	dict(TEMPLATE, id="new-series", name="Serien mit neuen Folgen", type="Series", days="30", home=False),
-	dict(TEMPLATE, id="released", name="Neu erschienen", type="Movie,Series", date_field="released", days="365", unplayed=False, home=False),
+	dict(TEMPLATE, id="new-movies", name=N_("Neue Filme"), type="Movie", days="30"),
+	dict(TEMPLATE, id="new-episodes", name=N_("Neue Episoden meiner Serien"), type="Episode", days="30", my_series=True, group=True),
+	dict(TEMPLATE, id="new-series", name=N_("Serien mit neuen Folgen"), type="Series", days="30", home=False),
+	dict(TEMPLATE, id="released", name=N_("Neu erschienen"), type="Movie,Series", date_field="released", days="365", unplayed=False, home=False),
 ]
 
 MAX_PAGES = 15
@@ -74,12 +76,17 @@ def dump_rules(rules):
 	return json.dumps(rules, ensure_ascii=True, separators=(",", ":"))
 
 
+def rule_name(rule):
+	"""Display name of a list; the default lists carry their German name and are shown translated."""
+	return _(rule.get("name") or "") or "?"
+
+
 def choice_label(field, value):
 	for f in RULE_FIELDS:
 		if f[0] == field and f[2]:
 			for v, label in f[2]:
 				if v == value:
-					return label
+					return _(label)
 	return str(value)
 
 
@@ -96,15 +103,15 @@ def rule_summary(rule):
 		parts.append(rule["library_name"])
 	days = rule.get("days") or "0"
 	if days != "0":
-		parts.append("%s: %s" % ("neu erschienen" if rule.get("date_field") == "released" else "neu", choice_label("days", days)))
+		parts.append("%s: %s" % (_("neu erschienen") if rule.get("date_field") == "released" else _("neu"), choice_label("days", days)))
 	if rule.get("unplayed"):
-		parts.append("ungesehen")
+		parts.append(_("ungesehen"))
 	if rule.get("type") == "Episode" and rule.get("my_series"):
-		parts.append("meine Serien")
+		parts.append(_("meine Serien"))
 	if rule.get("genre"):
 		parts.append(rule["genre"])
 	if rule.get("min_rating") not in (None, "", "0"):
-		parts.append("ab %s" % str(rule["min_rating"]).replace(".", ","))
+		parts.append(_("ab %s") % decimal(rule["min_rating"]))
 	parts.append(choice_label("sort", rule.get("sort")))
 	return "  |  ".join(parts)
 
@@ -212,7 +219,7 @@ def group_episodes(episodes):
 		rep["_jf_new_count"] = len(eps)
 		rep["_jf_focus"] = first
 		if len(eps) > 1:
-			rep["_jf_label"] = "%s (%d neu)" % (rep.get("SeriesName") or rep.get("Name") or "", len(eps))
+			rep["_jf_label"] = _("%s (%d neu)") % (rep.get("SeriesName") or rep.get("Name") or "", len(eps))
 		out.append(rep)
 	return out
 

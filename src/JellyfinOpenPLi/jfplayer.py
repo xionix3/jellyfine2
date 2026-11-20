@@ -3,6 +3,8 @@
 # Jellyfin for Enigma2 - playback (MoviePlayer subclass with resume, reporting, autoplay)
 from __future__ import absolute_import
 
+from .jfi18n import _
+
 from enigma import eServiceReference, eTimer, iPlayableService
 
 from Components.ActionMap import ActionMap
@@ -55,7 +57,7 @@ def play_item(screen, item, context=None, index=0, resume=None, on_finished=None
 
 	def start(queue, idx):
 		if not queue:
-			screen.info("Nichts abspielbar gefunden")
+			screen.info(_("Nichts abspielbar gefunden"))
 			return
 		_ask_resume_and_play(screen, queue, idx, resume, on_finished, audio_index, sub_index, media_source_id)
 
@@ -73,7 +75,7 @@ def play_item(screen, item, context=None, index=0, resume=None, on_finished=None
 				if not is_played(e):
 					return eps, i
 			return eps, 0
-		screen.run(resolve_series, callback=lambda r: start(*r), status="Suche nächste Episode ...")
+		screen.run(resolve_series, callback=lambda r: start(*r), status=_("Suche nächste Episode ..."))
 	elif t == "Season":
 		def resolve_season():
 			eps = [e for e in cl.episodes(item.get("SeriesId"), item["Id"]) if e.get("LocationType") != "Virtual"]
@@ -81,9 +83,9 @@ def play_item(screen, item, context=None, index=0, resume=None, on_finished=None
 				if not is_played(e):
 					return eps, i
 			return eps, 0
-		screen.run(resolve_season, callback=lambda r: start(*r), status="Lade Episoden ...")
+		screen.run(resolve_season, callback=lambda r: start(*r), status=_("Lade Episoden ..."))
 	elif t == "MusicAlbum":
-		screen.run(cl.album_tracks, item["Id"], callback=lambda tracks: start(tracks, 0), status="Lade Titel ...")
+		screen.run(cl.album_tracks, item["Id"], callback=lambda tracks: start(tracks, 0), status=_("Lade Titel ..."))
 	elif t in ("BoxSet", "Playlist", "Folder"):
 		def resolve_children():
 			params = {"parentId": item["Id"], "recursive": True, "includeItemTypes": "Movie,Episode,Video,MusicVideo,Audio"}
@@ -93,7 +95,7 @@ def play_item(screen, item, context=None, index=0, resume=None, on_finished=None
 				params.update(sortBy="SortName", sortOrder="Ascending")
 			res = cl.items(**params)  # playlists keep their own order
 			return res.get("Items") or []
-		screen.run(resolve_children, callback=lambda items: start(items, 0), status="Lade ...")
+		screen.run(resolve_children, callback=lambda items: start(items, 0), status=_("Lade ..."))
 	elif t == "Audio" and context:
 		tracks = [it for it in context if it.get("Type") == "Audio"]
 		idx = tracks.index(item) if item in tracks else 0
@@ -122,7 +124,7 @@ def _ask_resume_and_play(screen, queue, idx, resume, on_finished, audio_index, s
 		def chosen(choice):
 			if choice is not None:
 				go(choice[1])
-		choices = [("Fortsetzen ab %s" % fmt_clock(ticks_to_seconds(pos)), pos), ("Von Anfang abspielen", 0)]
+		choices = [(_("Fortsetzen ab %s") % fmt_clock(ticks_to_seconds(pos)), pos), (_("Von Anfang abspielen"), 0)]
 		screen.session.openWithCallback(chosen, ChoiceBox, title=display_title(item), list=choices)
 
 
@@ -141,7 +143,7 @@ def start_playback(screen, queue, idx, start_ticks=0, on_finished=None, audio_in
 		screen.session.openWithCallback(on_finished or (lambda *a: None), JellyfinPlayer, cl, queue, idx, stream,
 			start_ticks, audio_index, sub_index)
 
-	screen.run(resolve, callback=ok, status="Starte Wiedergabe ...", errback=lambda e: screen.show_error(e, "Wiedergabe nicht möglich"))
+	screen.run(resolve, callback=ok, status=_("Starte Wiedergabe ..."), errback=lambda e: screen.show_error(e, _("Wiedergabe nicht möglich")))
 
 
 # ------------------------------------------------------------------------------------------
@@ -397,7 +399,7 @@ class JellyfinPlayer(MoviePlayer):
 			self.switching = False
 			if self.jf_closing:
 				return
-			self.session.openWithCallback(lambda *a: self.close(), MessageBox, "Nächster Titel kann nicht abgespielt werden:\n%s" % err, MessageBox.TYPE_ERROR, timeout=8)
+			self.session.openWithCallback(lambda *a: self.close(), MessageBox, _("Nächster Titel kann nicht abgespielt werden:\n%s") % err, MessageBox.TYPE_ERROR, timeout=8)
 		self.tasks.run(resolve, callback=ok, errback=fail)
 
 	def play_next_key(self):
@@ -477,12 +479,12 @@ class JellyfinPlayer(MoviePlayer):
 			lines.append("")
 		video = [s for s in streams if s.get("Type") == "Video"]
 		if video:
-			lines.append("Video: %s" % video_label(video[0]))
+			lines.append(_("Video: %s") % video_label(video[0]))
 		audio = [stream_label(s) for s in streams if s.get("Type") == "Audio"]
 		if audio:
-			lines.append("Audio: %s" % ", ".join(audio[:4]))
-		method = {"DirectPlay": "Direkt", "Transcode": "Transkodiert (Server)"}.get(self.stream.get("play_method"), "?")
-		lines.append("Wiedergabe: %s%s" % (method, " / HLS" if self.stream.get("is_hls") else ""))
+			lines.append(_("Audio: %s") % ", ".join(audio[:4]))
+		method = {"DirectPlay": _("Direkt"), "Transcode": _("Transkodiert (Server)")}.get(self.stream.get("play_method"), "?")
+		lines.append(_("Wiedergabe: %s%s") % (method, " / HLS" if self.stream.get("is_hls") else ""))
 		if self.has_next():
-			lines.append("Als Nächstes: %s" % self.title_for(self.queue[self.index + 1]))
+			lines.append(_("Als Nächstes: %s") % self.title_for(self.queue[self.index + 1]))
 		self.session.open(MessageBox, "\n".join(lines), MessageBox.TYPE_INFO, timeout=15)

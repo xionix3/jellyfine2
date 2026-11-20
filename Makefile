@@ -2,7 +2,7 @@
 OPENPLI_BRANCH ?= release-9.2
 JELLYFIN ?= 10.10.7
 
-.PHONY: all lint test ipk previews screenshots banner clean
+.PHONY: all lint test ipk previews screenshots banner clean i18n
 
 all: lint test ipk
 
@@ -12,6 +12,7 @@ tests/keymap.xml:
 lint:
 	python3 -m pyflakes src/JellyfinOpenPLi scripts tests/*.py
 	python3 scripts/check_syntax.py
+	python3 scripts/i18n.py check
 
 test: tests/keymap.xml
 	python3 tests/test_rules.py
@@ -25,7 +26,14 @@ previews:
 	python3 tests/render_skins.py skin-previews
 
 screenshots: tests/keymap.xml
-	python3 tests/screenshots.py docs/screenshots
+	python3 tests/screenshots.py docs/screenshots de
+	python3 tests/screenshots.py docs/screenshots/en en
+	python3 tests/screenshots.py docs/screenshots/nl nl
+
+# after changing texts in the code: new texts get an empty msgstr in locale/en.po and nl.po
+i18n:
+	python3 scripts/i18n.py update
+	python3 scripts/i18n.py check || true
 
 banner:
 	python3 scripts/make_banner.py

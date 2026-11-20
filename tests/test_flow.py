@@ -729,6 +729,83 @@ answer(s, False)
 press(s.top, "cancel")
 check(not s.stack, "plugin closed")
 
+# --- languages: English and Dutch, switched in the settings (default "auto" -> German without system language)
+from JellyfinOpenPLi import jfi18n  # noqa: E402
+
+jfconfig.set_value("update_check", "0")
+
+
+def untranslated(scr, lang):
+	"""Labels that still show a German text although a translation exists."""
+	cat = jfi18n.load_catalog(lang)
+	german = set(k for k, v in cat.items() if isinstance(v, str) and v != k)
+	return [(key, w.getText()) for key, w in scr.items() if hasattr(w, "getText") and w.getText() in german]
+
+
+def switch_language(target):
+	hero = s.top
+	hero.key_settings()
+	st = s.top
+	rows = [r[0] for r in st["list"].list]
+	check(rows[0] == "language", "language is the first setting")
+	st["list"].moveToIndex(0)
+	for _i in range(5):
+		if st.vals["language"] == target:
+			break
+		press(st, "right")
+	press(st, "green")
+	pump(lambda: name(s.top) == "HeroHomeScreen" and s.top is not hero, timeout=10)
+	return s.top
+
+
+check(jfi18n.current() == "de" and jfconfig.get("language") == "auto", "auto language without system language: German")
+plugin.main(s)
+pump(lambda: name(s.top) == "HeroHomeScreen", timeout=10)
+for lang, expect in (("en", {"rail_name0": "Search", "rail_name2": "Movies", "rail_name3": "Shows", "key_green": "Search"}),
+		("nl", {"rail_name0": "Zoeken", "rail_name2": "Films", "rail_name3": "Series", "key_green": "Zoeken"})):
+	hero = switch_language(lang)
+	check(jfi18n.current() == lang and jfconfig.get("language") == lang, "%s: language saved and active" % lang)
+	pump(lambda: hero.row_items and hero["hero_pill1"].getText(), timeout=10)
+	got = dict((k, hero[k].getText()) for k in expect)
+	check(got == expect, "%s: start screen translated %s" % (lang, got))
+	check(not untranslated(hero, lang), "%s: no German label left on the start screen %s" % (lang, untranslated(hero, lang)))
+	titles = [r.title for r in hero.rows]
+	check((("Continue watching" in titles) if lang == "en" else ("Verder kijken" in titles)) or (("New movies" in titles) if lang == "en" else ("Nieuwe films" in titles)),
+		"%s: row titles %s" % (lang, titles[:4]))
+	press(hero, "info")
+	det = s.top
+	pump(lambda: det["pilltxt0"].getText(), timeout=10)
+	check(name(det) == "DetailScreen" and not untranslated(det, lang), "%s: details translated %s" % (lang, untranslated(det, lang)))
+	check(det["pilltxt0"].getText() in (("Play", "Resume", "Open") if lang == "en" else ("Afspelen", "Hervatten", "Openen")),
+		"%s: detail button %r" % (lang, det["pilltxt0"].getText()))
+	press(det, "cancel")
+	press(hero, "red")
+	grid = s.top
+	pump(lambda: grid.entries, timeout=10)
+	check(name(grid) == "GridScreen" and not untranslated(grid, lang), "%s: grid translated %s" % (lang, untranslated(grid, lang)))
+	press(grid, "cancel")
+	press(hero, "blue")
+	rs = s.top
+	press(rs, "yellow")
+	ed = s.top
+	check(name(rs) == "RulesScreen" and name(ed) == "RuleEditScreen" and not untranslated(rs, lang) and not untranslated(ed, lang),
+		"%s: lists and list editor translated %s" % (lang, untranslated(rs, lang) + untranslated(ed, lang)))
+	check(ed.value_text("name") == ("New movies" if lang == "en" else "Nieuwe films"), "%s: default list name %r" % (lang, ed.value_text("name")))
+	press(ed, "cancel")
+	press(rs, "cancel")
+	hero.key_settings()
+	st = s.top
+	check(st["title"].getText() == ("Jellyfin - Settings" if lang == "en" else "Jellyfin - Instellingen") and not untranslated(st, lang),
+		"%s: settings screen translated" % lang)
+	desc = [d for d in plugin.Plugins() if PluginDescriptor.WHERE_PLUGINMENU in d.where][0].description
+	check(desc.startswith("Jellyfin client" if lang == "en" else "Jellyfin-client"), "%s: plugin description %r" % (lang, desc))
+	press(st, "cancel")
+check(jfi18n.decimal("7.5") == "7,5" and jfi18n.ngettext("%d Staffel", "%d Staffeln", 2) == "%d seizoenen", "nl number format and plural")
+hero = switch_language("auto")
+check(jfi18n.current() == "de" and hero["rail_name0"].getText() == "Suche", "back to German")
+press(hero, "cancel")
+check(not s.stack, "plugin closed")
+
 # --- static checks
 unexpected = [w for w in WARNINGS]
 check(not unexpected, "all actions exist in keymap contexts %s" % unexpected[:5])

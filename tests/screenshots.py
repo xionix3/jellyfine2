@@ -18,6 +18,7 @@ from Components.ScrollLabel import ScrollLabel  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "docs", "screenshots"))
+LANG = sys.argv[2] if len(sys.argv) > 2 else "de"  # de / en / nl
 FONT = os.environ.get("PREVIEW_FONT", "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
 _fonts = {}
 
@@ -242,21 +243,24 @@ def main():
 	srv, state, url = start_server("10.10.7", demo=True)
 	shutil.rmtree("/tmp/jellyfine2", ignore_errors=True)
 	from JellyfinOpenPLi import plugin, jfconfig
+	from JellyfinOpenPLi.jfi18n import _
 	jfconfig.set_value("update_check", "0")
+	jfconfig.set_value("language", LANG)  # plugin.main() activates it
+	server_name = {"de": "Mein Jellyfin", "en": "My Jellyfin", "nl": "Mijn Jellyfin"}[LANG]
 	s = Session()
 	plugin.main(s)
 	login = s.top
 	login.server, login.username, login.password = "http://192.168.1.10:8096", "demo", "geheim"
 	login.build()
 	login["list"].moveToIndex(3)
-	login["description"].setText(login.DESCRIPTIONS["login"])
+	login["description"].setText(_(login.DESCRIPTIONS["login"]))
 	render(login, "01-anmeldung")
 	login.server = url
 	press(login, "green")
 	settle(lambda: s.top.__class__.__name__ == "HeroHomeScreen")
 	hero = s.top
-	hero.cl.server_name = "Mein Jellyfin"
-	hero["server"].setText("demo  @  Mein Jellyfin  (Jellyfin 10.10.7)")
+	hero.cl.server_name = server_name
+	hero["server"].setText("demo  @  %s  (Jellyfin 10.10.7)" % server_name)
 	settle(lambda: len(hero.rows) > 4 and not hero.loading, 15)
 
 	def ready(scr):
@@ -268,17 +272,17 @@ def main():
 
 	def goto(scr, title):
 		settle(lambda: any(r.title == title for r in scr.rows), 15)
-		for _ in range(60):
+		for _i in range(60):
 			if scr.current() is not None and scr.current().title == title:
 				break
 			press(scr, "down" if [r.title for r in scr.rows].index(title) > scr.row else "up")
 		settle(ready(scr), 15)
 
-	goto(hero, "Weiterschauen")
+	goto(hero, _("Weiterschauen"))
 	press(hero, "right")
 	settle(ready(hero), 15)
 	render(hero, "02-startseite")
-	goto(hero, "Neue Episoden meiner Serien")
+	goto(hero, _("Neue Episoden meiner Serien"))
 	settle(lambda: hero.row_items[0].get("_jf_new_count"), 15)
 	render(hero, "03-neue-episoden")
 	press(hero, "left")
@@ -286,15 +290,15 @@ def main():
 	render(hero, "03b-navigation")
 	press(hero, "ok")  # sidebar -> movies: the library looks like the start screen
 	lib = s.top
-	settle(lambda: lib.__class__.__name__ == "LibraryRowsScreen" and any(r.title == "Alle Filme A-Z" for r in lib.rows), 15)
-	goto(lib, "Neu hinzugefügt")
+	settle(lambda: lib.__class__.__name__ == "LibraryRowsScreen" and any(r.title == _("Alle Filme A-Z") for r in lib.rows), 15)
+	goto(lib, _("Neu hinzugefügt"))
 	press(lib, "right")
 	press(lib, "right")
 	settle(ready(lib), 15)
 	render(lib, "04-filme")
 	goto(lib, "Drama")
 	render(lib, "04b-filme-genre")
-	goto(lib, "Alle Filme A-Z")
+	goto(lib, _("Alle Filme A-Z"))
 	press(lib, "red")
 	grid = s.top
 	settle(lambda: grid.entries and all(grid["cover%d" % i].instance.pixmap is not None for i in range(14)) and grid["backdrop"].instance.pixmap is not None, 15)
@@ -320,7 +324,7 @@ def main():
 	from JellyfinOpenPLi.jfrows import LibraryRowsScreen
 	s.open(LibraryRowsScreen, tv, "tvshows")
 	tvl = s.top
-	goto(tvl, "Alle Serien A-Z")
+	goto(tvl, _("Alle Serien A-Z"))
 	tvl.card = [e.get("Name") for e in tvl.row_items].index("Lichterstadt")
 	tvl.draw_cards()
 	press(tvl, "ok")
@@ -363,7 +367,7 @@ def main():
 	hero.close("relayout")
 	settle(lambda: s.top.__class__.__name__ == "HomeScreen")
 	home = s.top
-	home["subtitle"].setText("demo  @  Mein Jellyfin  (Jellyfin 10.10.7)")
+	home["subtitle"].setText("demo  @  %s  (Jellyfin 10.10.7)" % server_name)
 	settle(lambda: home.cells.items[0] is not None and home["backdrop"].instance.pixmap is not None
 		and all(home["pcover%d" % i].instance.pixmap is not None for i in range(4)), 15)
 	render(home, "11-startseite-klassisch")

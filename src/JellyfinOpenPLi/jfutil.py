@@ -3,6 +3,8 @@
 # Jellyfin for Enigma2 - small pure-python helpers (no enigma imports)
 from __future__ import absolute_import, division
 
+from .jfi18n import _, N_, decimal, ngettext
+
 import calendar
 import time
 
@@ -59,17 +61,28 @@ def fmt_runtime(ticks):
 		return ""
 	h, m = divmod(minutes, 60)
 	if h and m:
-		return "%d Std. %d Min." % (h, m)
+		return _("%d Std. %d Min.") % (h, m)
 	if h:
-		return "%d Std." % h
-	return "%d Min." % m
+		return _("%d Std.") % h
+	return _("%d Min.") % m
+
+
+def child_count_text(item_type, n):
+	"""'3 Staffeln', '12 Episoden', '1 Song', '5 Einträge'."""
+	if item_type == "Series":
+		return ngettext("%d Staffel", "%d Staffeln", n) % n
+	if item_type == "Season":
+		return ngettext("%d Episode", "%d Episoden", n) % n
+	if item_type == "MusicAlbum":
+		return ngettext("%d Song", "%d Songs", n) % n
+	return ngettext("%d Eintrag", "%d Einträge", n) % n
 
 
 def fmt_ends_at(ticks, position_ticks=0):
 	remaining = ticks_to_seconds(ticks) - ticks_to_seconds(position_ticks)
 	if remaining <= 0:
 		return ""
-	return "endet um %s" % time.strftime("%H:%M", time.localtime(time.time() + remaining))
+	return _("endet um %s") % time.strftime("%H:%M", time.localtime(time.time() + remaining))
 
 
 def fmt_rating(value):
@@ -79,7 +92,7 @@ def fmt_rating(value):
 		return ""
 	if v <= 0:
 		return ""
-	return ("%.1f" % v).replace(".", ",")
+	return decimal("%.1f" % v)
 
 
 def episode_code(item):
@@ -125,7 +138,7 @@ def subtitle_line(item):
 		end = item.get("EndDate")
 		status = item.get("Status")
 		if start and status == "Continuing":
-			return "%s - heute" % start
+			return _("%s - heute") % start
 		if start and end:
 			return "%s - %s" % (start, end[:4])
 		return str(start or "")
@@ -171,30 +184,31 @@ def unplayed_count(item):
 
 
 LANG_NAMES = {
-	"ger": "Deutsch", "deu": "Deutsch", "de": "Deutsch",
-	"eng": "Englisch", "en": "Englisch",
-	"fre": "Französisch", "fra": "Französisch", "fr": "Französisch",
-	"spa": "Spanisch", "es": "Spanisch",
-	"ita": "Italienisch", "it": "Italienisch",
-	"jpn": "Japanisch", "ja": "Japanisch",
-	"kor": "Koreanisch", "ko": "Koreanisch",
-	"tur": "Türkisch", "tr": "Türkisch",
-	"rus": "Russisch", "ru": "Russisch",
-	"pol": "Polnisch", "pl": "Polnisch",
-	"dut": "Niederländisch", "nld": "Niederländisch", "nl": "Niederländisch",
-	"por": "Portugiesisch", "pt": "Portugiesisch",
-	"chi": "Chinesisch", "zho": "Chinesisch", "zh": "Chinesisch",
-	"hin": "Hindi", "ara": "Arabisch", "swe": "Schwedisch", "dan": "Dänisch",
-	"nor": "Norwegisch", "fin": "Finnisch", "cze": "Tschechisch", "ces": "Tschechisch",
-	"hun": "Ungarisch", "gre": "Griechisch", "ell": "Griechisch", "hrv": "Kroatisch",
-	"srp": "Serbisch", "bos": "Bosnisch", "und": "Unbekannt",
+	"ger": N_("Deutsch"), "deu": N_("Deutsch"), "de": N_("Deutsch"),
+	"eng": N_("Englisch"), "en": N_("Englisch"),
+	"fre": N_("Französisch"), "fra": N_("Französisch"), "fr": N_("Französisch"),
+	"spa": N_("Spanisch"), "es": N_("Spanisch"),
+	"ita": N_("Italienisch"), "it": N_("Italienisch"),
+	"jpn": N_("Japanisch"), "ja": N_("Japanisch"),
+	"kor": N_("Koreanisch"), "ko": N_("Koreanisch"),
+	"tur": N_("Türkisch"), "tr": N_("Türkisch"),
+	"rus": N_("Russisch"), "ru": N_("Russisch"),
+	"pol": N_("Polnisch"), "pl": N_("Polnisch"),
+	"dut": N_("Niederländisch"), "nld": N_("Niederländisch"), "nl": N_("Niederländisch"),
+	"por": N_("Portugiesisch"), "pt": N_("Portugiesisch"),
+	"chi": N_("Chinesisch"), "zho": N_("Chinesisch"), "zh": N_("Chinesisch"),
+	"hin": N_("Hindi"), "ara": N_("Arabisch"), "swe": N_("Schwedisch"), "dan": N_("Dänisch"),
+	"nor": N_("Norwegisch"), "fin": N_("Finnisch"), "cze": N_("Tschechisch"), "ces": N_("Tschechisch"),
+	"hun": N_("Ungarisch"), "gre": N_("Griechisch"), "ell": N_("Griechisch"), "hrv": N_("Kroatisch"),
+	"srp": N_("Serbisch"), "bos": N_("Bosnisch"), "und": N_("Unbekannt"),
 }
 
 
 def lang_name(code):
 	if not code:
 		return ""
-	return LANG_NAMES.get(code.lower(), code)
+	name = LANG_NAMES.get(code.lower())
+	return _(name) if name else code
 
 
 def channel_name(ch):
@@ -217,17 +231,17 @@ def stream_label(stream):
 			ch = channel_name(stream.get("Channels"))
 			if ch:
 				parts.append(ch)
-		title = " ".join(parts) or stream.get("DisplayTitle") or "Spur %s" % stream.get("Index")
+		title = " ".join(parts) or stream.get("DisplayTitle") or _("Spur %s") % stream.get("Index")
 		extra = stream.get("Title")
 		if extra and extra not in title:
 			title = "%s (%s)" % (title, extra)
 	flags = []
 	if stream.get("IsDefault"):
-		flags.append("Standard")
+		flags.append(_("Standard"))
 	if stream.get("IsForced"):
-		flags.append("Erzwungen")
+		flags.append(_("Erzwungen"))
 	if stream.get("IsExternal"):
-		flags.append("Extern")
+		flags.append(_("Extern"))
 	if flags and stream.get("Type") == "Subtitle":
 		title = "%s [%s]" % (title, ", ".join(flags))
 	return title

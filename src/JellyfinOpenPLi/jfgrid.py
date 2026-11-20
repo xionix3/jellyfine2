@@ -4,6 +4,8 @@
 # Jellyfin for Enigma2 - poster grid (libraries, search results, collections ...)
 from __future__ import absolute_import
 
+from .jfi18n import _, N_, ngettext
+
 import time
 
 from enigma import eTimer
@@ -16,39 +18,39 @@ from Screens.ChoiceBox import ChoiceBox
 from . import jfconfig
 from .jfcommon import CoverCells, JFScreen, move_widget, prefetch_posters
 from .jfskin import COVER_H, COVER_W, FRAME_PAD, GRID_COLS, GRID_ROWS, cell_pos, grid_skin
-from .jfutil import (clean_text, display_title, episode_code, fmt_rating, fmt_runtime, is_favorite, is_new, is_played, parse_date,
+from .jfutil import (child_count_text, clean_text, display_title, episode_code, fmt_rating, fmt_runtime, is_favorite, is_new, is_played, parse_date,
 	resume_ticks, ticks_to_seconds, fmt_clock)
 from .jflog import log
 
 SORTS = [
-	("SortName", "Ascending", "Name (A-Z)"),
-	("SortName", "Descending", "Name (Z-A)"),
-	("DateCreated,SortName", "Descending", "Zuletzt hinzugefügt"),
-	("PremiereDate,ProductionYear,SortName", "Descending", "Erscheinungsdatum"),
-	("CommunityRating,SortName", "Descending", "Bewertung"),
-	("DatePlayed,SortName", "Descending", "Zuletzt gesehen"),
-	("Runtime,SortName", "Ascending", "Laufzeit"),
-	("Random", "Ascending", "Zufällig"),
+	("SortName", "Ascending", N_("Name (A-Z)")),
+	("SortName", "Descending", N_("Name (Z-A)")),
+	("DateCreated,SortName", "Descending", N_("Zuletzt hinzugefügt")),
+	("PremiereDate,ProductionYear,SortName", "Descending", N_("Erscheinungsdatum")),
+	("CommunityRating,SortName", "Descending", N_("Bewertung")),
+	("DatePlayed,SortName", "Descending", N_("Zuletzt gesehen")),
+	("Runtime,SortName", "Ascending", N_("Laufzeit")),
+	("Random", "Ascending", N_("Zufällig")),
 ]
 
 FILTERS = [
-	(None, "Alle"),
-	("IsUnplayed", "Ungesehen"),
-	("IsPlayed", "Gesehen"),
-	("IsFavorite", "Favoriten"),
-	("IsResumable", "Begonnen"),
+	(None, N_("Alle")),
+	("IsUnplayed", N_("Ungesehen")),
+	("IsPlayed", N_("Gesehen")),
+	("IsFavorite", N_("Favoriten")),
+	("IsResumable", N_("Begonnen")),
 ]
 
 # (includeItemTypes, label) - restrict mixed lists and search results to one kind of item
 CATEGORIES = [
-	(None, "Alle"),
-	("Movie", "Filme"),
-	("Series", "Serien"),
-	("Episode", "Episoden"),
-	("BoxSet", "Sammlungen"),
-	("MusicAlbum,Audio,MusicArtist,MusicVideo", "Musik"),
-	("Video", "Videos"),
-	("Person", "Personen"),
+	(None, N_("Alle")),
+	("Movie", N_("Filme")),
+	("Series", N_("Serien")),
+	("Episode", N_("Episoden")),
+	("BoxSet", N_("Sammlungen")),
+	("MusicAlbum,Audio,MusicArtist,MusicVideo", N_("Musik")),
+	("Video", N_("Videos")),
+	("Person", N_("Personen")),
 ]
 CLIENT_SIDE = ("resume", "latest", "rule", "similar", "static", "nextup")
 
@@ -74,10 +76,10 @@ def item_meta(item):
 	t = item.get("Type")
 	if item.get("_jf_new_count"):
 		n = item["_jf_new_count"]
-		parts.append("%d neue Folge%s" % (n, "n" if n > 1 else ""))
+		parts.append(ngettext("%d neue Folge", "%d neue Folgen", n) % n)
 	elif is_new(item, jfconfig.get_int("new_days", 7)):
 		ts = parse_date(item.get("DateLastMediaAdded") if t in ("Series", "Season") else item.get("DateCreated"))
-		parts.append("NEU (%s)" % time.strftime("%d.%m.", time.localtime(ts)) if ts else "NEU")
+		parts.append(_("NEU (%s)") % time.strftime("%d.%m.", time.localtime(ts)) if ts else _("NEU"))
 	if t == "Episode":
 		code = episode_code(item)
 		if code:
@@ -91,19 +93,18 @@ def item_meta(item):
 		parts.append(item["OfficialRating"])
 	r = fmt_rating(item.get("CommunityRating"))
 	if r:
-		parts.append("Bewertung %s" % r)
+		parts.append(_("Bewertung %s") % r)
 	if t in ("Series", "Season", "BoxSet", "MusicAlbum", "Folder") and item.get("ChildCount"):
-		label = {"Series": "Staffeln", "Season": "Episoden", "MusicAlbum": "Titel"}.get(t, "Einträge")
-		parts.append("%s %s" % (item["ChildCount"], label))
+		parts.append(child_count_text(t, item["ChildCount"]))
 	if item.get("Genres"):
 		parts.append(", ".join(item["Genres"][:3]))
 	pos = resume_ticks(item)
 	if pos and not is_played(item):
-		parts.append("fortsetzen bei %s" % fmt_clock(ticks_to_seconds(pos)))
+		parts.append(_("fortsetzen bei %s") % fmt_clock(ticks_to_seconds(pos)))
 	if is_played(item):
-		parts.append("gesehen")
+		parts.append(_("gesehen"))
 	if is_favorite(item):
-		parts.append("Favorit")
+		parts.append(_("Favorit"))
 	return "  |  ".join(parts)
 
 
@@ -144,9 +145,9 @@ class GridScreen(JFScreen):
 		self.onClose.append(self.bd_timer.stop)
 		self.cells = CoverCells(self, "", PAGE, COVER_W, COVER_H)
 		sortable = spec.get("source") == "items" and spec.get("sortable", True)
-		green = "Filter" if sortable else ("Kategorie" if self.has_categories() else "")
-		self.add_keys(red="Sortierung" if sortable else "", green=green, yellow="Gesehen +/-", blue="Favorit +/-",
-			hint="MENU Optionen  |  CH+/- Seite  |  PLAY")
+		green = _("Filter") if sortable else (_("Kategorie") if self.has_categories() else "")
+		self.add_keys(red=_("Sortierung") if sortable else "", green=green, yellow=_("Gesehen +/-"), blue=_("Favorit +/-"),
+			hint=_("MENU Optionen  |  CH+/- Seite  |  PLAY"))
 		self["actions"] = ActionMap(["OkCancelActions", "DirectionActions", "ColorActions", "MenuActions", "ChannelSelectBaseActions",
 			"EPGSelectActions", "InfobarSeekActions"], {
 			"ok": self.key_ok,
@@ -278,7 +279,7 @@ class GridScreen(JFScreen):
 				self["frame"].hide()
 				self.set_info(None)
 				self.update_header()
-				self.set_status("Keine Einträge gefunden" + ("\n(Kategorie: %s - GRÜN wechselt)" % self.category_label() if self.category else ""))
+				self.set_status(_("Keine Einträge gefunden") + (_("\n(Kategorie: %s - GRÜN wechselt)") % self.category_label() if self.category else ""))
 				return
 			self.set_status(None)
 			self.index = min(self.index, len(self.entries) - 1)
@@ -291,22 +292,22 @@ class GridScreen(JFScreen):
 			self.loading = False
 			self.set_status(None)
 			self.show_error(err)
-		self.run(self.fetch, start, callback=ok, errback=fail, status="Lade ..." if first else None)
+		self.run(self.fetch, start, callback=ok, errback=fail, status=_("Lade ...") if first else None)
 
 	# ------------------------------------------------------------- drawing
 	def update_header(self):
-		parts = ["%d Titel" % self.total]
+		parts = [ngettext("%d Titel", "%d Titel", self.total) % self.total]
 		if self.category:
-			parts.append("Kategorie: %s" % self.category_label())
+			parts.append(_("Kategorie: %s") % self.category_label())
 		if self.spec.get("source") == "items" and self.spec.get("sortable", True):
-			parts.append("Sortierung: %s" % SORTS[self.sort_idx][2])
+			parts.append(_("Sortierung: %s") % _(SORTS[self.sort_idx][2]))
 			if self.filter_idx:
-				parts.append("Filter: %s" % FILTERS[self.filter_idx][1])
+				parts.append(_("Filter: %s") % _(FILTERS[self.filter_idx][1]))
 			if self.genre:
-				parts.append("Genre: %s" % self.genre[1])
+				parts.append(_("Genre: %s") % self.genre[1])
 		self["subtitle"].setText("  |  ".join(parts))
 		pages = max(1, (self.total + PAGE - 1) // PAGE)
-		self["pageinfo"].setText("Seite %d / %d" % (self.index // PAGE + 1, pages) if self.total else "")
+		self["pageinfo"].setText(_("Seite %d / %d") % (self.index // PAGE + 1, pages) if self.total else "")
 
 	def refresh(self):
 		if not self.entries:
@@ -446,8 +447,8 @@ class GridScreen(JFScreen):
 	def key_red(self):
 		if self.spec.get("source") != "items" or not self.spec.get("sortable", True):
 			return
-		choices = [(label, i) for i, (_s, _o, label) in enumerate(SORTS)]
-		self.session.openWithCallback(self.sort_chosen, ChoiceBox, title="Sortierung", list=choices, selection=self.sort_idx)
+		choices = [(_(label), i) for i, (_s, _o, label) in enumerate(SORTS)]
+		self.session.openWithCallback(self.sort_chosen, ChoiceBox, title=_("Sortierung"), list=choices, selection=self.sort_idx)
 
 	def sort_chosen(self, choice=None):
 		if choice is not None:
@@ -479,6 +480,7 @@ class GridScreen(JFScreen):
 		out = []
 		counts = self.cat_counts
 		for types, label in allowed:
+			label = _(label)
 			if counts is not None and src != "items":
 				n = counts.get(types, 0)
 				if n == 0 and types is not None and types != self.category:
@@ -490,16 +492,16 @@ class GridScreen(JFScreen):
 	def category_label(self):
 		for types, label in CATEGORIES:
 			if types == self.category:
-				return label
+				return _(label)
 		return "?"
 
 	def choose_category(self):
 		choices = [(label, ("c", types)) for label, types in self.category_choices()]
 		if len(choices) <= 2 and self.spec.get("source") in CLIENT_SIDE:
-			self.info("Diese Liste enthält nur eine Kategorie")
+			self.info(_("Diese Liste enthält nur eine Kategorie"))
 			return
 		sel = [c[1][1] for c in choices].index(self.category) if self.category in [c[1][1] for c in choices] else 0
-		self.session.openWithCallback(self.filter_chosen, ChoiceBox, title="Kategorie", list=choices, selection=sel)
+		self.session.openWithCallback(self.filter_chosen, ChoiceBox, title=_("Kategorie"), list=choices, selection=sel)
 
 	def key_green(self):
 		if self.spec.get("source") != "items" or not self.spec.get("sortable", True):
@@ -508,12 +510,12 @@ class GridScreen(JFScreen):
 			return
 		choices = []
 		if self.has_categories():
-			choices += [("Kategorie: %s" % label, ("c", types)) for label, types in self.category_choices()]
-		choices += [(label, ("f", i)) for i, (_f, label) in enumerate(FILTERS)]
-		choices.append(("Genre wählen ...", ("g", None)))
+			choices += [(_("Kategorie: %s") % label, ("c", types)) for label, types in self.category_choices()]
+		choices += [(_(label), ("f", i)) for i, (_f, label) in enumerate(FILTERS)]
+		choices.append((_("Genre wählen ..."), ("g", None)))
 		if self.genre:
-			choices.append(("Genre-Filter entfernen", ("g-", None)))
-		self.session.openWithCallback(self.filter_chosen, ChoiceBox, title="Filter", list=choices)
+			choices.append((_("Genre-Filter entfernen"), ("g-", None)))
+		self.session.openWithCallback(self.filter_chosen, ChoiceBox, title=_("Filter"), list=choices)
 
 	def filter_chosen(self, choice=None):
 		if choice is None:
@@ -535,11 +537,11 @@ class GridScreen(JFScreen):
 
 			def ok(genres):
 				if not genres:
-					self.info("Keine Genres gefunden")
+					self.info(_("Keine Genres gefunden"))
 					return
 				lst = [(g.get("Name", "?"), (g.get("Id"), g.get("Name"))) for g in genres]
-				self.session.openWithCallback(self.genre_chosen, ChoiceBox, title="Genre", list=lst)
-			self.run(self.cl.genres, params.get("parentId"), self.category or params.get("includeItemTypes"), callback=ok, status="Lade Genres ...")
+				self.session.openWithCallback(self.genre_chosen, ChoiceBox, title=_("Genre"), list=lst)
+			self.run(self.cl.genres, params.get("parentId"), self.category or params.get("includeItemTypes"), callback=ok, status=_("Lade Genres ..."))
 
 	def genre_chosen(self, choice=None):
 		if choice is not None:
@@ -561,29 +563,29 @@ class GridScreen(JFScreen):
 		choices = []
 		if item:
 			t = item.get("Type")
-			choices.append(("Öffnen", "open"))
+			choices.append((_("Öffnen"), "open"))
 			if t in ("Movie", "Episode", "Video", "MusicVideo", "Series", "Season", "MusicAlbum", "Audio", "BoxSet"):
-				choices.append(("Abspielen", "play"))
+				choices.append((_("Abspielen"), "play"))
 			if resume_ticks(item) and not is_played(item):
-				choices.append(("Von Anfang abspielen", "play_start"))
+				choices.append((_("Von Anfang abspielen"), "play_start"))
 			if t in ("Movie", "Episode", "Series", "Video", "MusicVideo"):
-				choices.append(("Details", "detail"))
+				choices.append((_("Details"), "detail"))
 			if t == "Episode" and item.get("SeriesId"):
-				choices.append(("Zur Serie", "series"))
-				choices.append(("Alle Episoden der Staffel", "season"))
-			choices.append(("Als ungesehen markieren" if is_played(item) else "Als gesehen markieren", "played"))
-			choices.append(("Aus Favoriten entfernen" if is_favorite(item) else "Zu Favoriten hinzufügen", "fav"))
+				choices.append((_("Zur Serie"), "series"))
+				choices.append((_("Alle Episoden der Staffel"), "season"))
+			choices.append((_("Als ungesehen markieren") if is_played(item) else _("Als gesehen markieren"), "played"))
+			choices.append((_("Aus Favoriten entfernen") if is_favorite(item) else _("Zu Favoriten hinzufügen"), "fav"))
 			if t in ("Movie", "Series"):
-				choices.append(("Ähnliche Titel", "similar"))
+				choices.append((_("Ähnliche Titel"), "similar"))
 		if self.spec.get("source") == "items" and self.spec.get("sortable", True):
-			choices.append(("Sortierung ...", "sort"))
-			choices.append(("Filter ...", "filter"))
+			choices.append((_("Sortierung ..."), "sort"))
+			choices.append((_("Filter ..."), "filter"))
 		elif self.has_categories():
-			choices.append(("Kategorie ...", "category"))
+			choices.append((_("Kategorie ..."), "category"))
 		if self.spec.get("source") == "rule":
-			choices.append(("Liste bearbeiten ...", "edit_rule"))
-		choices.append(("Neu laden", "reload"))
-		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title=display_title(item) if item else "Optionen", list=choices)
+			choices.append((_("Liste bearbeiten ..."), "edit_rule"))
+		choices.append((_("Neu laden"), "reload"))
+		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title=display_title(item) if item else _("Optionen"), list=choices)
 
 	def menu_chosen(self, choice=None):
 		if choice is None:
@@ -609,7 +611,7 @@ class GridScreen(JFScreen):
 		elif action == "fav":
 			self.key_blue()
 		elif action == "similar":
-			jfnav.open_grid(self, {"title": "Ähnlich wie %s" % item.get("Name", ""), "source": "similar", "item_id": item["Id"]})
+			jfnav.open_grid(self, {"title": _("Ähnlich wie %s") % item.get("Name", ""), "source": "similar", "item_id": item["Id"]})
 		elif action == "sort":
 			self.key_red()
 		elif action in ("filter", "category"):
@@ -622,8 +624,9 @@ class GridScreen(JFScreen):
 
 	def rule_edited(self, rule=None):
 		if rule:
+			from .jfrules import rule_name
 			self.spec["rule"] = rule
-			self["title"].setText(rule.get("name", ""))
+			self["title"].setText(rule_name(rule))
 			rules = jfconfig.load_rules()
 			for i, r in enumerate(rules):
 				if r.get("id") == rule.get("id"):

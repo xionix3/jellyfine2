@@ -3,6 +3,8 @@
 # Jellyfin for Enigma2 - login (password, Quick Connect, LAN discovery)
 from __future__ import absolute_import
 
+from .jfi18n import _, N_
+
 from enigma import eTimer
 
 from Components.ActionMap import ActionMap
@@ -26,12 +28,12 @@ class LoginScreen(JFScreen):
 		self.server = jfconfig.saved_server()
 		self.username = jfconfig.saved_username()
 		self.password = ""
-		self["title"] = Label("Jellyfin - Anmeldung")
-		self["subtitle"] = Label("Mit deinem Jellyfin-Server verbinden")
+		self["title"] = Label(_("Jellyfin - Anmeldung"))
+		self["subtitle"] = Label(_("Mit deinem Jellyfin-Server verbinden"))
 		self["list"] = make_list(fonts=((32,), (30,)), item_height=70)
 		self["description"] = Label("")
 		self["status"] = Label("")
-		self.add_keys(red="Abbrechen", green="Anmelden", yellow="Quick Connect", blue="Server suchen")
+		self.add_keys(red=_("Abbrechen"), green=_("Anmelden"), yellow=_("Quick Connect"), blue=_("Server suchen"))
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions", "DirectionActions"], {
 			"ok": self.key_ok,
 			"cancel": self.close,
@@ -46,24 +48,24 @@ class LoginScreen(JFScreen):
 		self.onLayoutFinish.append(self.build)
 
 	DESCRIPTIONS = {
-		"server": "Adresse des Jellyfin-Servers, z.B. http://192.168.1.10:8096 oder https://jellyfin.example.de. OK öffnet die Tastatur.",
-		"user": "Dein Jellyfin-Benutzername.",
-		"pass": "Dein Passwort (leer lassen, falls keines gesetzt ist).",
-		"login": "Mit Benutzername und Passwort anmelden.",
-		"qc": "Anmeldung ohne Passwort-Eingabe: Code in der Jellyfin-App/Web unter Benutzer > Quick Connect bestätigen.",
-		"discover": "Sucht Jellyfin-Server im lokalen Netzwerk.",
+		"server": N_("Adresse des Jellyfin-Servers, z.B. http://192.168.1.10:8096 oder https://jellyfin.example.de. OK öffnet die Tastatur."),
+		"user": N_("Dein Jellyfin-Benutzername."),
+		"pass": N_("Dein Passwort (leer lassen, falls keines gesetzt ist)."),
+		"login": N_("Mit Benutzername und Passwort anmelden."),
+		"qc": N_("Anmeldung ohne Passwort-Eingabe: Code in der Jellyfin-App/Web unter Benutzer > Quick Connect bestätigen."),
+		"discover": N_("Sucht Jellyfin-Server im lokalen Netzwerk."),
 	}
 
 	def build(self):
 		self["status"].setText("")
-		masked = "*" * len(self.password) if self.password else "(leer)"
+		masked = "*" * len(self.password) if self.password else _("(leer)")
 		rows = [
-			text_row("server", "Server", ROW_W, 70, value=self.server or "(nicht gesetzt)", value_width=820, value_color=C_ACCENT),
-			text_row("user", "Benutzer", ROW_W, 70, value=self.username or "(nicht gesetzt)", value_width=820, value_color=C_ACCENT),
-			text_row("pass", "Passwort", ROW_W, 70, value=masked, value_width=820, value_color=C_ACCENT),
-			text_row("login", ">  Anmelden", ROW_W, 70),
-			text_row("qc", ">  Mit Quick Connect anmelden", ROW_W, 70),
-			text_row("discover", ">  Server im Netzwerk suchen", ROW_W, 70, color=C_DIM),
+			text_row("server", _("Server"), ROW_W, 70, value=self.server or _("(nicht gesetzt)"), value_width=820, value_color=C_ACCENT),
+			text_row("user", _("Benutzer"), ROW_W, 70, value=self.username or _("(nicht gesetzt)"), value_width=820, value_color=C_ACCENT),
+			text_row("pass", _("Passwort"), ROW_W, 70, value=masked, value_width=820, value_color=C_ACCENT),
+			text_row("login", _(">  Anmelden"), ROW_W, 70),
+			text_row("qc", _(">  Mit Quick Connect anmelden"), ROW_W, 70),
+			text_row("discover", _(">  Server im Netzwerk suchen"), ROW_W, 70, color=C_DIM),
 		]
 		idx = self["list"].getSelectedIndex() if self["list"].list else 0
 		self["list"].setList(rows)
@@ -73,7 +75,7 @@ class LoginScreen(JFScreen):
 	def update_description(self):
 		cur = self["list"].getCurrent()
 		if cur:
-			self["description"].setText(self.DESCRIPTIONS.get(cur[0], ""))
+			self["description"].setText(_(self.DESCRIPTIONS.get(cur[0], "")))
 
 	def key_ok(self):
 		cur = self["list"].getCurrent()
@@ -81,11 +83,11 @@ class LoginScreen(JFScreen):
 			return
 		key = cur[0]
 		if key == "server":
-			self.session.openWithCallback(self.set_server, VirtualKeyBoard, title="Server-Adresse", text=self.server or "http://")
+			self.session.openWithCallback(self.set_server, VirtualKeyBoard, title=_("Server-Adresse"), text=self.server or "http://")
 		elif key == "user":
-			self.session.openWithCallback(self.set_user, VirtualKeyBoard, title="Benutzername", text=self.username)
+			self.session.openWithCallback(self.set_user, VirtualKeyBoard, title=_("Benutzername"), text=self.username)
 		elif key == "pass":
-			self.session.openWithCallback(self.set_pass, VirtualKeyBoard, title="Passwort", text="")
+			self.session.openWithCallback(self.set_pass, VirtualKeyBoard, title=_("Passwort"), text="")
 		elif key == "login":
 			self.login()
 		elif key == "qc":
@@ -109,11 +111,11 @@ class LoginScreen(JFScreen):
 			self.build()
 
 	def error(self, err):
-		self["status"].setText("Fehler: %s" % err)
+		self["status"].setText(_("Fehler: %s") % err)
 
 	def check_server(self):
 		if not self.server:
-			self["status"].setText("Bitte zuerst die Server-Adresse eingeben (oder blaue Taste: Server suchen).")
+			self["status"].setText(_("Bitte zuerst die Server-Adresse eingeben (oder blaue Taste: Server suchen)."))
 			return False
 		return True
 
@@ -121,7 +123,7 @@ class LoginScreen(JFScreen):
 		if not self.check_server():
 			return
 		if not self.username:
-			self["status"].setText("Bitte einen Benutzernamen eingeben.")
+			self["status"].setText(_("Bitte einen Benutzernamen eingeben."))
 			return
 		cl = self.cl
 		server, user, pw = self.server, self.username, self.password
@@ -136,7 +138,7 @@ class LoginScreen(JFScreen):
 		def ok(res):
 			jfconfig.save_login(cl)
 			self.close("ok")
-		self["status"].setText("Melde an ...")
+		self["status"].setText(_("Melde an ..."))
 		self.run(work, callback=ok, errback=self.error)
 
 	def quick_connect(self):
@@ -154,7 +156,7 @@ class LoginScreen(JFScreen):
 		def ok(res):
 			self["status"].setText("")
 			self.session.openWithCallback(self.qc_done, QuickConnectScreen, res.get("Code", "?"), res.get("Secret"))
-		self["status"].setText("Starte Quick Connect ...")
+		self["status"].setText(_("Starte Quick Connect ..."))
 		self.run(work, callback=ok, errback=self.error)
 
 	def qc_done(self, result=None):
@@ -167,12 +169,12 @@ class LoginScreen(JFScreen):
 	def discover(self):
 		def ok(servers):
 			if not servers:
-				self["status"].setText("Kein Server gefunden. Adresse bitte manuell eingeben.")
+				self["status"].setText(_("Kein Server gefunden. Adresse bitte manuell eingeben."))
 				return
 			self["status"].setText("")
 			lst = [("%s  (%s)" % (s["Name"], s["Address"]), s["Address"]) for s in servers]
-			self.session.openWithCallback(self.server_chosen, ChoiceBox, title="Gefundene Jellyfin-Server", list=lst)
-		self["status"].setText("Suche Server im Netzwerk ...")
+			self.session.openWithCallback(self.server_chosen, ChoiceBox, title=_("Gefundene Jellyfin-Server"), list=lst)
+		self["status"].setText(_("Suche Server im Netzwerk ..."))
 		self.run(discover_servers, 2.5, callback=ok, errback=self.error)
 
 	def server_chosen(self, choice):
@@ -190,11 +192,11 @@ class QuickConnectScreen(JFScreen):
 		self.secret = secret
 		self.polls = 0
 		self.checking = False
-		self["title"] = Label("Quick Connect")
-		self["text"] = Label("Öffne Jellyfin am Handy oder PC, gehe zu Benutzer > Quick Connect und gib diesen Code ein:")
+		self["title"] = Label(_("Quick Connect"))
+		self["text"] = Label(_("Öffne Jellyfin am Handy oder PC, gehe zu Benutzer > Quick Connect und gib diesen Code ein:"))
 		self["code"] = Label(code)
-		self["status"] = Label("Warte auf Bestätigung ...")
-		self["key_red"] = Label("Abbrechen")
+		self["status"] = Label(_("Warte auf Bestätigung ..."))
+		self["key_red"] = Label(_("Abbrechen"))
 		self["actions"] = ActionMap(["OkCancelActions", "ColorActions"], {
 			"cancel": self.close,
 			"red": self.close,
@@ -210,7 +212,7 @@ class QuickConnectScreen(JFScreen):
 		self.polls += 1
 		if self.polls > 100:  # ~5 minutes
 			self.timer.stop()
-			self.close("Quick Connect abgelaufen - bitte erneut versuchen.")
+			self.close(_("Quick Connect abgelaufen - bitte erneut versuchen."))
 			return
 		cl = self.cl
 		secret = self.secret
@@ -229,6 +231,6 @@ class QuickConnectScreen(JFScreen):
 
 		def fail(err):
 			self.checking = False
-			self["status"].setText("Fehler: %s" % err)
+			self["status"].setText(_("Fehler: %s") % err)
 		self.checking = True
 		self.run(work, callback=ok, errback=fail)

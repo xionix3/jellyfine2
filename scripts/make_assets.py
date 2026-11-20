@@ -12,6 +12,8 @@ import sys
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "src"))
+from JellyfinOpenPLi.jfi18n import BADGES, badge_file  # noqa: E402 (pure python, no enigma imports)
 OUT = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "src", "JellyfinOpenPLi", "images")
 FB = os.environ.get("ASSET_FONT_BOLD", "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
 BG = (11, 11, 16)
@@ -58,6 +60,8 @@ def font(size):
 def badge(text, w, h, color):
 	img = rounded(w, h, h // 3, color + (255,))
 	d = ImageDraw.Draw(img)
+	if d.textlength(text, font=font(int(h * 0.62))) > w - 12:
+		sys.exit("badge text %r does not fit into %d px" % (text, w))
 	d.text((w / 2, h / 2 + 1), text, font=font(int(h * 0.62)), fill=(255, 255, 255, 255), anchor="mm")
 	return img
 
@@ -159,8 +163,9 @@ asset("frame_person.png", rounded(146, 211, 12, (0, 0, 0, 0), outline=(255, 255,
 asset("pill_primary.png", rounded(280, 64, 32, (245, 245, 248, 255)))
 asset("pill_secondary.png", glass(280, 64, 32, alpha=40, border=70))
 asset("rail_sel.png", rounded(72, 72, 36, ACCENT + (255,)))
-asset("badge_new.png", badge("NEU", 64, 28, PURPLE))
-asset("badge_seen.png", badge("gesehen", 104, 28, GREEN))
+for kind, color in (("new", PURPLE), ("seen", GREEN)):
+	for lang, (text, width) in BADGES[kind].items():
+		asset(badge_file(kind, lang), badge(text, width, 28, color))
 for k in ("search", "home", "movies", "tv", "lists", "settings"):
 	asset("icon_%s.png" % k, icon(k))
 asset("icon_play_dark.png", icon("play", 28, (16, 16, 22, 255)))

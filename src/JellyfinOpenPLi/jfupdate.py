@@ -4,6 +4,8 @@
 # Jellyfin for Enigma2 - update check against the GitHub releases of xionix3/jellyfine_enigma2_openpli
 from __future__ import absolute_import
 
+from .jfi18n import _
+
 import json
 import os
 import re
@@ -51,7 +53,7 @@ def _get(url, timeout=15, limit=64 * 1024 * 1024):
 	except Exception as e:
 		raise UpdateError("%s: %s" % (url.split("/")[2] if "//" in url else url, e))
 	if len(data) > limit:
-		raise UpdateError("Download zu groß")
+		raise UpdateError(_("Download zu groß"))
 	return data
 
 
@@ -60,7 +62,7 @@ def check():
 	try:
 		info = json.loads(_get(API_URL).decode("utf-8"))
 	except ValueError:
-		raise UpdateError("Ungültige Antwort von GitHub")
+		raise UpdateError(_("Ungültige Antwort von GitHub"))
 	if info.get("draft") or info.get("prerelease"):
 		return None
 	tag = info.get("tag_name") or ""
@@ -102,7 +104,7 @@ def download(info, target=TARGET):
 	"""Downloads the package and verifies it against SHA256SUMS of the release. Returns the path."""
 	data = _get(info["url"])
 	if data[:8] != b"!<arch>\n":
-		raise UpdateError("Die heruntergeladene Datei ist kein IPK-Paket")
+		raise UpdateError(_("Die heruntergeladene Datei ist kein IPK-Paket"))
 	if info.get("sums_url"):
 		sums = _get(info["sums_url"], limit=64 * 1024).decode("utf-8", "replace")
 		want = None
@@ -114,9 +116,9 @@ def download(info, target=TARGET):
 		try:
 			from hashlib import sha256
 		except ImportError:
-			raise UpdateError("Prüfsumme kann nicht geprüft werden (hashlib fehlt) - bitte manuell aktualisieren")
+			raise UpdateError(_("Prüfsumme kann nicht geprüft werden (hashlib fehlt) - bitte manuell aktualisieren"))
 		if want and sha256(data).hexdigest() != want:
-			raise UpdateError("Prüfsumme stimmt nicht - Update abgebrochen")
+			raise UpdateError(_("Prüfsumme stimmt nicht - Update abgebrochen"))
 	tmp = target + ".part"
 	with open(tmp, "wb") as f:
 		f.write(data)
@@ -154,18 +156,18 @@ class Updater(object):
 			if info:
 				self.offer(info)
 			elif manual:
-				self.screen.info("Das Plugin ist aktuell (Version %s)." % CLIENT_VERSION, timeout=5)
+				self.screen.info(_("Das Plugin ist aktuell (Version %s).") % CLIENT_VERSION, timeout=5)
 
 		def fail(err):
 			if manual:
-				self.screen.show_error(err, "Update-Prüfung fehlgeschlagen")
+				self.screen.show_error(err, _("Update-Prüfung fehlgeschlagen"))
 			else:
 				log("update check failed: %s" % err)
-		self.screen.run(check, callback=ok, errback=fail, pool="bg", status="Suche nach Updates ..." if manual else None)
+		self.screen.run(check, callback=ok, errback=fail, pool="bg", status=_("Suche nach Updates ...") if manual else None)
 
 	def offer(self, info):
 		from Screens.MessageBox import MessageBox
-		text = "Jellyfin für Enigma2 %s ist verfügbar (installiert: %s).\n\n%s\n\nJetzt installieren?" % (
+		text = _("Jellyfin für Enigma2 %s ist verfügbar (installiert: %s).\n\n%s\n\nJetzt installieren?") % (
 			info["version"], CLIENT_VERSION, info["notes"] or "")
 		self.session.openWithCallback(lambda yes=False: yes and self.install(info), MessageBox, text.replace("\n\n\n", "\n\n"),
 			MessageBox.TYPE_YESNO, default=True)
@@ -173,21 +175,21 @@ class Updater(object):
 	def install(self, info):
 		def downloaded(path):
 			from Components.Console import Console
-			self.screen.set_busy(True, "Installiere Update ...")
+			self.screen.set_busy(True, _("Installiere Update ..."))
 			self.console = Console()
 			self.console.ePopen(install_command(path), self.installed, [info])
-		self.screen.run(download, info, callback=downloaded, pool="bg", status="Lade Update %s ..." % info["version"],
-			errback=lambda e: self.screen.show_error(e, "Update fehlgeschlagen"))
+		self.screen.run(download, info, callback=downloaded, pool="bg", status=_("Lade Update %s ...") % info["version"],
+			errback=lambda e: self.screen.show_error(e, _("Update fehlgeschlagen")))
 
 	def installed(self, output, retval, extra=None):
 		from Screens.MessageBox import MessageBox
 		self.screen.set_busy(False)
 		info = (extra or [{}])[0]
 		if retval:
-			self.screen.show_error(UpdateError((output or "").strip()[-400:] or "opkg Fehler %s" % retval), "Update fehlgeschlagen")
+			self.screen.show_error(UpdateError((output or "").strip()[-400:] or _("opkg Fehler %s") % retval), _("Update fehlgeschlagen"))
 			return
 		self.session.openWithCallback(self.restart, MessageBox,
-			"Version %s wurde installiert.\nEnigma2 jetzt neu starten, damit das Update aktiv wird?" % info.get("version", "?"),
+			_("Version %s wurde installiert.\nEnigma2 jetzt neu starten, damit das Update aktiv wird?") % info.get("version", "?"),
 			MessageBox.TYPE_YESNO, default=True)
 
 	def restart(self, yes=False):

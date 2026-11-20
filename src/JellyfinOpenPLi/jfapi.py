@@ -6,6 +6,8 @@
 # (/Users/{id}/... -> /UserItems, /UserViews, ...) are chosen by server version.
 from __future__ import absolute_import
 
+from .jfi18n import _
+
 import json
 import socket
 import time
@@ -26,7 +28,7 @@ except ImportError:  # pragma: no cover - python 2 fallback
 	from urlparse import urljoin, urlsplit
 
 CLIENT_NAME = "Jellyfin Enigma2"
-CLIENT_VERSION = "1.3.2"
+CLIENT_VERSION = "1.4.0"
 
 SEARCH_TYPES = "Movie,Series,Episode,BoxSet,MusicAlbum,MusicVideo,Video,MusicArtist,Audio"
 LIST_FIELDS = "Overview,Genres,PrimaryImageAspectRatio,ChildCount,DateCreated,DateLastMediaAdded,MediaSourceCount,SeriesPrimaryImage"
@@ -244,7 +246,7 @@ class JellyfinClient(object):
 
 	def request(self, method, path, params=None, body=None, timeout=None, headers=None, raw=False, want_url=False):
 		if not self.server:
-			raise JellyfinError("Kein Server konfiguriert")
+			raise JellyfinError(_("Kein Server konfiguriert"))
 		url = self.build_url(path, params)
 		data = None
 		hdrs = self._base_headers()
@@ -258,23 +260,23 @@ class JellyfinClient(object):
 		try:
 			status, payload, final_url = self._http(method, url, data, hdrs, timeout or self.timeout)
 		except socket.timeout:
-			raise JellyfinError("Zeitüberschreitung bei der Verbindung zum Server")
+			raise JellyfinError(_("Zeitüberschreitung bei der Verbindung zum Server"))
 		except Exception as e:
 			text = str(e)
 			if (ssl is not None and isinstance(e, ssl.SSLError)) or "CERTIFICATE" in text.upper():
-				raise JellyfinError("SSL-Fehler: %s (SSL-Prüfung in den Einstellungen deaktivierbar)" % text)
+				raise JellyfinError(_("SSL-Fehler: %s (SSL-Prüfung in den Einstellungen deaktivierbar)") % text)
 			if isinstance(e, (httplib.HTTPException, OSError)):
-				raise JellyfinError("Server nicht erreichbar: %s" % (text or e.__class__.__name__))
+				raise JellyfinError(_("Server nicht erreichbar: %s") % (text or e.__class__.__name__))
 			raise
 		if status >= 400:
 			detail = (payload or b"")[:300].decode("utf-8", "replace")
 			if status == 401:
-				raise JellyfinError("Nicht autorisiert (401) - bitte erneut anmelden", 401)
+				raise JellyfinError(_("Nicht autorisiert (401) - bitte erneut anmelden"), 401)
 			if status == 403:
-				raise JellyfinError("Zugriff verweigert (403)", 403)
+				raise JellyfinError(_("Zugriff verweigert (403)"), 403)
 			if status == 404:
-				raise JellyfinError("Nicht gefunden (404): %s" % path, 404)
-			raise JellyfinError("HTTP %s: %s" % (status, detail), status)
+				raise JellyfinError(_("Nicht gefunden (404): %s") % path, 404)
+			raise JellyfinError(_("HTTP %s: %s") % (status, detail), status)
 		if raw:
 			return payload
 		result = None
@@ -309,7 +311,7 @@ class JellyfinClient(object):
 		info, final_url = self.request("GET", "/System/Info/Public", timeout=10, want_url=True)
 		info = info or {}
 		if not info.get("Id") and not info.get("Version"):
-			raise JellyfinError("Unter dieser Adresse antwortet kein Jellyfin-Server")
+			raise JellyfinError(_("Unter dieser Adresse antwortet kein Jellyfin-Server"))
 		# follow a permanent move (e.g. http -> https reverse proxy)
 		suffix = "/System/Info/Public"
 		if final_url and suffix in final_url:
@@ -323,7 +325,7 @@ class JellyfinClient(object):
 
 	def _apply_auth(self, res):
 		if not res or not res.get("AccessToken"):
-			raise JellyfinError("Anmeldung fehlgeschlagen")
+			raise JellyfinError(_("Anmeldung fehlgeschlagen"))
 		self.token = res["AccessToken"]
 		user = res.get("User") or {}
 		self.user_id = user.get("Id") or ""
@@ -336,7 +338,7 @@ class JellyfinClient(object):
 			res = self.post("/Users/AuthenticateByName", {"Username": username, "Pw": password or ""})
 		except JellyfinError as e:
 			if e.status in (400, 401):
-				raise JellyfinError("Benutzername oder Passwort falsch", e.status)
+				raise JellyfinError(_("Benutzername oder Passwort falsch"), e.status)
 			raise
 		return self._apply_auth(res)
 
@@ -354,11 +356,11 @@ class JellyfinClient(object):
 			if e.status in (404, 405):  # 10.8 used GET
 				res = self.get("/QuickConnect/Initiate")
 			elif e.status == 401:
-				raise JellyfinError("Quick Connect ist auf dem Server deaktiviert", 401)
+				raise JellyfinError(_("Quick Connect ist auf dem Server deaktiviert"), 401)
 			else:
 				raise
 		if not res or not res.get("Secret"):
-			raise JellyfinError("Quick Connect konnte nicht gestartet werden")
+			raise JellyfinError(_("Quick Connect konnte nicht gestartet werden"))
 		return res
 
 	def quickconnect_check(self, secret):
@@ -552,7 +554,7 @@ class JellyfinClient(object):
 	def download(self, url, timeout=20):
 		status, payload, _url = self._http("GET", url, None, self._base_headers("image/jpeg,image/png;q=0.8"), timeout)
 		if status >= 400:
-			raise JellyfinError("Bild nicht geladen (HTTP %s)" % status, status)
+			raise JellyfinError(_("Bild nicht geladen (HTTP %s)") % status, status)
 		return payload
 
 	# ------------------------------------------------------------------ playback
@@ -579,21 +581,21 @@ class JellyfinClient(object):
 			body["MediaSourceId"] = media_source_id
 		res = self.post("/Items/%s/PlaybackInfo" % item_id, body, userId=self.user_id)
 		if not res:
-			raise JellyfinError("Keine Wiedergabeinformationen erhalten")
+			raise JellyfinError(_("Keine Wiedergabeinformationen erhalten"))
 		if res.get("ErrorCode"):
 			codes = {
-				"NotAllowed": "Wiedergabe für diesen Benutzer nicht erlaubt",
-				"NoCompatibleStream": "Kein kompatibler Stream verfügbar",
-				"RateLimitExceeded": "Zu viele gleichzeitige Streams",
+				"NotAllowed": _("Wiedergabe für diesen Benutzer nicht erlaubt"),
+				"NoCompatibleStream": _("Kein kompatibler Stream verfügbar"),
+				"RateLimitExceeded": _("Zu viele gleichzeitige Streams"),
 			}
-			raise JellyfinError(codes.get(res["ErrorCode"], "Wiedergabefehler: %s" % res["ErrorCode"]))
+			raise JellyfinError(codes.get(res["ErrorCode"], _("Wiedergabefehler: %s") % res["ErrorCode"]))
 		return res
 
 	def resolve_stream(self, item, pbinfo, opts, media_source_id=None, force_transcode=False):
 		"""Pick the URL Enigma2 should play. Returns dict."""
 		sources = pbinfo.get("MediaSources") or []
 		if not sources:
-			raise JellyfinError("Das Element hat keine abspielbare Quelle")
+			raise JellyfinError(_("Das Element hat keine abspielbare Quelle"))
 		ms = sources[0]
 		if media_source_id:
 			for s in sources:
@@ -619,7 +621,7 @@ class JellyfinClient(object):
 			result["play_method"] = "DirectPlay"
 			return result
 		if not turl:
-			raise JellyfinError("Der Server kann dieses Element nicht für die Box aufbereiten (Transcoding für den Benutzer deaktiviert?)")
+			raise JellyfinError(_("Der Server kann dieses Element nicht für die Box aufbereiten (Transcoding für den Benutzer deaktiviert?)"))
 		if turl.startswith("http"):
 			url = turl
 		else:

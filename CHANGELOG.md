@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0] - 2026-11-20
+
+- **English and Dutch**: the whole interface (screens, menus, messages, settings, badges, plugin description) is translated. The new setting *Sprache / Language / Taal* (first in the settings) follows the menu language of the box by default - German, English or Dutch, English for every other language - or is set by hand; the change applies at once
+- The default lists (*New movies*, *New episodes of my shows* ...) are shown in the chosen language, lists you named yourself keep their name
+- Counts with proper singular/plural (*1 season*, *3 seasons*), decimal point in English
+- Translations live in `locale/en.po` and `locale/nl.po` (Poedit); CI checks that every text is translated
+- Screenshots in the README for each language
+
 ## [1.3.2] - 2026-11-20
 
 - New name: the project lives at [xionix3/jellyfine_enigma2_openpli](https://github.com/xionix3/jellyfine_enigma2_openpli), the package is now `enigma2-plugin-extensions-jellyfine-enigma2-openpli` (opkg allows no underscores in package names) and the plugin folder `Extensions/JellyfinOpenPLi`

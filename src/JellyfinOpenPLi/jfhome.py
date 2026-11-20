@@ -4,6 +4,8 @@
 # Jellyfin for Enigma2 - start screen (modern row layout and classic layout)
 from __future__ import absolute_import
 
+from .jfi18n import _, N_, current as current_language
+
 import time
 
 from enigma import eTimer
@@ -17,11 +19,12 @@ from Screens.MessageBox import MessageBox
 from . import jfconfig, jfnav
 from .jfcommon import CoverCells, JFScreen, make_list, text_row
 from .jfrows import Row, RowsScreen, open_library
+from .jfrules import rule_name
 from .jfskin import C_DIM, COVER_H, COVER_W, HOME_COLS, HOME_ROWS, home_skin
 
 PREVIEW = HOME_COLS * HOME_ROWS
-COLLECTION_LABELS = {"movies": "Filme", "tvshows": "Serien", "music": "Musik", "boxsets": "Sammlungen", "playlists": "Wiedergabelisten",
-	"homevideos": "Videos", "musicvideos": "Musikvideos", "mixed": "Gemischt"}
+COLLECTION_LABELS = {"movies": N_("Filme"), "tvshows": N_("Serien"), "music": N_("Musik"), "boxsets": N_("Sammlungen"), "playlists": N_("Wiedergabelisten"),
+	"homevideos": N_("Videos"), "musicvideos": N_("Musikvideos"), "mixed": N_("Gemischt")}
 DYNAMIC = ("resume", "nextup", "latest", "favorites", "rule")
 STATIC_KEYS = ("search", "settings", "rules")
 CACHE_TTL = 300  # seconds a preview is shown without refetching
@@ -43,8 +46,8 @@ def home_screen_class():
 
 # ------------------------------------------------------------------ sections (shared by both layouts)
 def all_sections(views):
-	rules = [("rule", r.get("name", "?"), r) for r in jfconfig.load_rules() if r.get("home")]
-	base = [("resume", "Weiterschauen", None), ("nextup", "Als Nächstes", None), ("latest", "Neu hinzugefügt", None)]
+	rules = [("rule", rule_name(r), r) for r in jfconfig.load_rules() if r.get("home")]
+	base = [("resume", _("Weiterschauen"), None), ("nextup", _("Als Nächstes"), None), ("latest", _("Neu hinzugefügt"), None)]
 	libs = [("view", v.get("Name", "?"), v) for v in views]
 	pos = jfconfig.get("rules_first")
 	if pos == "top":
@@ -53,7 +56,7 @@ def all_sections(views):
 		s = base[:1] + rules + base[1:] + libs
 	else:
 		s = base + libs + rules
-	return s + [("favorites", "Favoriten", None), ("rules", "Meine Listen", None), ("search", "Suche", None), ("settings", "Einstellungen", None)]
+	return s + [("favorites", _("Favoriten"), None), ("rules", _("Meine Listen"), None), ("search", _("Suche"), None), ("settings", _("Einstellungen"), None)]
 
 
 def section_key(sec):
@@ -113,6 +116,7 @@ class HomeShared(object):
 	last_search = ""
 
 	def home_start(self):
+		self.ui_language = current_language()
 		# look for a new plugin version on GitHub (at most every 12 h, setting "update_check")
 		self.later(4000, lambda: self.updater().run_check())
 		if self.home_cache["views"] is not None:
@@ -132,7 +136,7 @@ class HomeShared(object):
 	def server_text(self):
 		cl = self.cl
 		ver = ".".join(str(x) for x in cl.server_version) if cl.server_version != (0, 0, 0) else ""
-		return "%s  @  %s%s" % (cl.user_name or "?", cl.server_name or cl.server, ("  (Jellyfin %s)" % ver) if ver else "")
+		return "%s  @  %s%s" % (cl.user_name or "?", cl.server_name or cl.server, (_("  (Jellyfin %s)") % ver) if ver else "")
 
 	def load_views(self, quiet=False):
 		cl = self.cl
@@ -155,11 +159,11 @@ class HomeShared(object):
 
 		def fail(err):
 			if getattr(err, "status", None) == 401:
-				self.session.openWithCallback(self.relogin, MessageBox, "Die Anmeldung ist abgelaufen oder wurde widerrufen.\nNeu anmelden?", MessageBox.TYPE_YESNO)
+				self.session.openWithCallback(self.relogin, MessageBox, _("Die Anmeldung ist abgelaufen oder wurde widerrufen.\nNeu anmelden?"), MessageBox.TYPE_YESNO)
 			elif not quiet:
 				self.sections_changed()
-				self.show_error(err, "Server nicht erreichbar")
-		self.run(fetch, callback=ok, errback=fail, status=None if quiet else "Verbinde mit Server ...")
+				self.show_error(err, _("Server nicht erreichbar"))
+		self.run(fetch, callback=ok, errback=fail, status=None if quiet else _("Verbinde mit Server ..."))
 
 	def relogin(self, answer=False):
 		self.close("login" if answer else None)
@@ -173,7 +177,7 @@ class HomeShared(object):
 			if views:
 				open_library(self, views, self.child_closed, "movies" if key == "movies" else "tvshows")
 			else:
-				self.info("Keine %s-Bibliothek auf dem Server" % ("Film" if key == "movies" else "Serien"))
+				self.info(_("Keine Film-Bibliothek auf dem Server") if key == "movies" else _("Keine Serien-Bibliothek auf dem Server"))
 		elif key == "lists":
 			self.key_rules()
 		elif key == "settings":
@@ -206,7 +210,7 @@ class HomeShared(object):
 		if result == "logout":
 			self.do_logout(True)
 		elif result == "changed":
-			if home_screen_class() is not self.__class__:
+			if home_screen_class() is not self.__class__ or current_language() != getattr(self, "ui_language", None):
 				self.close("relayout")
 				return
 			self.backdrops = jfconfig.get_bool("backdrops")
@@ -217,7 +221,7 @@ class HomeShared(object):
 			self.refresh_previews()
 
 	def key_logout(self):
-		self.session.openWithCallback(self.do_logout, MessageBox, "Von %s abmelden?" % (self.cl.server_name or self.cl.server), MessageBox.TYPE_YESNO, default=False)
+		self.session.openWithCallback(self.do_logout, MessageBox, _("Von %s abmelden?") % (self.cl.server_name or self.cl.server), MessageBox.TYPE_YESNO, default=False)
 
 	def do_logout(self, answer=False):
 		if not answer:
@@ -229,17 +233,17 @@ class HomeShared(object):
 		self.close("login")
 
 	def key_menu(self):
-		other = "Klassische Startseite" if self.__class__ is HeroHomeScreen else "Moderne Startseite"
+		other = _("Klassische Startseite") if self.__class__ is HeroHomeScreen else _("Moderne Startseite")
 		lst = [
-			("Meine Listen verwalten", "rules"),
-			("Suche", "search"),
-			("Aktualisieren", "refresh"),
-			("Einstellungen", "settings"),
-			("Ansicht: %s" % other, "layout"),
-			("Bild-Cache leeren", "cache"),
-			("Abmelden / Benutzer wechseln", "logout"),
-			("Nach Updates suchen", "update"),
-			("Über dieses Plugin", "about"),
+			(_("Meine Listen verwalten"), "rules"),
+			(_("Suche"), "search"),
+			(_("Aktualisieren"), "refresh"),
+			(_("Einstellungen"), "settings"),
+			(_("Ansicht: %s") % other, "layout"),
+			(_("Bild-Cache leeren"), "cache"),
+			(_("Abmelden / Benutzer wechseln"), "logout"),
+			(_("Nach Updates suchen"), "update"),
+			(_("Über dieses Plugin"), "about"),
 		]
 		self.session.openWithCallback(self.menu_chosen, ChoiceBox, title="Jellyfin", list=lst)
 
@@ -260,7 +264,7 @@ class HomeShared(object):
 			self.close("relayout")
 		elif a == "cache":
 			from .jfimages import clear
-			self.run(clear, callback=lambda r: self.info("Bild-Cache geleert"), pool="bg")
+			self.run(clear, callback=lambda r: self.info(_("Bild-Cache geleert")), pool="bg")
 		elif a == "logout":
 			self.key_logout()
 		elif a == "update":
@@ -358,7 +362,7 @@ class HomeScreen(HomeShared, JFScreen):
 		self["preview_title"] = Label("")
 		self["preview_hint"] = Label("")
 		self.cells = CoverCells(self, "p", PREVIEW, COVER_W, COVER_H)
-		self.add_keys(red="Abmelden", green="Suche", yellow="Aktualisieren", blue="Meine Listen", hint="MENU Optionen")
+		self.add_keys(red=_("Abmelden"), green=_("Suche"), yellow=_("Aktualisieren"), blue=_("Meine Listen"), hint=_("MENU Optionen"))
 		self["actions"] = ActionMap(["OkCancelActions", "DirectionActions", "ColorActions", "MenuActions", "ChannelSelectBaseActions", "EPGSelectActions"], {
 			"ok": self.key_ok,
 			"cancel": self.close,
@@ -415,7 +419,7 @@ class HomeScreen(HomeShared, JFScreen):
 		for sec in self.sections:
 			key, title, data = sec
 			if key == "view":
-				kind = COLLECTION_LABELS.get((data.get("CollectionType") or ""), "")
+				kind = _(COLLECTION_LABELS.get((data.get("CollectionType") or ""), ""))
 				rows.append(text_row(sec, title, 520, 66, value=kind, value_width=170, value_color=C_DIM))
 			else:
 				rows.append(text_row(sec, title, 520, 66))
@@ -462,7 +466,7 @@ class HomeScreen(HomeShared, JFScreen):
 			cur = self.current()
 			if cur and section_key(cur) == key and not background:
 				self.cells.clear_all()
-				self["preview_hint"].setText("Fehler: %s" % err)
+				self["preview_hint"].setText(_("Fehler: %s") % err)
 		self.run(fetch_section, self.cl, sec, PREVIEW, callback=ok, errback=fail)
 
 	def refresh_previews(self, force=False):
@@ -482,17 +486,17 @@ class HomeScreen(HomeShared, JFScreen):
 		if not sec:
 			return
 		if sec[0] in STATIC_KEYS:
-			hints = {"search": "OK: Suchbegriff eingeben - Treffer nach Kategorien",
-				"settings": "OK: Wiedergabe, Qualität, Player und Anzeige einstellen",
-				"rules": "OK: eigene Listen anlegen, z.B. 'Neue Filme' oder 'Neue Episoden meiner Serien'"}
+			hints = {"search": _("OK: Suchbegriff eingeben - Treffer nach Kategorien"),
+				"settings": _("OK: Wiedergabe, Qualität, Player und Anzeige einstellen"),
+				"rules": _("OK: eigene Listen anlegen, z.B. 'Neue Filme' oder 'Neue Episoden meiner Serien'")}
 			self["preview_hint"].setText(hints.get(sec[0], ""))
 		else:
-			self["preview_hint"].setText("Lade ...")
+			self["preview_hint"].setText(_("Lade ..."))
 
 	def show_preview(self, sec, items):
 		for i in range(PREVIEW):
 			self.cells.set_item(i, items[i] if i < len(items) else None)
-		self["preview_hint"].setText("OK: alle anzeigen" if items else "Keine Einträge")
+		self["preview_hint"].setText(_("OK: alle anzeigen") if items else _("Keine Einträge"))
 		self.preview_items = items
 		if self.backdrops:
 			self.bd_timer.stop()

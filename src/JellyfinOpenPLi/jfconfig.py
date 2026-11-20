@@ -4,6 +4,8 @@
 # Jellyfin for Enigma2 - persistent settings
 from __future__ import absolute_import
 
+from .jfi18n import _, N_, LANGUAGES, set_language
+
 import binascii
 import os
 
@@ -26,48 +28,52 @@ _c.update_last = ConfigText(default="0", fixed_size=False)
 
 # id, label, choices [(value, label)], default, help
 SETTINGS = [
-	("playmode", "Wiedergabe-Modus", [
-		("auto", "Automatisch (Direkt wenn möglich)"),
-		("direct", "Immer direkt (Originaldatei)"),
-		("transcode", "Immer transkodieren"),
-	], "auto", "Automatisch: Der Server entscheidet anhand der Box-Fähigkeiten, ob direkt abgespielt oder umgewandelt wird."),
-	("max_bitrate", "Max. Streaming-Bitrate", [
-		("0", "Unbegrenzt"), ("120000000", "120 Mbit/s"), ("80000000", "80 Mbit/s"), ("60000000", "60 Mbit/s"),
+	("language", N_("Sprache"), [("auto", N_("Automatisch (Menüsprache der Box)"))] + list(LANGUAGES), "auto",
+		N_("Automatisch: Deutsch, Englisch oder Niederländisch je nach Menüsprache der Box, sonst Englisch.")),
+	("playmode", N_("Wiedergabe-Modus"), [
+		("auto", N_("Automatisch (Direkt wenn möglich)")),
+		("direct", N_("Immer direkt (Originaldatei)")),
+		("transcode", N_("Immer transkodieren")),
+	], "auto", N_("Automatisch: Der Server entscheidet anhand der Box-Fähigkeiten, ob direkt abgespielt oder umgewandelt wird.")),
+	("max_bitrate", N_("Max. Streaming-Bitrate"), [
+		("0", N_("Unbegrenzt")), ("120000000", "120 Mbit/s"), ("80000000", "80 Mbit/s"), ("60000000", "60 Mbit/s"),
 		("40000000", "40 Mbit/s"), ("20000000", "20 Mbit/s"), ("10000000", "10 Mbit/s"), ("8000000", "8 Mbit/s"),
 		("4000000", "4 Mbit/s"), ("2000000", "2 Mbit/s"),
-	], "0", "Dateien mit höherer Bitrate werden vom Server heruntergerechnet (z.B. für Fernzugriff)."),
-	("max_width", "Max. Auflösung", [
-		("auto", "Automatisch (nach Box)"), ("3840", "4K / UHD (3840)"), ("1920", "Full HD (1920)"), ("1280", "HD (1280)"),
-	], "auto", "4K nur auf UHD-Boxen (z.B. SF8008). Höher aufgelöste Videos werden sonst transkodiert."),
-	("hevc", "H.265/HEVC direkt abspielen", [("1", "Ja"), ("0", "Nein")], "1", "Die SF8008 und die meisten UHD-Boxen dekodieren HEVC in Hardware."),
-	("dts", "DTS direkt abspielen", [("0", "Nein (Server wandelt in AC3)"), ("1", "Ja")], "0", "Nur aktivieren, wenn Box oder AV-Receiver DTS unterstützen."),
-	("truehd", "TrueHD direkt abspielen", [("0", "Nein (Server wandelt in AC3)"), ("1", "Ja")], "0", ""),
-	("vc1", "VC-1 direkt abspielen", [("0", "Nein"), ("1", "Ja")], "0", ""),
-	("vp9", "VP9 direkt abspielen", [("0", "Nein"), ("1", "Ja")], "0", ""),
-	("audio_channels", "Max. Audiokanäle (Transkodierung)", [("6", "5.1"), ("8", "7.1"), ("2", "Stereo")], "6", ""),
-	("protocol", "Transkodier-Protokoll", [("hls", "HLS (empfohlen)"), ("http", "HTTP-Stream (TS)")], "hls", "HLS erlaubt Spulen in transkodierten Streams."),
-	("player", "Player", [], "4097", "4097 = Enigma2 GStreamer. 5001/5002 benötigen das ServiceApp-Plugin."),
-	("autoplay_next", "Nächste Episode automatisch", [("1", "Ja"), ("0", "Nein")], "1", "Spielt nach einer Episode die nächste ab."),
-	("resume_ask", "Fortsetzen", [("ask", "Nachfragen"), ("resume", "Immer fortsetzen"), ("start", "Immer von vorne")], "ask", "Verhalten bei Titeln mit gespeicherter Position (PLAY-Taste im Raster)."),
-	("seek_mode", "Links/Rechts im Player", [("skip", "Springen (-10 s / +30 s)"), ("e2", "Enigma2-Standard (Spulen)")], "skip", ""),
-	("show_played", "Gesehen-Markierung im Raster", [("1", "Ja"), ("0", "Nein")], "1", ""),
-	("new_days", "NEU-Markierung", [("7", "7 Tage"), ("3", "3 Tage"), ("14", "14 Tage"), ("30", "30 Tage"), ("0", "Aus")], "7",
-		"Titel, die in diesem Zeitraum zum Server hinzugefügt wurden (Serien: neue Folgen), bekommen ein NEU-Schild."),
-	("home_layout", "Startseite", [("hero", "Modern (großes Titelbild, Kartenreihen)"), ("classic", "Klassisch (Menü links, Poster rechts)")], "hero",
-		"Modern: Titelbild des gewählten Films oben, darunter Reihen mit Karten (hoch/runter: Reihe, links/rechts: Titel)."),
-	("backdrops", "Hintergrundbilder", [("1", "Ja"), ("0", "Nein (schneller)")], "1", "Zeigt das Hintergrundbild des gewählten Titels auf Startseite, Raster und Detailseite."),
-	("rules_first", "Eigene Listen auf der Startseite", [("top", "Ganz oben"), ("after_resume", "Nach 'Weiterschauen'"), ("bottom", "Nach den Bibliotheken")], "top",
-		"Position der eigenen Listen (z.B. 'Neue Filme') auf der Startseite. Verwalten unter 'Meine Listen'."),
-	("cache_dir", "Bild-Cache", [], "tmp", "RAM ist schnell, wird aber beim Neustart geleert. Auf HDD/USB bleiben Poster erhalten."),
-	("verify_ssl", "SSL-Zertifikat prüfen", [("1", "Ja"), ("0", "Nein")], "1", "Für Server mit selbstsigniertem Zertifikat auf 'Nein' stellen."),
-	("update_check", "Automatisch nach Updates suchen", [("1", "Ja (beim Start, höchstens 2x täglich)"), ("0", "Nein")], "1",
-		"Prüft auf GitHub (xionix3/jellyfine_enigma2_openpli), ob eine neue Version erschienen ist, und bietet die Installation an. Manuell: MENU > Nach Updates suchen."),
-	("mainmenu", "Im Hauptmenü anzeigen", [("1", "Ja"), ("0", "Nein")], "1", "Änderung wird nach einem GUI-Neustart wirksam."),
-	("extmenu", "Im Erweiterungsmenü (blau) anzeigen", [("1", "Ja"), ("0", "Nein")], "0", "Änderung wird nach einem GUI-Neustart wirksam."),
+	], "0", N_("Dateien mit höherer Bitrate werden vom Server heruntergerechnet (z.B. für Fernzugriff).")),
+	("max_width", N_("Max. Auflösung"), [
+		("auto", N_("Automatisch (nach Box)")), ("3840", "4K / UHD (3840)"), ("1920", "Full HD (1920)"), ("1280", "HD (1280)"),
+	], "auto", N_("4K nur auf UHD-Boxen (z.B. SF8008). Höher aufgelöste Videos werden sonst transkodiert.")),
+	("hevc", N_("H.265/HEVC direkt abspielen"), [("1", N_("Ja")), ("0", N_("Nein"))], "1", N_("Die SF8008 und die meisten UHD-Boxen dekodieren HEVC in Hardware.")),
+	("dts", N_("DTS direkt abspielen"), [("0", N_("Nein (Server wandelt in AC3)")), ("1", N_("Ja"))], "0", N_("Nur aktivieren, wenn Box oder AV-Receiver DTS unterstützen.")),
+	("truehd", N_("TrueHD direkt abspielen"), [("0", N_("Nein (Server wandelt in AC3)")), ("1", N_("Ja"))], "0", ""),
+	("vc1", N_("VC-1 direkt abspielen"), [("0", N_("Nein")), ("1", N_("Ja"))], "0", ""),
+	("vp9", N_("VP9 direkt abspielen"), [("0", N_("Nein")), ("1", N_("Ja"))], "0", ""),
+	("audio_channels", N_("Max. Audiokanäle (Transkodierung)"), [("6", "5.1"), ("8", "7.1"), ("2", N_("Stereo"))], "6", ""),
+	("protocol", N_("Transkodier-Protokoll"), [("hls", N_("HLS (empfohlen)")), ("http", N_("HTTP-Stream (TS)"))], "hls", N_("HLS erlaubt Spulen in transkodierten Streams.")),
+	("player", N_("Player"), [], "4097", N_("4097 = Enigma2 GStreamer. 5001/5002 benötigen das ServiceApp-Plugin.")),
+	("autoplay_next", N_("Nächste Episode automatisch"), [("1", N_("Ja")), ("0", N_("Nein"))], "1", N_("Spielt nach einer Episode die nächste ab.")),
+	("resume_ask", N_("Fortsetzen"), [("ask", N_("Nachfragen")), ("resume", N_("Immer fortsetzen")), ("start", N_("Immer von vorne"))], "ask", N_("Verhalten bei Titeln mit gespeicherter Position (PLAY-Taste im Raster).")),
+	("seek_mode", N_("Links/Rechts im Player"), [("skip", N_("Springen (-10 s / +30 s)")), ("e2", N_("Enigma2-Standard (Spulen)"))], "skip", ""),
+	("show_played", N_("Gesehen-Markierung im Raster"), [("1", N_("Ja")), ("0", N_("Nein"))], "1", ""),
+	("new_days", N_("NEU-Markierung"), [("7", N_("7 Tage")), ("3", N_("3 Tage")), ("14", N_("14 Tage")), ("30", N_("30 Tage")), ("0", N_("Aus"))], "7",
+		N_("Titel, die in diesem Zeitraum zum Server hinzugefügt wurden (Serien: neue Folgen), bekommen ein NEU-Schild.")),
+	("home_layout", N_("Startseite"), [("hero", N_("Modern (großes Titelbild, Kartenreihen)")), ("classic", N_("Klassisch (Menü links, Poster rechts)"))], "hero",
+		N_("Modern: Titelbild des gewählten Films oben, darunter Reihen mit Karten (hoch/runter: Reihe, links/rechts: Titel).")),
+	("backdrops", N_("Hintergrundbilder"), [("1", N_("Ja")), ("0", N_("Nein (schneller)"))], "1", N_("Zeigt das Hintergrundbild des gewählten Titels auf Startseite, Raster und Detailseite.")),
+	("rules_first", N_("Eigene Listen auf der Startseite"), [("top", N_("Ganz oben")), ("after_resume", N_("Nach 'Weiterschauen'")), ("bottom", N_("Nach den Bibliotheken"))], "top",
+		N_("Position der eigenen Listen (z.B. 'Neue Filme') auf der Startseite. Verwalten unter 'Meine Listen'.")),
+	("cache_dir", N_("Bild-Cache"), [], "tmp", N_("RAM ist schnell, wird aber beim Neustart geleert. Auf HDD/USB bleiben Poster erhalten.")),
+	("verify_ssl", N_("SSL-Zertifikat prüfen"), [("1", N_("Ja")), ("0", N_("Nein"))], "1", N_("Für Server mit selbstsigniertem Zertifikat auf 'Nein' stellen.")),
+	("update_check", N_("Automatisch nach Updates suchen"), [("1", N_("Ja (beim Start, höchstens 2x täglich)")), ("0", N_("Nein"))], "1",
+		N_("Prüft auf GitHub (xionix3/jellyfine_enigma2_openpli), ob eine neue Version erschienen ist, und bietet die Installation an. Manuell: MENU > Nach Updates suchen.")),
+	("mainmenu", N_("Im Hauptmenü anzeigen"), [("1", N_("Ja")), ("0", N_("Nein"))], "1", N_("Änderung wird nach einem GUI-Neustart wirksam.")),
+	("extmenu", N_("Im Erweiterungsmenü (blau) anzeigen"), [("1", N_("Ja")), ("0", N_("Nein"))], "0", N_("Änderung wird nach einem GUI-Neustart wirksam.")),
 ]
 
 for _sid, _label, _choices, _default, _help in SETTINGS:
 	setattr(_c, _sid, ConfigText(default=_default, fixed_size=False))
+
+set_language(_c.language.value)
 
 
 def serviceapp_installed():
@@ -199,9 +205,10 @@ def choices_for(sid):
 
 
 def label_for(sid, value):
+	"""Translated label of a setting value (language names stay in their own language)."""
 	for v, label in choices_for(sid):
 		if v == value:
-			return label
+			return label if sid == "language" and v != "auto" else _(label)
 	return value
 
 

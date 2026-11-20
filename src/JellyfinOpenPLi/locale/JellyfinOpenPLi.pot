@@ -1,0 +1,1880 @@
+# Jellyfin for Enigma2 - template
+# The msgids are the German texts of the plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: JellyfinOpenPLi\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: jfapi.py
+msgid "Kein Server konfiguriert"
+msgstr ""
+
+#: jfapi.py
+msgid "Zeitüberschreitung bei der Verbindung zum Server"
+msgstr ""
+
+#: jfapi.py
+msgid "SSL-Fehler: %s (SSL-Prüfung in den Einstellungen deaktivierbar)"
+msgstr ""
+
+#: jfapi.py
+msgid "Server nicht erreichbar: %s"
+msgstr ""
+
+#: jfapi.py
+msgid "Nicht autorisiert (401) - bitte erneut anmelden"
+msgstr ""
+
+#: jfapi.py
+msgid "Zugriff verweigert (403)"
+msgstr ""
+
+#: jfapi.py
+msgid "Nicht gefunden (404): %s"
+msgstr ""
+
+#: jfapi.py
+msgid "HTTP %s: %s"
+msgstr ""
+
+#: jfapi.py
+msgid "Unter dieser Adresse antwortet kein Jellyfin-Server"
+msgstr ""
+
+#: jfapi.py
+msgid "Anmeldung fehlgeschlagen"
+msgstr ""
+
+#: jfapi.py
+msgid "Benutzername oder Passwort falsch"
+msgstr ""
+
+#: jfapi.py
+msgid "Quick Connect ist auf dem Server deaktiviert"
+msgstr ""
+
+#: jfapi.py
+msgid "Quick Connect konnte nicht gestartet werden"
+msgstr ""
+
+#: jfapi.py
+msgid "Bild nicht geladen (HTTP %s)"
+msgstr ""
+
+#: jfapi.py
+msgid "Keine Wiedergabeinformationen erhalten"
+msgstr ""
+
+#: jfapi.py
+msgid "Wiedergabe für diesen Benutzer nicht erlaubt"
+msgstr ""
+
+#: jfapi.py
+msgid "Kein kompatibler Stream verfügbar"
+msgstr ""
+
+#: jfapi.py
+msgid "Zu viele gleichzeitige Streams"
+msgstr ""
+
+#: jfapi.py
+msgid "Wiedergabefehler: %s"
+msgstr ""
+
+#: jfapi.py
+msgid "Das Element hat keine abspielbare Quelle"
+msgstr ""
+
+#: jfapi.py
+msgid "Der Server kann dieses Element nicht für die Box aufbereiten (Transcoding für den Benutzer deaktiviert?)"
+msgstr ""
+
+#: jfcommon.py jfdetail.py jfgrid.py jfhome.py jfplayer.py jfrows.py
+msgid "Lade ..."
+msgstr ""
+
+#: jfcommon.py
+msgid "Fehler"
+msgstr ""
+
+#: jfcommon.py
+msgid ""
+"\n"
+"\n"
+"Bitte im Hauptmenü des Plugins neu anmelden (rote Taste)."
+msgstr ""
+
+#: jfcommon.py jfgrid.py
+msgid "%d neue Folge"
+msgid_plural "%d neue Folgen"
+msgstr[0] ""
+msgstr[1] ""
+
+#: jfcommon.py jfepisodes.py jfgrid.py
+msgid "Bewertung %s"
+msgstr ""
+
+#: jfcommon.py jfepisodes.py jfgrid.py
+msgid "fortsetzen bei %s"
+msgstr ""
+
+#: jfcommon.py jfepisodes.py jfgrid.py
+msgid "gesehen"
+msgstr ""
+
+#: jfcommon.py jfgrid.py jfrows.py
+msgid "Öffnen"
+msgstr ""
+
+#: jfcommon.py
+msgid "Neue Folge"
+msgstr ""
+
+#: jfcommon.py jfconfig.py jfdetail.py
+msgid "Fortsetzen"
+msgstr ""
+
+#: jfcommon.py jfdetail.py jfepisodes.py jfgrid.py
+msgid "Abspielen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Sprache"
+msgstr ""
+
+#: jfconfig.py
+msgid "Automatisch (Menüsprache der Box)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Automatisch: Deutsch, Englisch oder Niederländisch je nach Menüsprache der Box, sonst Englisch."
+msgstr ""
+
+#: jfconfig.py
+msgid "Wiedergabe-Modus"
+msgstr ""
+
+#: jfconfig.py
+msgid "Automatisch (Direkt wenn möglich)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Immer direkt (Originaldatei)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Immer transkodieren"
+msgstr ""
+
+#: jfconfig.py
+msgid "Automatisch: Der Server entscheidet anhand der Box-Fähigkeiten, ob direkt abgespielt oder umgewandelt wird."
+msgstr ""
+
+#: jfconfig.py
+msgid "Max. Streaming-Bitrate"
+msgstr ""
+
+#: jfconfig.py jfrules.py
+msgid "Unbegrenzt"
+msgstr ""
+
+#: jfconfig.py
+msgid "Dateien mit höherer Bitrate werden vom Server heruntergerechnet (z.B. für Fernzugriff)."
+msgstr ""
+
+#: jfconfig.py
+msgid "Max. Auflösung"
+msgstr ""
+
+#: jfconfig.py
+msgid "Automatisch (nach Box)"
+msgstr ""
+
+#: jfconfig.py
+msgid "4K nur auf UHD-Boxen (z.B. SF8008). Höher aufgelöste Videos werden sonst transkodiert."
+msgstr ""
+
+#: jfconfig.py
+msgid "H.265/HEVC direkt abspielen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Die SF8008 und die meisten UHD-Boxen dekodieren HEVC in Hardware."
+msgstr ""
+
+#: jfconfig.py jfrules.py
+msgid "Ja"
+msgstr ""
+
+#: jfconfig.py jfrules.py
+msgid "Nein"
+msgstr ""
+
+#: jfconfig.py
+msgid "DTS direkt abspielen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Nur aktivieren, wenn Box oder AV-Receiver DTS unterstützen."
+msgstr ""
+
+#: jfconfig.py
+msgid "Nein (Server wandelt in AC3)"
+msgstr ""
+
+#: jfconfig.py
+msgid "TrueHD direkt abspielen"
+msgstr ""
+
+#: jfconfig.py
+msgid "VC-1 direkt abspielen"
+msgstr ""
+
+#: jfconfig.py
+msgid "VP9 direkt abspielen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Max. Audiokanäle (Transkodierung)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Stereo"
+msgstr ""
+
+#: jfconfig.py
+msgid "Transkodier-Protokoll"
+msgstr ""
+
+#: jfconfig.py
+msgid "HLS erlaubt Spulen in transkodierten Streams."
+msgstr ""
+
+#: jfconfig.py
+msgid "HLS (empfohlen)"
+msgstr ""
+
+#: jfconfig.py
+msgid "HTTP-Stream (TS)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Player"
+msgstr ""
+
+#: jfconfig.py
+msgid "4097 = Enigma2 GStreamer. 5001/5002 benötigen das ServiceApp-Plugin."
+msgstr ""
+
+#: jfconfig.py
+msgid "Nächste Episode automatisch"
+msgstr ""
+
+#: jfconfig.py
+msgid "Spielt nach einer Episode die nächste ab."
+msgstr ""
+
+#: jfconfig.py
+msgid "Verhalten bei Titeln mit gespeicherter Position (PLAY-Taste im Raster)."
+msgstr ""
+
+#: jfconfig.py
+msgid "Nachfragen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Immer fortsetzen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Immer von vorne"
+msgstr ""
+
+#: jfconfig.py
+msgid "Links/Rechts im Player"
+msgstr ""
+
+#: jfconfig.py
+msgid "Springen (-10 s / +30 s)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Enigma2-Standard (Spulen)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Gesehen-Markierung im Raster"
+msgstr ""
+
+#: jfconfig.py
+msgid "NEU-Markierung"
+msgstr ""
+
+#: jfconfig.py jfrules.py
+msgid "7 Tage"
+msgstr ""
+
+#: jfconfig.py jfrules.py
+msgid "3 Tage"
+msgstr ""
+
+#: jfconfig.py jfrules.py
+msgid "14 Tage"
+msgstr ""
+
+#: jfconfig.py jfrules.py
+msgid "30 Tage"
+msgstr ""
+
+#: jfconfig.py jfdetail.py
+msgid "Aus"
+msgstr ""
+
+#: jfconfig.py
+msgid "Titel, die in diesem Zeitraum zum Server hinzugefügt wurden (Serien: neue Folgen), bekommen ein NEU-Schild."
+msgstr ""
+
+#: jfconfig.py jfrulesui.py
+msgid "Startseite"
+msgstr ""
+
+#: jfconfig.py
+msgid "Modern (großes Titelbild, Kartenreihen)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Klassisch (Menü links, Poster rechts)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Modern: Titelbild des gewählten Films oben, darunter Reihen mit Karten (hoch/runter: Reihe, links/rechts: Titel)."
+msgstr ""
+
+#: jfconfig.py
+msgid "Hintergrundbilder"
+msgstr ""
+
+#: jfconfig.py
+msgid "Zeigt das Hintergrundbild des gewählten Titels auf Startseite, Raster und Detailseite."
+msgstr ""
+
+#: jfconfig.py
+msgid "Nein (schneller)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Eigene Listen auf der Startseite"
+msgstr ""
+
+#: jfconfig.py
+msgid "Ganz oben"
+msgstr ""
+
+#: jfconfig.py
+msgid "Nach 'Weiterschauen'"
+msgstr ""
+
+#: jfconfig.py
+msgid "Nach den Bibliotheken"
+msgstr ""
+
+#: jfconfig.py
+msgid "Position der eigenen Listen (z.B. 'Neue Filme') auf der Startseite. Verwalten unter 'Meine Listen'."
+msgstr ""
+
+#: jfconfig.py
+msgid "Bild-Cache"
+msgstr ""
+
+#: jfconfig.py
+msgid "RAM ist schnell, wird aber beim Neustart geleert. Auf HDD/USB bleiben Poster erhalten."
+msgstr ""
+
+#: jfconfig.py
+msgid "SSL-Zertifikat prüfen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Für Server mit selbstsigniertem Zertifikat auf 'Nein' stellen."
+msgstr ""
+
+#: jfconfig.py
+msgid "Automatisch nach Updates suchen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Ja (beim Start, höchstens 2x täglich)"
+msgstr ""
+
+#: jfconfig.py
+msgid "Prüft auf GitHub (xionix3/jellyfine_enigma2_openpli), ob eine neue Version erschienen ist, und bietet die Installation an. Manuell: MENU > Nach Updates suchen."
+msgstr ""
+
+#: jfconfig.py
+msgid "Im Hauptmenü anzeigen"
+msgstr ""
+
+#: jfconfig.py
+msgid "Änderung wird nach einem GUI-Neustart wirksam."
+msgstr ""
+
+#: jfconfig.py
+msgid "Im Erweiterungsmenü (blau) anzeigen"
+msgstr ""
+
+#: jfdetail.py
+msgid "Darsteller"
+msgstr ""
+
+#: jfdetail.py
+msgid "Regie"
+msgstr ""
+
+#: jfdetail.py
+msgid "Drehbuch"
+msgstr ""
+
+#: jfdetail.py
+msgid "Produktion"
+msgstr ""
+
+#: jfdetail.py
+msgid "Gaststar"
+msgstr ""
+
+#: jfdetail.py jfgrid.py jfhome.py jfrows.py
+msgid "Musik"
+msgstr ""
+
+#: jfdetail.py
+msgid "Von Anfang"
+msgstr ""
+
+#: jfdetail.py
+msgid "Audio & Untertitel"
+msgstr ""
+
+#: jfdetail.py
+msgid "Version"
+msgstr ""
+
+#: jfdetail.py
+msgid "Alle Episoden"
+msgstr ""
+
+#: jfdetail.py jfgrid.py
+msgid "Zur Serie"
+msgstr ""
+
+#: jfdetail.py jfhome.py jfrows.py
+msgid "Weiterschauen"
+msgstr ""
+
+#: jfdetail.py
+msgid "Staffeln & Episoden"
+msgstr ""
+
+#: jfdetail.py jfgrid.py
+msgid "Gesehen"
+msgstr ""
+
+#: jfdetail.py jfgrid.py
+msgid "Ungesehen"
+msgstr ""
+
+#: jfdetail.py jfepisodes.py jfgrid.py
+msgid "Favorit"
+msgstr ""
+
+#: jfdetail.py
+msgid "Kein Favorit"
+msgstr ""
+
+#: jfdetail.py jfgrid.py
+msgid "Ähnliche Titel"
+msgstr ""
+
+#: jfdetail.py
+msgid "Besetzung"
+msgstr ""
+
+#: jfdetail.py
+msgid "Gesamte Besetzung"
+msgstr ""
+
+#: jfdetail.py
+msgid "Mehr ..."
+msgstr ""
+
+#: jfdetail.py jfepisodes.py jfgrid.py
+msgid "Gesehen +/-"
+msgstr ""
+
+#: jfdetail.py
+msgid "Audio / Untertitel"
+msgstr ""
+
+#: jfdetail.py jfepisodes.py jfgrid.py
+msgid "Favorit +/-"
+msgstr ""
+
+#: jfdetail.py
+msgid "CH+/- Text blättern   MENU Optionen"
+msgstr ""
+
+#: jfdetail.py
+msgid "Lade Details ..."
+msgstr ""
+
+#: jfdetail.py
+msgid "laufend"
+msgstr ""
+
+#: jfdetail.py
+msgid "beendet"
+msgstr ""
+
+#: jfdetail.py
+msgid "Kritiker %s%%"
+msgstr ""
+
+#: jfdetail.py jfepisodes.py
+msgid "Keine Beschreibung vorhanden."
+msgstr ""
+
+#: jfdetail.py
+msgid "Serie"
+msgstr ""
+
+#: jfdetail.py
+msgid "Film"
+msgstr ""
+
+#: jfdetail.py
+msgid "Musikvideo"
+msgstr ""
+
+#: jfdetail.py
+msgid "Video"
+msgstr ""
+
+#: jfdetail.py
+msgid "Trailer"
+msgstr ""
+
+#: jfdetail.py
+msgid "Regie: %s"
+msgstr ""
+
+#: jfdetail.py
+msgid "Version: %s"
+msgstr ""
+
+#: jfdetail.py
+msgid "Audio: %s%s"
+msgstr ""
+
+#: jfdetail.py
+msgid "UT: %s (%d)"
+msgstr ""
+
+#: jfdetail.py
+msgid "aus"
+msgstr ""
+
+#: jfdetail.py
+msgid "%s ansehen"
+msgstr ""
+
+#: jfdetail.py
+msgid "Besetzung  (%d)"
+msgstr ""
+
+#: jfdetail.py
+msgid "▼  Besetzung (%d): %s"
+msgstr ""
+
+#: jfdetail.py jfgrid.py
+msgid "Ähnlich wie %s"
+msgstr ""
+
+#: jfdetail.py
+msgid "Besetzung: %s"
+msgstr ""
+
+#: jfdetail.py
+msgid "Audiospur"
+msgstr ""
+
+#: jfdetail.py
+msgid "Untertitel (externe/Bild-Untertitel werden eingebrannt)"
+msgstr ""
+
+#: jfdetail.py
+msgid "Audiospur wählen"
+msgstr ""
+
+#: jfdetail.py
+msgid "Untertitel wählen"
+msgstr ""
+
+#: jfdetail.py
+msgid "Keine Audio-/Untertitelspuren bekannt"
+msgstr ""
+
+#: jfdetail.py jfgrid.py
+msgid "Neu laden"
+msgstr ""
+
+#: jfepisodes.py
+msgid "Album abspielen"
+msgstr ""
+
+#: jfepisodes.py
+msgid "OK: ab diesem Titel"
+msgstr ""
+
+#: jfepisodes.py jfgrid.py jfrows.py
+msgid "Details"
+msgstr ""
+
+#: jfepisodes.py
+msgid "</> Staffel  |  CH+/- Seite"
+msgstr ""
+
+#: jfepisodes.py jfplayer.py
+msgid "Lade Titel ..."
+msgstr ""
+
+#: jfepisodes.py
+msgid "Keine Staffeln gefunden"
+msgstr ""
+
+#: jfepisodes.py
+msgid "Lade Staffeln ..."
+msgstr ""
+
+#: jfepisodes.py jfplayer.py
+msgid "Lade Episoden ..."
+msgstr ""
+
+#: jfepisodes.py
+msgid "Staffel %s"
+msgstr ""
+
+#: jfepisodes.py
+msgid "%s     (%d von %d)     %s Episoden"
+msgstr ""
+
+#: jfepisodes.py jfhome.py jfrows.py
+msgid "Keine Einträge"
+msgstr ""
+
+#: jfepisodes.py jfgrid.py
+msgid "NEU"
+msgstr ""
+
+#: jfepisodes.py jfgrid.py jfplayer.py
+msgid "Von Anfang abspielen"
+msgstr ""
+
+#: jfepisodes.py jfgrid.py
+msgid "Als ungesehen markieren"
+msgstr ""
+
+#: jfepisodes.py jfgrid.py
+msgid "Als gesehen markieren"
+msgstr ""
+
+#: jfepisodes.py
+msgid "Ganze Staffel als gesehen markieren"
+msgstr ""
+
+#: jfepisodes.py
+msgid "Ganze Staffel als ungesehen markieren"
+msgstr ""
+
+#: jfepisodes.py
+msgid "Staffel wählen ..."
+msgstr ""
+
+#: jfepisodes.py jfgrid.py
+msgid "Aus Favoriten entfernen"
+msgstr ""
+
+#: jfepisodes.py jfgrid.py
+msgid "Zu Favoriten hinzufügen"
+msgstr ""
+
+#: jfepisodes.py
+msgid "Speichere ..."
+msgstr ""
+
+#: jfepisodes.py
+msgid "Staffel"
+msgstr ""
+
+#: jfgrid.py
+msgid "Name (A-Z)"
+msgstr ""
+
+#: jfgrid.py
+msgid "Name (Z-A)"
+msgstr ""
+
+#: jfgrid.py
+msgid "Zuletzt hinzugefügt"
+msgstr ""
+
+#: jfgrid.py
+msgid "Erscheinungsdatum"
+msgstr ""
+
+#: jfgrid.py
+msgid "Bewertung"
+msgstr ""
+
+#: jfgrid.py
+msgid "Zuletzt gesehen"
+msgstr ""
+
+#: jfgrid.py
+msgid "Laufzeit"
+msgstr ""
+
+#: jfgrid.py jfrules.py
+msgid "Zufällig"
+msgstr ""
+
+#: jfgrid.py
+msgid "Alle"
+msgstr ""
+
+#: jfgrid.py jfhome.py jfrows.py
+msgid "Favoriten"
+msgstr ""
+
+#: jfgrid.py
+msgid "Begonnen"
+msgstr ""
+
+#: jfgrid.py jfhome.py jfrows.py jfrules.py jfskin.py
+msgid "Filme"
+msgstr ""
+
+#: jfgrid.py jfhome.py jfrows.py jfskin.py
+msgid "Serien"
+msgstr ""
+
+#: jfgrid.py jfrows.py jfrules.py
+msgid "Episoden"
+msgstr ""
+
+#: jfgrid.py jfhome.py jfrows.py
+msgid "Sammlungen"
+msgstr ""
+
+#: jfgrid.py jfhome.py jfrows.py
+msgid "Videos"
+msgstr ""
+
+#: jfgrid.py jfrows.py
+msgid "Personen"
+msgstr ""
+
+#: jfgrid.py
+msgid "NEU (%s)"
+msgstr ""
+
+#: jfgrid.py
+msgid "Filter"
+msgstr ""
+
+#: jfgrid.py
+msgid "Kategorie"
+msgstr ""
+
+#: jfgrid.py
+msgid "MENU Optionen  |  CH+/- Seite  |  PLAY"
+msgstr ""
+
+#: jfgrid.py
+msgid "Keine Einträge gefunden"
+msgstr ""
+
+#: jfgrid.py
+msgid ""
+"\n"
+"(Kategorie: %s - GRÜN wechselt)"
+msgstr ""
+
+#: jfgrid.py
+msgid "%d Titel"
+msgid_plural "%d Titel"
+msgstr[0] ""
+msgstr[1] ""
+
+#: jfgrid.py
+msgid "Kategorie: %s"
+msgstr ""
+
+#: jfgrid.py
+msgid "Sortierung: %s"
+msgstr ""
+
+#: jfgrid.py
+msgid "Filter: %s"
+msgstr ""
+
+#: jfgrid.py
+msgid "Genre: %s"
+msgstr ""
+
+#: jfgrid.py
+msgid "Seite %d / %d"
+msgstr ""
+
+#: jfgrid.py jfrules.py
+msgid "Sortierung"
+msgstr ""
+
+#: jfgrid.py
+msgid "Diese Liste enthält nur eine Kategorie"
+msgstr ""
+
+#: jfgrid.py
+msgid "Genre wählen ..."
+msgstr ""
+
+#: jfgrid.py
+msgid "Genre-Filter entfernen"
+msgstr ""
+
+#: jfgrid.py
+msgid "Keine Genres gefunden"
+msgstr ""
+
+#: jfgrid.py jfrules.py jfrulesui.py
+msgid "Genre"
+msgstr ""
+
+#: jfgrid.py
+msgid "Lade Genres ..."
+msgstr ""
+
+#: jfgrid.py
+msgid "Alle Episoden der Staffel"
+msgstr ""
+
+#: jfgrid.py
+msgid "Sortierung ..."
+msgstr ""
+
+#: jfgrid.py
+msgid "Filter ..."
+msgstr ""
+
+#: jfgrid.py
+msgid "Kategorie ..."
+msgstr ""
+
+#: jfgrid.py
+msgid "Liste bearbeiten ..."
+msgstr ""
+
+#: jfgrid.py
+msgid "Optionen"
+msgstr ""
+
+#: jfhome.py
+msgid "Wiedergabelisten"
+msgstr ""
+
+#: jfhome.py jfrows.py
+msgid "Musikvideos"
+msgstr ""
+
+#: jfhome.py jfrows.py
+msgid "Gemischt"
+msgstr ""
+
+#: jfhome.py jfrows.py
+msgid "Als Nächstes"
+msgstr ""
+
+#: jfhome.py jfrows.py
+msgid "Neu hinzugefügt"
+msgstr ""
+
+#: jfhome.py jfrows.py jfrulesui.py jfskin.py
+msgid "Meine Listen"
+msgstr ""
+
+#: jfhome.py jfrows.py jfskin.py
+msgid "Suche"
+msgstr ""
+
+#: jfhome.py jfskin.py
+msgid "Einstellungen"
+msgstr ""
+
+#: jfhome.py
+msgid "  (Jellyfin %s)"
+msgstr ""
+
+#: jfhome.py
+msgid ""
+"Die Anmeldung ist abgelaufen oder wurde widerrufen.\n"
+"Neu anmelden?"
+msgstr ""
+
+#: jfhome.py
+msgid "Server nicht erreichbar"
+msgstr ""
+
+#: jfhome.py
+msgid "Verbinde mit Server ..."
+msgstr ""
+
+#: jfhome.py
+msgid "Keine Film-Bibliothek auf dem Server"
+msgstr ""
+
+#: jfhome.py
+msgid "Keine Serien-Bibliothek auf dem Server"
+msgstr ""
+
+#: jfhome.py
+msgid "Von %s abmelden?"
+msgstr ""
+
+#: jfhome.py
+msgid "Klassische Startseite"
+msgstr ""
+
+#: jfhome.py
+msgid "Moderne Startseite"
+msgstr ""
+
+#: jfhome.py
+msgid "Meine Listen verwalten"
+msgstr ""
+
+#: jfhome.py jfrows.py
+msgid "Aktualisieren"
+msgstr ""
+
+#: jfhome.py
+msgid "Ansicht: %s"
+msgstr ""
+
+#: jfhome.py jfsettings.py
+msgid "Bild-Cache leeren"
+msgstr ""
+
+#: jfhome.py
+msgid "Abmelden / Benutzer wechseln"
+msgstr ""
+
+#: jfhome.py jfsettings.py
+msgid "Nach Updates suchen"
+msgstr ""
+
+#: jfhome.py jfsettings.py
+msgid "Über dieses Plugin"
+msgstr ""
+
+#: jfhome.py
+msgid "Bild-Cache geleert"
+msgstr ""
+
+#: jfhome.py jfsettings.py
+msgid "Abmelden"
+msgstr ""
+
+#: jfhome.py
+msgid "MENU Optionen"
+msgstr ""
+
+#: jfhome.py jflogin.py jfrows.py
+msgid "Fehler: %s"
+msgstr ""
+
+#: jfhome.py
+msgid "OK: Suchbegriff eingeben - Treffer nach Kategorien"
+msgstr ""
+
+#: jfhome.py
+msgid "OK: Wiedergabe, Qualität, Player und Anzeige einstellen"
+msgstr ""
+
+#: jfhome.py
+msgid "OK: eigene Listen anlegen, z.B. 'Neue Filme' oder 'Neue Episoden meiner Serien'"
+msgstr ""
+
+#: jfhome.py
+msgid "OK: alle anzeigen"
+msgstr ""
+
+#: jflogin.py
+msgid "Jellyfin - Anmeldung"
+msgstr ""
+
+#: jflogin.py
+msgid "Mit deinem Jellyfin-Server verbinden"
+msgstr ""
+
+#: jflogin.py
+msgid "Anmelden"
+msgstr ""
+
+#: jflogin.py
+msgid "Server suchen"
+msgstr ""
+
+#: jflogin.py
+msgid "Adresse des Jellyfin-Servers, z.B. http://192.168.1.10:8096 oder https://jellyfin.example.de. OK öffnet die Tastatur."
+msgstr ""
+
+#: jflogin.py
+msgid "Dein Jellyfin-Benutzername."
+msgstr ""
+
+#: jflogin.py
+msgid "Dein Passwort (leer lassen, falls keines gesetzt ist)."
+msgstr ""
+
+#: jflogin.py
+msgid "Mit Benutzername und Passwort anmelden."
+msgstr ""
+
+#: jflogin.py
+msgid "Anmeldung ohne Passwort-Eingabe: Code in der Jellyfin-App/Web unter Benutzer > Quick Connect bestätigen."
+msgstr ""
+
+#: jflogin.py
+msgid "Sucht Jellyfin-Server im lokalen Netzwerk."
+msgstr ""
+
+#: jflogin.py
+msgid "(leer)"
+msgstr ""
+
+#: jflogin.py
+msgid "Server"
+msgstr ""
+
+#: jflogin.py
+msgid "(nicht gesetzt)"
+msgstr ""
+
+#: jflogin.py
+msgid "Benutzer"
+msgstr ""
+
+#: jflogin.py
+msgid "Passwort"
+msgstr ""
+
+#: jflogin.py
+msgid ">  Anmelden"
+msgstr ""
+
+#: jflogin.py
+msgid ">  Mit Quick Connect anmelden"
+msgstr ""
+
+#: jflogin.py
+msgid ">  Server im Netzwerk suchen"
+msgstr ""
+
+#: jflogin.py
+msgid "Server-Adresse"
+msgstr ""
+
+#: jflogin.py
+msgid "Benutzername"
+msgstr ""
+
+#: jflogin.py
+msgid "Bitte zuerst die Server-Adresse eingeben (oder blaue Taste: Server suchen)."
+msgstr ""
+
+#: jflogin.py
+msgid "Bitte einen Benutzernamen eingeben."
+msgstr ""
+
+#: jflogin.py
+msgid "Melde an ..."
+msgstr ""
+
+#: jflogin.py
+msgid "Starte Quick Connect ..."
+msgstr ""
+
+#: jflogin.py
+msgid "Kein Server gefunden. Adresse bitte manuell eingeben."
+msgstr ""
+
+#: jflogin.py
+msgid "Gefundene Jellyfin-Server"
+msgstr ""
+
+#: jflogin.py
+msgid "Suche Server im Netzwerk ..."
+msgstr ""
+
+#: jflogin.py
+msgid "Quick Connect"
+msgstr ""
+
+#: jflogin.py
+msgid "Öffne Jellyfin am Handy oder PC, gehe zu Benutzer > Quick Connect und gib diesen Code ein:"
+msgstr ""
+
+#: jflogin.py
+msgid "Warte auf Bestätigung ..."
+msgstr ""
+
+#: jflogin.py jfrulesui.py jfsettings.py
+msgid "Abbrechen"
+msgstr ""
+
+#: jflogin.py
+msgid "Quick Connect abgelaufen - bitte erneut versuchen."
+msgstr ""
+
+#: jfnav.py
+msgid "Jellyfin durchsuchen (Filme, Serien, Episoden, Musik, Personen)"
+msgstr ""
+
+#: jfplayer.py
+msgid "Nichts abspielbar gefunden"
+msgstr ""
+
+#: jfplayer.py
+msgid "Suche nächste Episode ..."
+msgstr ""
+
+#: jfplayer.py
+msgid "Fortsetzen ab %s"
+msgstr ""
+
+#: jfplayer.py
+msgid "Starte Wiedergabe ..."
+msgstr ""
+
+#: jfplayer.py
+msgid "Wiedergabe nicht möglich"
+msgstr ""
+
+#: jfplayer.py
+msgid ""
+"Nächster Titel kann nicht abgespielt werden:\n"
+"%s"
+msgstr ""
+
+#: jfplayer.py
+msgid "Video: %s"
+msgstr ""
+
+#: jfplayer.py
+msgid "Audio: %s"
+msgstr ""
+
+#: jfplayer.py
+msgid "Direkt"
+msgstr ""
+
+#: jfplayer.py
+msgid "Transkodiert (Server)"
+msgstr ""
+
+#: jfplayer.py
+msgid "Wiedergabe: %s%s"
+msgstr ""
+
+#: jfplayer.py
+msgid "Als Nächstes: %s"
+msgstr ""
+
+#: jfrows.py
+msgid "Alle anzeigen"
+msgstr ""
+
+#: jfrows.py
+msgid "OK Details   ▶ Abspielen   MENU Optionen"
+msgstr ""
+
+#: jfrows.py
+msgid "OK: alle Titel von '%s' anzeigen (hier die ersten %d)."
+msgstr ""
+
+#: jfrows.py
+msgid "Person"
+msgstr ""
+
+#: jfrows.py
+msgid "Alle Titel dieser Reihe"
+msgstr ""
+
+#: jfrows.py
+msgid "Zur Startseite"
+msgstr ""
+
+#: jfrows.py jfrules.py
+msgid "Neu erschienen"
+msgstr ""
+
+#: jfrows.py
+msgid "Ungesehen - am besten bewertet"
+msgstr ""
+
+#: jfrows.py
+msgid "Neue Folgen"
+msgstr ""
+
+#: jfrows.py
+msgid "Zuletzt aktualisiert"
+msgstr ""
+
+#: jfrows.py
+msgid "Neue Serien"
+msgstr ""
+
+#: jfrows.py
+msgid "JELLYFIN  ·  %s"
+msgstr ""
+
+#: jfrows.py
+msgid "▲▼ Kategorie   ◀▶ Titel"
+msgstr ""
+
+#: jfrows.py
+msgid "Alle Titel A-Z"
+msgstr ""
+
+#: jfrows.py
+msgid "Alle Filme A-Z"
+msgstr ""
+
+#: jfrows.py
+msgid "Alle Serien A-Z"
+msgstr ""
+
+#: jfrows.py
+msgid "SUCHE  ·  „%s“"
+msgstr ""
+
+#: jfrows.py
+msgid "Suche ..."
+msgstr ""
+
+#: jfrows.py
+msgid "Keine Treffer für „%s“."
+msgstr ""
+
+#: jfrows.py
+msgid "%s: „%s“"
+msgstr ""
+
+#: jfrules.py
+msgid "Name"
+msgstr ""
+
+#: jfrules.py
+msgid "OK öffnet die Tastatur."
+msgstr ""
+
+#: jfrules.py
+msgid "Inhalt"
+msgstr ""
+
+#: jfrules.py
+msgid "Serien (mit neuen Folgen)"
+msgstr ""
+
+#: jfrules.py
+msgid "Filme & Serien"
+msgstr ""
+
+#: jfrules.py
+msgid "Serien werden nach dem Datum der zuletzt hinzugefügten Folge sortiert."
+msgstr ""
+
+#: jfrules.py jfrulesui.py
+msgid "Bibliothek"
+msgstr ""
+
+#: jfrules.py
+msgid "OK wählt eine Bibliothek (oder alle)."
+msgstr ""
+
+#: jfrules.py
+msgid "Was ist 'neu'?"
+msgstr ""
+
+#: jfrules.py
+msgid "Neu auf dem Server"
+msgstr ""
+
+#: jfrules.py
+msgid "Neu erschienen (Premiere)"
+msgstr ""
+
+#: jfrules.py
+msgid "'Neu auf dem Server' = Hinzufügedatum, 'Neu erschienen' = Erscheinungs-/Ausstrahlungsdatum."
+msgstr ""
+
+#: jfrules.py
+msgid "Zeitraum"
+msgstr ""
+
+#: jfrules.py
+msgid "60 Tage"
+msgstr ""
+
+#: jfrules.py
+msgid "Nur Titel, die in diesem Zeitraum neu sind."
+msgstr ""
+
+#: jfrules.py
+msgid "90 Tage"
+msgstr ""
+
+#: jfrules.py
+msgid "6 Monate"
+msgstr ""
+
+#: jfrules.py
+msgid "1 Jahr"
+msgstr ""
+
+#: jfrules.py
+msgid "2 Jahre"
+msgstr ""
+
+#: jfrules.py
+msgid "Nur ungesehene"
+msgstr ""
+
+#: jfrules.py
+msgid "Nur Serien, die ich schaue"
+msgstr ""
+
+#: jfrules.py
+msgid "Serien mit Fortschritt ('Als Nächstes') und Favoriten."
+msgstr ""
+
+#: jfrules.py
+msgid "Pro Serie zusammenfassen"
+msgstr ""
+
+#: jfrules.py
+msgid "Eine Kachel pro Serie mit Anzahl neuer Folgen."
+msgstr ""
+
+#: jfrules.py
+msgid "Mindestbewertung"
+msgstr ""
+
+#: jfrules.py
+msgid "Egal"
+msgstr ""
+
+#: jfrules.py
+msgid "ab 5"
+msgstr ""
+
+#: jfrules.py
+msgid "ab 6"
+msgstr ""
+
+#: jfrules.py
+msgid "ab 6,5"
+msgstr ""
+
+#: jfrules.py
+msgid "ab 7"
+msgstr ""
+
+#: jfrules.py
+msgid "ab 7,5"
+msgstr ""
+
+#: jfrules.py
+msgid "ab 8"
+msgstr ""
+
+#: jfrules.py
+msgid "OK wählt ein Genre (oder alle)."
+msgstr ""
+
+#: jfrules.py
+msgid "Neueste zuerst"
+msgstr ""
+
+#: jfrules.py
+msgid "Älteste zuerst"
+msgstr ""
+
+#: jfrules.py
+msgid "Beste Bewertung"
+msgstr ""
+
+#: jfrules.py
+msgid "Name A-Z"
+msgstr ""
+
+#: jfrules.py
+msgid "Max. Einträge"
+msgstr ""
+
+#: jfrules.py
+msgid "Auf der Startseite"
+msgstr ""
+
+#: jfrules.py
+msgid "Liste als eigener Bereich auf der Startseite."
+msgstr ""
+
+#: jfrules.py jfrulesui.py
+msgid "Neue Liste"
+msgstr ""
+
+#: jfrules.py
+msgid "Neue Filme"
+msgstr ""
+
+#: jfrules.py
+msgid "Neue Episoden meiner Serien"
+msgstr ""
+
+#: jfrules.py
+msgid "Serien mit neuen Folgen"
+msgstr ""
+
+#: jfrules.py
+msgid "neu erschienen"
+msgstr ""
+
+#: jfrules.py
+msgid "neu"
+msgstr ""
+
+#: jfrules.py
+msgid "ungesehen"
+msgstr ""
+
+#: jfrules.py
+msgid "meine Serien"
+msgstr ""
+
+#: jfrules.py
+msgid "ab %s"
+msgstr ""
+
+#: jfrules.py
+msgid "%s (%d neu)"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Eigene Filterregeln, z.B. neueste Filme oder neue Episoden deiner Serien"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Löschen"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Bearbeiten"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Nach oben"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Noch keine Listen. Grün legt eine neue an, MENU stellt die Standardlisten wieder her."
+msgstr ""
+
+#: jfrulesui.py
+msgid "OK: Liste anzeigen   |   Gelb: Regeln bearbeiten   |   MENU: Startseite an/aus"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Liste '%s' löschen?"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Von der Startseite nehmen"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Auf der Startseite zeigen"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Nach unten verschieben"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Liste duplizieren"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Standardlisten hinzufügen"
+msgstr ""
+
+#: jfrulesui.py
+msgid " (Kopie)"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Alle Standardlisten sind schon vorhanden."
+msgstr ""
+
+#: jfrulesui.py
+msgid "%d Standardliste hinzugefügt."
+msgid_plural "%d Standardlisten hinzugefügt."
+msgstr[0] ""
+msgstr[1] ""
+
+#: jfrulesui.py
+msgid "Liste bearbeiten"
+msgstr ""
+
+#: jfrulesui.py jfsettings.py
+msgid "Speichern"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Vorschau"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Name ändern"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Name der Liste"
+msgstr ""
+
+#: jfrulesui.py
+msgid "(ohne Namen)"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Alle Bibliotheken"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Alle Genres"
+msgstr ""
+
+#: jfrulesui.py
+msgid "Links/Rechts ändert den Wert."
+msgstr ""
+
+#: jfrulesui.py
+msgid "Lade Bibliotheken ..."
+msgstr ""
+
+#: jfrulesui.py
+msgid "Bitte einen Namen vergeben."
+msgstr ""
+
+#: jfrulesui.py
+msgid "Vorschau: %s"
+msgstr ""
+
+#: jfsettings.py
+msgid "Jellyfin für Enigma2  -  Version %s"
+msgstr ""
+
+#: jfsettings.py
+msgid "Entwickelt von %s"
+msgstr ""
+
+#: jfsettings.py
+msgid "Freie Software (GPL-2.0-or-later). Kein offizielles Jellyfin-Projekt."
+msgstr ""
+
+#: jfsettings.py
+msgid "Box: %s"
+msgstr ""
+
+#: jfsettings.py
+msgid "Server: %s (Jellyfin %s)"
+msgstr ""
+
+#: jfsettings.py
+msgid "Jellyfin - Einstellungen"
+msgstr ""
+
+#: jfsettings.py
+msgid "Plugin %s von %s  |  %s @ %s"
+msgstr ""
+
+#: jfsettings.py
+msgid " Erkannt: %s."
+msgstr ""
+
+#: jfsettings.py
+msgid "UHD-Box"
+msgstr ""
+
+#: jfsettings.py
+msgid "HD-Box"
+msgstr ""
+
+#: jfsettings.py
+msgid " ServiceApp ist nicht installiert."
+msgstr ""
+
+#: jfsettings.py
+msgid "Bild-Cache geleert."
+msgstr ""
+
+#: jfsettings.py
+msgid "Abmelden und Anmeldedaten löschen?"
+msgstr ""
+
+#: jfskin.py
+msgid "Start"
+msgstr ""
+
+#: jfupdate.py
+msgid "Download zu groß"
+msgstr ""
+
+#: jfupdate.py
+msgid "Ungültige Antwort von GitHub"
+msgstr ""
+
+#: jfupdate.py
+msgid "Die heruntergeladene Datei ist kein IPK-Paket"
+msgstr ""
+
+#: jfupdate.py
+msgid "Prüfsumme kann nicht geprüft werden (hashlib fehlt) - bitte manuell aktualisieren"
+msgstr ""
+
+#: jfupdate.py
+msgid "Prüfsumme stimmt nicht - Update abgebrochen"
+msgstr ""
+
+#: jfupdate.py
+msgid "Das Plugin ist aktuell (Version %s)."
+msgstr ""
+
+#: jfupdate.py
+msgid "Update-Prüfung fehlgeschlagen"
+msgstr ""
+
+#: jfupdate.py
+msgid "Suche nach Updates ..."
+msgstr ""
+
+#: jfupdate.py
+msgid ""
+"Jellyfin für Enigma2 %s ist verfügbar (installiert: %s).\n"
+"\n"
+"%s\n"
+"\n"
+"Jetzt installieren?"
+msgstr ""
+
+#: jfupdate.py
+msgid "Installiere Update ..."
+msgstr ""
+
+#: jfupdate.py
+msgid "Lade Update %s ..."
+msgstr ""
+
+#: jfupdate.py
+msgid "Update fehlgeschlagen"
+msgstr ""
+
+#: jfupdate.py
+msgid "opkg Fehler %s"
+msgstr ""
+
+#: jfupdate.py
+msgid ""
+"Version %s wurde installiert.\n"
+"Enigma2 jetzt neu starten, damit das Update aktiv wird?"
+msgstr ""
+
+#: jfutil.py
+msgid "%d Std. %d Min."
+msgstr ""
+
+#: jfutil.py
+msgid "%d Std."
+msgstr ""
+
+#: jfutil.py
+msgid "%d Min."
+msgstr ""
+
+#: jfutil.py
+msgid "%d Staffel"
+msgid_plural "%d Staffeln"
+msgstr[0] ""
+msgstr[1] ""
+
+#: jfutil.py
+msgid "%d Episode"
+msgid_plural "%d Episoden"
+msgstr[0] ""
+msgstr[1] ""
+
+#: jfutil.py
+msgid "%d Song"
+msgid_plural "%d Songs"
+msgstr[0] ""
+msgstr[1] ""
+
+#: jfutil.py
+msgid "%d Eintrag"
+msgid_plural "%d Einträge"
+msgstr[0] ""
+msgstr[1] ""
+
+#: jfutil.py
+msgid "endet um %s"
+msgstr ""
+
+#: jfutil.py
+msgid "%s - heute"
+msgstr ""
+
+#: jfutil.py
+msgid "Deutsch"
+msgstr ""
+
+#: jfutil.py
+msgid "Englisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Französisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Spanisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Italienisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Japanisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Koreanisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Türkisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Russisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Polnisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Niederländisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Portugiesisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Chinesisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Hindi"
+msgstr ""
+
+#: jfutil.py
+msgid "Arabisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Schwedisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Dänisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Norwegisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Finnisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Tschechisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Ungarisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Griechisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Kroatisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Serbisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Bosnisch"
+msgstr ""
+
+#: jfutil.py
+msgid "Unbekannt"
+msgstr ""
+
+#: jfutil.py
+msgid "Spur %s"
+msgstr ""
+
+#: jfutil.py
+msgid "Standard"
+msgstr ""
+
+#: jfutil.py
+msgid "Erzwungen"
+msgstr ""
+
+#: jfutil.py
+msgid "Extern"
+msgstr ""
+
+#: plugin.py
+msgid "Jellyfin-Client: Filme, Serien und Musik vom eigenen Server - von xionix"
+msgstr ""
